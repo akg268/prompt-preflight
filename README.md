@@ -353,16 +353,6 @@ The project currently has regression coverage for vague and detailed prompts, do
 - Claude Code and other agent adapters
 - False-positive feedback capture and calibration reports
 
-## Public launch checklist
-
-Before making the repository public:
-
-- Publish the contents of this `prompt-preflight` folder as the GitHub repository root so this README appears on the landing page.
-- Add GitHub topics such as `codex`, `ai-agents`, `prompt-engineering`, `llm`, `developer-tools`, `token-cost`, `python`, `hooks`, and `productivity`.
-- Confirm the demo recording does not show secrets, private repo names, customer data, or personal notifications.
-- Run `python3 scripts/install_codex_plugin.py --dry-run` before tagging a release.
-- Run `python3 -m unittest discover -s tests -q` and `python3 scripts/benchmark_vague_prompts.py`.
-- Keep benchmark claims phrased as regression evidence, not guaranteed token savings.
 
 ## License
 
