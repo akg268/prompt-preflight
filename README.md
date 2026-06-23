@@ -359,7 +359,8 @@ Before making the repository public:
 
 - Publish the contents of this `prompt-preflight` folder as the GitHub repository root so this README appears on the landing page.
 - Add GitHub topics such as `codex`, `ai-agents`, `prompt-engineering`, `llm`, `developer-tools`, `token-cost`, `python`, `hooks`, and `productivity`.
-- Confirm the demo recording does not show secrets, private repo names, customer data, or personal notifications.
+- Upload `docs/assets/social-preview.jpg` as the GitHub social preview image.
+- Confirm the demo GIF does not show secrets, private repo names, customer data, or personal notifications.
 - Run `python3 scripts/install_codex_plugin.py --dry-run` before tagging a release.
 - Run `python3 -m unittest discover -s tests -q` and `python3 scripts/benchmark_vague_prompts.py`.
 - Keep benchmark claims phrased as regression evidence, not guaranteed token savings.
