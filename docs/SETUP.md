@@ -1,6 +1,8 @@
-# Prompt Preflight setup guide
+# Prompt Preflight setup guide for Codex
 
 This guide is for people installing Prompt Preflight into their own Codex environment. Prompt Preflight runs locally, makes no network or model calls, and uses a `UserPromptSubmit` hook to check a prompt before Codex begins model work.
+
+For Claude Code, use [Prompt Preflight for Claude Code](CLAUDE.md).
 
 ## Requirements
 
@@ -60,18 +62,18 @@ The benchmark uses no model calls, API keys, or network requests. It is also wir
 
 Codex discovers personal plugins through `~/.agents/plugins/marketplace.json`. The plugin source for this setup lives at `~/plugins/prompt-preflight`.
 
-### Automatic install
+### Recommended install
 
 From the downloaded `prompt-preflight` folder, run:
 
 ```bash
-python3 scripts/install_codex_plugin.py
+python3 scripts/install_prompt_preflight.py --target codex
 ```
 
 On Windows, use `python` if `python3` is unavailable:
 
 ```powershell
-python scripts\install_codex_plugin.py
+python scripts\install_prompt_preflight.py --target codex
 ```
 
 The installer does the manual setup for you:
@@ -88,28 +90,34 @@ If the Codex CLI is not on your shell `PATH`, the installer does not treat that 
 Preview the actions without writing files:
 
 ```bash
-python3 scripts/install_codex_plugin.py --dry-run
+python3 scripts/install_prompt_preflight.py --target codex --dry-run
 ```
 
 Copy files and update the marketplace, but skip the Codex CLI install step:
 
 ```bash
-python3 scripts/install_codex_plugin.py --skip-codex-add
+python3 scripts/install_prompt_preflight.py --target codex --skip-codex-add
 ```
 
 Fail instead of warning when the Codex CLI is unavailable:
 
 ```bash
-python3 scripts/install_codex_plugin.py --require-codex-cli
+python3 scripts/install_prompt_preflight.py --target codex --require-codex-cli
 ```
 
 If you want a fresh file copy, use:
 
 ```bash
-python3 scripts/install_codex_plugin.py --clean
+python3 scripts/install_prompt_preflight.py --target codex --clean
 ```
 
 `--clean` only removes the destination folder when it already looks like a Prompt Preflight install.
+
+The Codex-specific installer remains available for advanced use:
+
+```bash
+python3 scripts/install_codex_plugin.py --help
+```
 
 Confirm installation:
 
@@ -278,7 +286,7 @@ To bypass one prompt without changing configuration, add `[preflight:skip]`.
 From the new release folder, run:
 
 ```bash
-python3 scripts/install_codex_plugin.py --clean
+python3 scripts/install_prompt_preflight.py --target codex --clean
 ```
 
 The installer refreshes `~/plugins/prompt-preflight`, preserves unrelated marketplace entries, removes the existing Prompt Preflight plugin registration if present, and adds it again.

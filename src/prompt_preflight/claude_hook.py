@@ -1,4 +1,4 @@
-"""Generic UserPromptSubmit hook adapter."""
+"""Claude Code UserPromptSubmit hook adapter."""
 
 from __future__ import annotations
 
@@ -6,33 +6,20 @@ import json
 import sys
 from typing import Any, TextIO
 
-from .analyzer import Analysis, analyze_prompt
+from .analyzer import analyze_prompt
 from .config import load_config
-
-
-def clarification_message(analysis: Analysis) -> str:
-    lines = [
-        f"Prompt Preflight paused this request (clarification score {analysis.score}/100).",
-        "",
-        "Your prompt:",
-        f'  "{analysis.prompt}"',
-        "",
-        "Try asking:",
-        f'  "{analysis.suggested_prompt}"',
-        "",
-        "Fill in the brackets by answering:",
-    ]
-    lines.extend(f"{index}. {question}" for index, question in enumerate(analysis.questions, 1))
-    lines.extend(
-        [
-            "",
-            "To intentionally send the original prompt once, add [preflight:skip].",
-        ]
-    )
-    return "\n".join(lines)
+from .hook import clarification_message
 
 
 def process_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
+    """Return Claude Code hook output for one UserPromptSubmit payload.
+
+    Claude Code sends the submitted prompt on stdin before the model sees it.
+    When a prompt needs clarification, this adapter returns a top-level block
+    decision. In nudge mode it lets the prompt continue while injecting context
+    that tells Claude to clarify before doing substantive work.
+    """
+
     prompt = payload.get("prompt")
     if not isinstance(prompt, str):
         return None
@@ -49,24 +36,30 @@ def process_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
     if not analysis.should_clarify:
         return None
 
-    message = clarification_message(analysis)
     if config.mode == "nudge":
         return {
             "hookSpecificOutput": {
                 "hookEventName": "UserPromptSubmit",
                 "additionalContext": (
+                    "Prompt Preflight detected consequential ambiguity. "
                     "Before doing substantive work, show the user this improved prompt example:\n"
                     f"{analysis.suggested_prompt}\n\n"
                     "Then ask these clarification questions:\n"
-                    + "\n".join(f"- {q}" for q in analysis.questions)
+                    + "\n".join(f"- {question}" for question in analysis.questions)
                 ),
             }
         }
-    return {"decision": "block", "reason": message}
+
+    return {
+        "decision": "block",
+        "reason": clarification_message(analysis),
+        "suppressOriginalPrompt": True,
+    }
 
 
 def main(stdin: TextIO = sys.stdin, stdout: TextIO = sys.stdout) -> int:
-    """Read one hook payload and fail open if the payload is malformed."""
+    """Read one Claude hook payload and fail open on malformed input."""
+
     try:
         payload = json.load(stdin)
         if not isinstance(payload, dict):
@@ -76,7 +69,7 @@ def main(stdin: TextIO = sys.stdin, stdout: TextIO = sys.stdout) -> int:
             json.dump(result, stdout, separators=(",", ":"))
             stdout.write("\n")
     except Exception:
-        # A clarity helper should never make the host unusable.
+        # A clarity helper should never make Claude Code unusable.
         return 0
     return 0
 

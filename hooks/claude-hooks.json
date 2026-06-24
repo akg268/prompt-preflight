@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/prompt_preflight_claude_hook.py\"",
+            "timeout": 5,
+            "statusMessage": "Checking prompt clarity"
+          }
+        ]
+      }
+    ]
+  }
+}

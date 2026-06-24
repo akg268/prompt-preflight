@@ -55,6 +55,7 @@ Screen Recording*
 .prompt-preflight.json
 !.prompt-preflight.example.json
 
-# Local Codex/agent state. Do not ignore .codex-plugin/.
+# Local Codex/Claude/agent state. Do not ignore .codex-plugin/ or .claude-plugin/.
 .codex/
+.claude/
 .agents/

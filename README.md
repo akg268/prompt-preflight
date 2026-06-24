@@ -2,7 +2,7 @@
 
 > Catch underspecified requests before they become expensive model turns.
 
-Prompt Preflight is a local Codex plugin and standalone CLI that checks whether a prompt is specific enough to act on. When ambiguity and the cost of being wrong are both high, it pauses the request and gives the user:
+Prompt Preflight is a local Codex plugin, Claude Code plugin, and standalone CLI that checks whether a prompt is specific enough to act on. When ambiguity and the cost of being wrong are both high, it pauses the request and gives the user:
 
 1. Their original prompt.
 2. A domain-aware example of a stronger prompt.
@@ -128,7 +128,7 @@ The model receives a target, outcome, boundaries, and definition of done before 
 
 ## Key features
 
-- Runs before a Codex model turn through `UserPromptSubmit`.
+- Runs before a Codex or Claude Code model turn through `UserPromptSubmit`.
 - Uses no model, API key, network access, or external service.
 - Routes prompts by domain before selecting feedback.
 - Includes software and image-generation feedback profiles.
@@ -249,22 +249,56 @@ This is a regression guard, not a token-savings guarantee. The benchmark consume
 
 The repository also includes a GitHub Actions workflow at `.github/workflows/benchmark.yml`. It runs the unit tests and the 100-prompt benchmark on pushes, pull requests, and manual workflow dispatch.
 
-## Install in Codex
+## Install
 
-Automatic install:
+Use the unified installer when you want the simplest path:
 
 ```bash
-python3 scripts/install_codex_plugin.py
+python3 scripts/install_prompt_preflight.py
+```
+
+By default it sets up both supported hosts:
+
+- Codex: copies the plugin to `~/plugins/prompt-preflight`, updates `~/.agents/plugins/marketplace.json`, and attempts `codex plugin add prompt-preflight@personal`.
+- Claude Code: copies the plugin to `~/.claude/skills/prompt-preflight`, which Claude loads as `prompt-preflight@skills-dir`.
+
+Preview the setup without writing files:
+
+```bash
+python3 scripts/install_prompt_preflight.py --dry-run
+```
+
+Install only one host:
+
+```bash
+python3 scripts/install_prompt_preflight.py --target codex
+python3 scripts/install_prompt_preflight.py --target claude
+```
+
+Refresh existing installed copies:
+
+```bash
+python3 scripts/install_prompt_preflight.py --clean
+```
+
+The host-specific installers are still available when you need advanced options.
+
+## Install in Codex
+
+Codex-only install:
+
+```bash
+python3 scripts/install_prompt_preflight.py --target codex
 ```
 
 The installer copies the plugin to `~/plugins/prompt-preflight`, creates or updates the personal marketplace at `~/.agents/plugins/marketplace.json`, and attempts to run `codex plugin add prompt-preflight@personal`.
 
 If the Codex CLI is not on your shell `PATH`, the installer still completes the file and marketplace setup, then prints the command and Codex app link needed to finish installation.
 
-Preview the changes without writing files:
+Advanced Codex-only installer:
 
 ```bash
-python3 scripts/install_codex_plugin.py --dry-run
+python3 scripts/install_codex_plugin.py --help
 ```
 
 See the [external setup guide](docs/SETUP.md) for:
@@ -279,9 +313,47 @@ See the [external setup guide](docs/SETUP.md) for:
 
 After installation, restart Codex, open a new thread, and review the hook with `/hooks`.
 
+## Install in Claude Code
+
+Prompt Preflight also ships as a Claude Code plugin using `.claude-plugin/plugin.json` and a Claude-specific hook config at `hooks/claude-hooks.json`.
+
+Test it without installing:
+
+```bash
+claude --plugin-dir .
+```
+
+Then run `/hooks`, review the `UserPromptSubmit` hook, and submit:
+
+```text
+Create a car image
+```
+
+Install it as a personal Claude Code skills-directory plugin:
+
+```bash
+python3 scripts/install_prompt_preflight.py --target claude
+```
+
+The installer copies the plugin to:
+
+```text
+~/.claude/skills/prompt-preflight
+```
+
+Claude Code loads that folder as `prompt-preflight@skills-dir` on the next session. You can also run `/reload-plugins` inside an open Claude Code session.
+
+Advanced Claude-only installer:
+
+```bash
+python3 scripts/install_claude_plugin.py --help
+```
+
+See the [Claude Code setup guide](docs/CLAUDE.md) for local testing, hook smoke tests, install options, configuration, and troubleshooting.
+
 ## Configuration
 
-Create `.prompt-preflight.json` in the project where Codex runs:
+Create `.prompt-preflight.json` in the project where Codex or Claude Code runs:
 
 ```json
 {
@@ -293,7 +365,7 @@ Create `.prompt-preflight.json` in the project where Codex runs:
 ```
 
 - `block`: stop the vague submission before model work.
-- `nudge`: allow the turn while instructing Codex to clarify first.
+- `nudge`: allow the turn while instructing the host assistant to clarify first.
 - `threshold`: raise it to interrupt less often.
 - `max_questions`: limit clarification questions from 1 to 5.
 - `enabled`: disable Prompt Preflight for a project.
@@ -315,6 +387,8 @@ Prompt text is analyzed locally. Prompt Preflight does not:
 - Modify files during prompt analysis
 
 As with any local plugin, review `.codex-plugin/plugin.json`, `hooks/hooks.json`, and `scripts/prompt_preflight_hook.py` before trusting the hook.
+
+For Claude Code, review `.claude-plugin/plugin.json`, `hooks/claude-hooks.json`, and `scripts/prompt_preflight_claude_hook.py`.
 
 ## Limitations
 
@@ -342,6 +416,14 @@ python3 scripts/prompt_preflight_hook.py <<'EOF'
 EOF
 ```
 
+Smoke-test the Claude Code hook contract:
+
+```bash
+python3 scripts/prompt_preflight_claude_hook.py <<'EOF'
+{"hook_event_name":"UserPromptSubmit","cwd":".","prompt":"Create a car image"}
+EOF
+```
+
 The project currently has regression coverage for vague and detailed prompts, domain routing, bypass behavior, nudge mode, and malformed hook input.
 
 ## Roadmap
@@ -350,7 +432,7 @@ The project currently has regression coverage for vague and detailed prompts, do
 - More domain profiles, including writing, research, data analysis, and presentations
 - User-defined terminology and intent rules
 - Per-domain thresholds
-- Claude Code and other agent adapters
+- More host adapters beyond Codex and Claude Code
 - False-positive feedback capture and calibration reports
 
 ## Public launch checklist
@@ -358,10 +440,10 @@ The project currently has regression coverage for vague and detailed prompts, do
 Before making the repository public:
 
 - Publish the contents of this `prompt-preflight` folder as the GitHub repository root so this README appears on the landing page.
-- Add GitHub topics such as `codex`, `ai-agents`, `prompt-engineering`, `llm`, `developer-tools`, `token-cost`, `python`, `hooks`, and `productivity`.
+- Add GitHub topics such as `codex`, `claude-code`, `ai-agents`, `prompt-engineering`, `llm`, `developer-tools`, `token-cost`, `python`, `hooks`, and `productivity`.
 - Upload `docs/assets/social-preview.jpg` as the GitHub social preview image.
 - Confirm the demo GIF does not show secrets, private repo names, customer data, or personal notifications.
-- Run `python3 scripts/install_codex_plugin.py --dry-run` before tagging a release.
+- Run `python3 scripts/install_prompt_preflight.py --dry-run` before tagging a release.
 - Run `python3 -m unittest discover -s tests -q` and `python3 scripts/benchmark_vague_prompts.py`.
 - Keep benchmark claims phrased as regression evidence, not guaranteed token savings.
 

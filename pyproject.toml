@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prompt-preflight"
-version = "0.3.0"
-description = "Catch underspecified prompts before expensive model calls."
+version = "0.4.0"
+description = "Catch underspecified Codex and Claude Code prompts before expensive model calls."
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [{name = "Prompt Preflight contributors"}]

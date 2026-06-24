@@ -1,0 +1,19 @@
+{
+  "name": "prompt-preflight",
+  "version": "0.4.0",
+  "description": "Catch underspecified Claude Code prompts before they become expensive model turns.",
+  "author": {
+    "name": "Prompt Preflight contributors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "prompts",
+    "clarification",
+    "token-efficiency",
+    "productivity",
+    "claude-code",
+    "hooks"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/claude-hooks.json"
+}
