@@ -435,6 +435,8 @@ Incorrect classifications should become regression tests. Run a questionable pro
 
 ## Development
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for test commands, benchmark usage, and how to add calibration regressions.
+
 Run the test suite:
 
 ```bash
