@@ -29,6 +29,15 @@ User submits a vague request
   → the user receives a stronger prompt template and targeted questions
 ```
 
+Run the same loop yourself with no network or model calls:
+
+```bash
+python3 scripts/demo.py
+```
+
+See [docs/LAUNCH.md](docs/LAUNCH.md) for copy-paste launch text and the
+GIF/video recording checklist.
+
 ## Why this exists
 
 A vague prompt often creates an expensive loop:
