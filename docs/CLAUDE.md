@@ -188,6 +188,35 @@ Bypass one request:
 Create a car image [preflight:skip]
 ```
 
+## View local telemetry
+
+If telemetry is enabled, use Claude Code normally. Prompt Preflight writes prompt-free count events to the configured local file, usually:
+
+```text
+.prompt-preflight-telemetry.jsonl
+```
+
+View the report from the `prompt-preflight` folder:
+
+```bash
+python3 scripts/prompt_preflight.py --telemetry-report
+```
+
+View JSON:
+
+```bash
+python3 scripts/prompt_preflight.py --telemetry-report --json
+```
+
+If you configured a custom path:
+
+```bash
+python3 scripts/prompt_preflight.py \
+  --telemetry-report path/to/telemetry.jsonl
+```
+
+The report shows prompts checked, blocked prompts, nudges, bypasses, follow-up prompts accepted, estimated avoided retry turns, and average clarification score. It does not show original prompts.
+
 ## Important files
 
 - `.claude-plugin/plugin.json`: Claude plugin manifest.

@@ -76,7 +76,7 @@ The potential tokens avoided are therefore approximately:
 failed input + failed output + correction context + duplicated work
 ```
 
-Actual savings depend on prompt quality, model behavior, context size, and task complexity. Prompt Preflight does not currently claim a fixed savings percentage; measured token telemetry is future work.
+Actual savings depend on prompt quality, model behavior, context size, and task complexity. Prompt Preflight does not claim a fixed savings percentage. Optional local telemetry can estimate avoided retry turns, but it does not measure exact token savings.
 
 The largest benefit is expected on tasks where a wrong interpretation is costly, such as repository-wide changes, migrations, deployments, architecture work, or iterative image generation.
 
@@ -431,6 +431,15 @@ Enable it in `.prompt-preflight.json`:
 }
 ```
 
+Users see telemetry only when they run a report command. The normal workflow is:
+
+```text
+1. Enable telemetry in .prompt-preflight.json.
+2. Use Codex, Claude Code, Kiro, or the CLI normally.
+3. Prompt Preflight appends prompt-free events to .prompt-preflight-telemetry.jsonl.
+4. Run --telemetry-report to see the summary.
+```
+
 The telemetry file stores only aggregate fields:
 
 - host, such as `codex`, `claude-code`, `kiro`, or `cli`
@@ -452,6 +461,34 @@ Generate JSON:
 
 ```bash
 python3 scripts/prompt_preflight.py --telemetry-report --json
+```
+
+If you configured a custom telemetry path, pass it to the report command:
+
+```bash
+python3 scripts/prompt_preflight.py \
+  --telemetry-report path/to/telemetry.jsonl
+```
+
+Sample report:
+
+```text
+Prompt Preflight telemetry report
+Path: .prompt-preflight-telemetry.jsonl
+
+Prompts checked: 42
+Blocked before model work: 18
+Nudged: 3
+Allowed: 16
+Bypassed: 2
+Follow-up prompts accepted: 3
+
+Clarification opportunities: 21
+Estimated avoided retry turns: 18
+Average clarification score: 58.7/100
+
+Privacy: this file stores counts, decisions, hosts, intents, and scores only.
+It does not store prompt text, suggested rewrites, questions, or reason strings.
 ```
 
 Record telemetry for a one-off CLI check:
