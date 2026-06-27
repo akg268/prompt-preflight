@@ -167,7 +167,11 @@ Create `.prompt-preflight.json` in the project where Claude Code is running:
   "enabled": true,
   "mode": "block",
   "threshold": 45,
-  "max_questions": 3
+  "max_questions": 3,
+  "telemetry": {
+    "enabled": false,
+    "path": ".prompt-preflight-telemetry.jsonl"
+  }
 }
 ```
 
@@ -175,6 +179,7 @@ Create `.prompt-preflight.json` in the project where Claude Code is running:
 - `nudge`: let the turn continue while adding context that tells Claude to clarify first.
 - `threshold`: raise it to interrupt less often.
 - `max_questions`: limit clarification questions from 1 to 5.
+- `telemetry`: optional local-only count reporting; disabled by default.
 - `enabled`: disable Prompt Preflight for one project.
 
 Bypass one request:

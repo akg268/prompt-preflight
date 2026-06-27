@@ -2,5 +2,9 @@
   "enabled": true,
   "mode": "block",
   "threshold": 45,
-  "max_questions": 3
+  "max_questions": 3,
+  "telemetry": {
+    "enabled": false,
+    "path": ".prompt-preflight-telemetry.jsonl"
+  }
 }

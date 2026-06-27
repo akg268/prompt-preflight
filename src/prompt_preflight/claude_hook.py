@@ -9,6 +9,7 @@ from typing import Any, TextIO
 from .analyzer import analyze_prompt
 from .config import load_config
 from .hook import clarification_message
+from .telemetry import record_analysis_safely
 
 
 def process_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
@@ -32,6 +33,13 @@ def process_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
         prompt,
         threshold=config.threshold,
         max_questions=config.max_questions,
+    )
+    record_analysis_safely(
+        analysis,
+        host="claude-code",
+        mode=config.mode,
+        telemetry_path=config.telemetry_path,
+        enabled=config.telemetry_enabled,
     )
     if not analysis.should_clarify:
         return None

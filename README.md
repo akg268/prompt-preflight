@@ -395,7 +395,11 @@ Create `.prompt-preflight.json` in the project where Codex, Claude Code, or Kiro
   "enabled": true,
   "mode": "block",
   "threshold": 45,
-  "max_questions": 3
+  "max_questions": 3,
+  "telemetry": {
+    "enabled": false,
+    "path": ".prompt-preflight-telemetry.jsonl"
+  }
 }
 ```
 
@@ -404,12 +408,61 @@ Create `.prompt-preflight.json` in the project where Codex, Claude Code, or Kiro
 - `threshold`: raise it to interrupt less often.
 - `max_questions`: limit clarification questions from 1 to 5.
 - `enabled`: disable Prompt Preflight for a project.
+- `telemetry`: optional local-only counts; disabled by default.
 
 Bypass one request without changing configuration:
 
 ```text
 Create a car image [preflight:skip]
 ```
+
+## Local telemetry
+
+Prompt Preflight can record local, opt-in telemetry to help estimate avoided retry loops. It is disabled by default.
+
+Enable it in `.prompt-preflight.json`:
+
+```json
+{
+  "telemetry": {
+    "enabled": true,
+    "path": ".prompt-preflight-telemetry.jsonl"
+  }
+}
+```
+
+The telemetry file stores only aggregate fields:
+
+- host, such as `codex`, `claude-code`, `kiro`, or `cli`
+- decision, such as `blocked`, `nudged`, `allowed`, `bypassed`, or `followup_accepted`
+- detected intent
+- clarification score, ambiguity score, and impact score
+- reason count and question count
+- timestamp
+
+It does not store prompt text, suggested rewrites, clarification questions, reason strings, file contents, or conversation history.
+
+Generate a report:
+
+```bash
+python3 scripts/prompt_preflight.py --telemetry-report
+```
+
+Generate JSON:
+
+```bash
+python3 scripts/prompt_preflight.py --telemetry-report --json
+```
+
+Record telemetry for a one-off CLI check:
+
+```bash
+python3 scripts/prompt_preflight.py \
+  --record-telemetry \
+  "Create a car image"
+```
+
+`Estimated avoided retry turns` is intentionally conservative: it counts prompts blocked before model work as one likely avoided failed attempt. It is an estimate, not a token-savings guarantee.
 
 ## Privacy and security
 
@@ -432,7 +485,7 @@ For Kiro, review the generated `.kiro/hooks/prompt-preflight.json` file and `scr
 - Rule-based intent routing cannot understand every phrasing.
 - Domain coverage is intentionally narrow and high-precision today.
 - Clarification can add friction when the user prefers the model to make assumptions.
-- Token savings are task-dependent and are not yet measured automatically.
+- Token savings are task-dependent; telemetry estimates avoided retry turns, not exact token savings.
 - Prompts may use `[preflight:skip]` when interruption is not worthwhile.
 
 Incorrect classifications should become regression tests. Run a questionable prompt with `--json` and capture its detected intent, reasons, and questions.

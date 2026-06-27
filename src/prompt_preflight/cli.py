@@ -4,10 +4,18 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 import sys
 
 from .analyzer import analyze_prompt
 from .hook import clarification_message
+from .telemetry import (
+    DEFAULT_TELEMETRY_FILE,
+    read_events,
+    record_analysis_safely,
+    render_report,
+    summarize_events,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -19,17 +27,52 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--json", action="store_true", dest="as_json", help="Emit structured JSON")
     parser.add_argument("--threshold", type=int, default=45, help="Clarification threshold (default: 45)")
     parser.add_argument("--max-questions", type=int, default=3, help="Maximum questions to ask")
+    parser.add_argument(
+        "--record-telemetry",
+        action="store_true",
+        help="Record prompt-free local telemetry for this CLI check",
+    )
+    parser.add_argument(
+        "--telemetry-path",
+        type=Path,
+        help=f"Telemetry JSONL path (default: {DEFAULT_TELEMETRY_FILE})",
+    )
+    parser.add_argument(
+        "--telemetry-report",
+        nargs="?",
+        const=DEFAULT_TELEMETRY_FILE,
+        metavar="PATH",
+        help="Print a local telemetry report and exit",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+
+    if args.telemetry_report is not None:
+        report_path = Path(args.telemetry_report)
+        summary = summarize_events(read_events(report_path))
+        if args.as_json:
+            print(json.dumps(summary, indent=2))
+        else:
+            print(render_report(summary, path=report_path))
+        return 0
+
     prompt = " ".join(args.prompt).strip() if args.prompt else sys.stdin.read().strip()
     analysis = analyze_prompt(
         prompt,
         threshold=max(0, min(100, args.threshold)),
         max_questions=max(1, min(5, args.max_questions)),
     )
+    if args.record_telemetry or args.telemetry_path is not None:
+        record_analysis_safely(
+            analysis,
+            host="cli",
+            mode="block",
+            telemetry_path=args.telemetry_path or Path(DEFAULT_TELEMETRY_FILE),
+            enabled=True,
+        )
     if args.as_json:
         print(json.dumps(analysis.to_dict(), indent=2))
     elif analysis.should_clarify:
