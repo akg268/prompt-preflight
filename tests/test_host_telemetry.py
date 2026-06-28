@@ -30,9 +30,15 @@ SCRIPTS = REPO_ROOT / "scripts"
 CLAUDE_HOOK = SCRIPTS / "prompt_preflight_claude_hook.py"
 KIRO_HOOK = SCRIPTS / "prompt_preflight_kiro_hook.py"
 
-# A vague prompt Prompt Preflight should flag. "dashboard" is the distinctive
-# word we later prove never leaks into the telemetry file.
-VAGUE_PROMPT = "Make the dashboard better"
+# Vague prompts Prompt Preflight should flag, each paired with a distinctive
+# word we later prove never leaks into the telemetry file. The words are chosen
+# so they cannot collide with any field the telemetry file actually stores
+# (host, decision, intent, scores, counts, timestamp).
+VAGUE_PROMPTS = (
+    ("Make the dashboard better", "dashboard"),
+    ("Create a car image", "car"),
+    ("Rewrite the whole project", "whole"),
+)
 
 TELEMETRY_FILE = ".prompt-preflight-telemetry.jsonl"
 
@@ -80,11 +86,11 @@ class _HookTelemetryMixin:
     HOOK = None
     EVENT_NAME = "UserPromptSubmit"
 
-    def _payload(self, project_dir):
+    def _payload(self, project_dir, prompt):
         return {
             "hook_event_name": self.EVENT_NAME,
             "cwd": project_dir,
-            "prompt": VAGUE_PROMPT,
+            "prompt": prompt,
         }
 
     def setUp(self):
@@ -92,44 +98,49 @@ class _HookTelemetryMixin:
             self.skipTest(f"hook script not found: {self.HOOK}")
 
     def test_writes_prompt_free_telemetry_when_enabled(self):
-        with tempfile.TemporaryDirectory() as project_dir:
-            write_config(project_dir, telemetry_enabled=True)
-            run_hook(self.HOOK, project_dir, self._payload(project_dir))
+        for prompt, distinctive_word in VAGUE_PROMPTS:
+            with self.subTest(prompt=prompt):
+                with tempfile.TemporaryDirectory() as project_dir:
+                    write_config(project_dir, telemetry_enabled=True)
+                    run_hook(self.HOOK, project_dir, self._payload(project_dir, prompt))
 
-            raw, events = read_telemetry(project_dir)
+                    raw, events = read_telemetry(project_dir)
 
-            # An event was recorded, tagged with this host.
-            self.assertTrue(events, "telemetry should record at least one event")
-            self.assertEqual(events[-1].get("host"), self.HOST)
+                    # An event was recorded, tagged with this host.
+                    self.assertTrue(events, "telemetry should record at least one event")
+                    self.assertEqual(events[-1].get("host"), self.HOST)
 
-            # No prompt text (or its distinctive words) reached telemetry.
-            self.assertNotIn(VAGUE_PROMPT, raw)
-            self.assertNotIn("dashboard", raw.lower())
+                    # Neither the prompt nor its distinctive word reached telemetry.
+                    self.assertNotIn(prompt, raw)
+                    self.assertNotIn(distinctive_word, raw.lower())
 
     def test_telemetry_failure_does_not_change_behavior(self):
-        with tempfile.TemporaryDirectory() as project_dir:
-            payload = self._payload(project_dir)
+        for prompt, _ in VAGUE_PROMPTS:
+            with self.subTest(prompt=prompt):
+                with tempfile.TemporaryDirectory() as project_dir:
+                    payload = self._payload(project_dir, prompt)
 
-            # Baseline: telemetry disabled.
-            write_config(project_dir, telemetry_enabled=False)
-            baseline = run_hook(self.HOOK, project_dir, payload)
+                    # Baseline: telemetry disabled.
+                    write_config(project_dir, telemetry_enabled=False)
+                    baseline = run_hook(self.HOOK, project_dir, payload)
 
-            # Point telemetry at a directory so every write attempt fails.
-            # (If the hook auto-creates parent dirs, make this path read-only
-            # instead.)
-            broken_path = "telemetry_is_a_dir"
-            os.makedirs(Path(project_dir) / broken_path, exist_ok=True)
-            write_config(
-                project_dir,
-                telemetry_enabled=True,
-                telemetry_path=broken_path,
-            )
-            with_failure = run_hook(self.HOOK, project_dir, payload)
+                    # Point telemetry at a directory so every write attempt fails.
+                    # (If the hook auto-creates parent dirs, make this path
+                    # read-only instead.)
+                    broken_path = "telemetry_is_a_dir"
+                    os.makedirs(Path(project_dir) / broken_path, exist_ok=True)
+                    write_config(
+                        project_dir,
+                        telemetry_enabled=True,
+                        telemetry_path=broken_path,
+                    )
+                    with_failure = run_hook(self.HOOK, project_dir, payload)
 
-            # User-visible behavior is identical whether telemetry blew up or not.
-            self.assertEqual(with_failure.returncode, baseline.returncode)
-            self.assertEqual(with_failure.stdout, baseline.stdout)
-            self.assertEqual(with_failure.stderr, baseline.stderr)
+                    # User-visible behavior is identical whether telemetry blew up
+                    # or not.
+                    self.assertEqual(with_failure.returncode, baseline.returncode)
+                    self.assertEqual(with_failure.stdout, baseline.stdout)
+                    self.assertEqual(with_failure.stderr, baseline.stderr)
 
 
 class ClaudeHookTelemetryTests(_HookTelemetryMixin, unittest.TestCase):
@@ -143,12 +154,14 @@ class KiroHookTelemetryTests(_HookTelemetryMixin, unittest.TestCase):
     HOOK = KIRO_HOOK
     EVENT_NAME = "userPromptSubmit"  # Kiro uses the lowercase event name.
 
-    def test_kiro_blocks_vague_prompt_with_exit_2(self):
+    def test_kiro_blocks_vague_prompts_with_exit_2(self):
         # Kiro's distinct output behavior: block via exit code 2.
-        with tempfile.TemporaryDirectory() as project_dir:
-            write_config(project_dir, telemetry_enabled=True)
-            result = run_hook(self.HOOK, project_dir, self._payload(project_dir))
-            self.assertEqual(result.returncode, 2)
+        for prompt, _ in VAGUE_PROMPTS:
+            with self.subTest(prompt=prompt):
+                with tempfile.TemporaryDirectory() as project_dir:
+                    write_config(project_dir, telemetry_enabled=True)
+                    result = run_hook(self.HOOK, project_dir, self._payload(project_dir, prompt))
+                    self.assertEqual(result.returncode, 2)
 
 
 if __name__ == "__main__":
