@@ -85,7 +85,7 @@ The potential tokens avoided are therefore approximately:
 failed input + failed output + correction context + duplicated work
 ```
 
-Actual savings depend on prompt quality, model behavior, context size, and task complexity. Prompt Preflight does not currently claim a fixed savings percentage; measured token telemetry is future work.
+Actual savings depend on prompt quality, model behavior, context size, and task complexity. Prompt Preflight does not claim a fixed savings percentage. Optional local telemetry can estimate avoided retry turns, but it does not measure exact token savings.
 
 The largest benefit is expected on tasks where a wrong interpretation is costly, such as repository-wide changes, migrations, deployments, architecture work, or iterative image generation.
 
@@ -404,7 +404,11 @@ Create `.prompt-preflight.json` in the project where Codex, Claude Code, or Kiro
   "enabled": true,
   "mode": "block",
   "threshold": 45,
-  "max_questions": 3
+  "max_questions": 3,
+  "telemetry": {
+    "enabled": false,
+    "path": ".prompt-preflight-telemetry.jsonl"
+  }
 }
 ```
 
@@ -413,12 +417,98 @@ Create `.prompt-preflight.json` in the project where Codex, Claude Code, or Kiro
 - `threshold`: raise it to interrupt less often.
 - `max_questions`: limit clarification questions from 1 to 5.
 - `enabled`: disable Prompt Preflight for a project.
+- `telemetry`: optional local-only counts; disabled by default.
 
 Bypass one request without changing configuration:
 
 ```text
 Create a car image [preflight:skip]
 ```
+
+## Local telemetry
+
+Prompt Preflight can record local, opt-in telemetry to help estimate avoided retry loops. It is disabled by default.
+
+Enable it in `.prompt-preflight.json`:
+
+```json
+{
+  "telemetry": {
+    "enabled": true,
+    "path": ".prompt-preflight-telemetry.jsonl"
+  }
+}
+```
+
+Users see telemetry only when they run a report command. The normal workflow is:
+
+```text
+1. Enable telemetry in .prompt-preflight.json.
+2. Use Codex, Claude Code, Kiro, or the CLI normally.
+3. Prompt Preflight appends prompt-free events to .prompt-preflight-telemetry.jsonl.
+4. Run --telemetry-report to see the summary.
+```
+
+The telemetry file stores only aggregate fields:
+
+- host, such as `codex`, `claude-code`, `kiro`, or `cli`
+- decision, such as `blocked`, `nudged`, `allowed`, `bypassed`, or `followup_accepted`
+- detected intent
+- clarification score, ambiguity score, and impact score
+- reason count and question count
+- timestamp
+
+It does not store prompt text, suggested rewrites, clarification questions, reason strings, file contents, or conversation history.
+
+Generate a report:
+
+```bash
+python3 scripts/prompt_preflight.py --telemetry-report
+```
+
+Generate JSON:
+
+```bash
+python3 scripts/prompt_preflight.py --telemetry-report --json
+```
+
+If you configured a custom telemetry path, pass it to the report command:
+
+```bash
+python3 scripts/prompt_preflight.py \
+  --telemetry-report path/to/telemetry.jsonl
+```
+
+Sample report:
+
+```text
+Prompt Preflight telemetry report
+Path: .prompt-preflight-telemetry.jsonl
+
+Prompts checked: 42
+Blocked before model work: 18
+Nudged: 3
+Allowed: 16
+Bypassed: 2
+Follow-up prompts accepted: 3
+
+Clarification opportunities: 21
+Estimated avoided retry turns: 18
+Average clarification score: 58.7/100
+
+Privacy: this file stores counts, decisions, hosts, intents, and scores only.
+It does not store prompt text, suggested rewrites, questions, or reason strings.
+```
+
+Record telemetry for a one-off CLI check:
+
+```bash
+python3 scripts/prompt_preflight.py \
+  --record-telemetry \
+  "Create a car image"
+```
+
+`Estimated avoided retry turns` is intentionally conservative: it counts prompts blocked before model work as one likely avoided failed attempt. It is an estimate, not a token-savings guarantee.
 
 ## Privacy and security
 
@@ -441,7 +531,7 @@ For Kiro, review the generated `.kiro/hooks/prompt-preflight.json` file and `scr
 - Rule-based intent routing cannot understand every phrasing.
 - Domain coverage is intentionally narrow and high-precision today.
 - Clarification can add friction when the user prefers the model to make assumptions.
-- Token savings are task-dependent and are not yet measured automatically.
+- Token savings are task-dependent; telemetry estimates avoided retry turns, not exact token savings.
 - Prompts may use `[preflight:skip]` when interruption is not worthwhile.
 
 Incorrect classifications should become regression tests. Run a questionable prompt with `--json` and capture its detected intent, reasons, and questions.

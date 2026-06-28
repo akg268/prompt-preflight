@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from prompt_preflight.analyzer import analyze_prompt, classify_intent, suggest_rewrite
 from prompt_preflight.hook import clarification_message, main as hook_main, process_payload
+from prompt_preflight.telemetry import read_events
 
 
 class AnalyzerTests(unittest.TestCase):
@@ -169,6 +170,20 @@ class HookTests(unittest.TestCase):
         self.assertIn("hookSpecificOutput", result)
         self.assertNotIn("decision", result)
         self.assertIn("improved prompt example", result["hookSpecificOutput"]["additionalContext"])
+
+    def test_hook_records_opt_in_telemetry_without_prompt_text(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            Path(directory, ".prompt-preflight.json").write_text(
+                json.dumps({"telemetry": {"enabled": True, "path": "telemetry.jsonl"}}),
+                encoding="utf-8",
+            )
+            result = process_payload({"prompt": "Create a car image", "cwd": directory})
+            events = read_events(Path(directory) / "telemetry.jsonl")
+        self.assertEqual(result["decision"], "block")
+        self.assertEqual(len(events), 1)
+        encoded = json.dumps(events[0])
+        self.assertIn('"decision": "blocked"', encoded)
+        self.assertNotIn("Create a car image", encoded)
 
 
 if __name__ == "__main__":

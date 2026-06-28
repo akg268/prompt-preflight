@@ -35,6 +35,10 @@ temp/
 # Generated benchmark reports
 benchmark-results*.json
 
+# Local opt-in telemetry
+.prompt-preflight-telemetry*.jsonl
+prompt-preflight-telemetry*.jsonl
+
 # Raw screen recordings and large local captures.
 # Commit compressed README assets under docs/assets/ instead.
 *.mov
