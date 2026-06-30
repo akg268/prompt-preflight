@@ -77,6 +77,7 @@ class WritingResearchCalibrationTests(unittest.TestCase):
             "Write a better intro",
             "Make this sound professional",
             "Summarize it",
+            "Proofread the attached press release for AP style and keep it under 400 words.",
         ):
             with self.subTest(prompt=prompt):
                 self.assertEqual(analyze_prompt(prompt).intent, "writing")
