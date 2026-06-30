@@ -17,6 +17,25 @@ Use [important context, stack, style, or data].
 Verify with [tests, checks, examples, or acceptance criteria].
 ```
 
+For model-friendly prompts, especially in Claude, Codex, and other agent workflows, use clear sections instead of one blended paragraph:
+
+```text
+Task:
+[specific thing to do]
+
+Context:
+[source material, files, data, constraints, or background]
+
+Output format:
+[exact structure, length, schema, bullets, table, patch, slides, etc.]
+
+Example/style reference:
+[optional sample when tone or format matters]
+
+Self-check:
+[how to verify constraints, citations, tests, or acceptance criteria]
+```
+
 For image prompts, use:
 
 ```text

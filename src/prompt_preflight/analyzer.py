@@ -234,55 +234,64 @@ def suggest_rewrite(prompt: str, intent: str | None = None) -> str:
     if intent == "image_generation":
         subject = _subject_phrase(_image_subject(text))
         return (
-            f"Create a [photorealistic/illustrated/3D] image of {subject} with "
-            "[key colors, materials, and distinctive details], in [setting/background], "
-            "viewed from [camera angle/composition], with [lighting/mood], in [aspect ratio]."
+            f"Task: Create a [photorealistic/illustrated/3D] image of {subject} with "
+            "[key colors, materials, and distinctive details]. Context: [setting/background], "
+            "[camera angle/composition], and [lighting/mood]. Output format: [aspect ratio, "
+            "resolution, file type, or transparent background]. Example/style reference: "
+            "[optional image, brand, or style sample]."
         )
 
     if intent == "writing":
         return (
-            f"{text.rstrip('.!?')}. Audience: [who will read it]. "
-            "Purpose: [what the writing should accomplish]. "
-            "Include/exclude: [key points and boundaries]. "
-            "Tone, length, and format: [style, word count, and output shape]."
+            f"Task: {text.rstrip('.!?')}. Audience: [who will read it]. "
+            "Purpose: [what the writing should accomplish]. Context/source material: "
+            "[text, notes, links, transcript, or outline]. Include/exclude: [key points and "
+            "boundaries]. Output format: [tone, word count, headings, bullets, email, memo, etc.]. "
+            "Example/style reference: [optional sample to imitate]. Self-check: verify the output "
+            "matches the requested tone, length, and format."
         )
 
     if intent == "research":
         return (
-            f"{text.rstrip('.!?')}. Research question: [specific decision or question to answer]. "
-            "Scope: [sources, date range, geography, and exclusions]. "
-            "Compare using [criteria]. Output as [summary/table/recommendation] with [citation needs]."
+            f"Task: {text.rstrip('.!?')}. Research question: [specific decision or question to answer]. "
+            "Context/scope: [sources, date range, geography, and exclusions]. Criteria: "
+            "[cost, features, tradeoffs, risks, etc.]. Output format: [summary/table/recommendation] "
+            "with [citation needs]. Uncertainty rule: mark unknowns instead of guessing."
         )
 
     if intent == "data_analysis":
         return (
-            f"{text.rstrip('.!?')}. Dataset: [file/table/source and relevant columns]. "
-            "Question: [metric, segment, or trend to analyze]. "
-            "Output: [chart/table/summary] and validate with [method or expected checks]."
+            f"Task: {text.rstrip('.!?')}. Data/context: [file/table/source and relevant columns]. "
+            "Question: [metric, segment, or trend to analyze]. Output format: "
+            "[chart/table/summary/JSON/dashboard]. Self-check: [totals, row counts, "
+            "expected ranges, or comparison method]."
         )
 
     if intent == "presentation":
         return (
-            f"{text.rstrip('.!?')}. Audience: [who will see it]. "
-            "Goal: [decision, update, pitch, or teaching outcome]. "
-            "Storyline: [key sections and takeaways]. "
-            "Format: [slide count, style, speaker notes, and constraints]."
+            f"Task: {text.rstrip('.!?')}. Audience: [who will see it]. Goal: "
+            "[decision, update, pitch, or teaching outcome]. Context/source material: "
+            "[notes, metrics, transcript, or document]. Storyline: [key sections and takeaways]. "
+            "Output format: [slide count, visual style, speaker notes, timing, and constraints]. "
+            "Example/style reference: [optional deck or brand sample]."
         )
 
     make_better = re.fullmatch(r"make\s+(.+?)\s+better[.!?]?", text, re.IGNORECASE)
     if make_better:
         target = make_better.group(1).strip()
         return (
-            f"Improve {target} in [specific page/component] so [observable outcome]. "
-            "Keep [important behavior or design constraints] unchanged. "
-            "Verify with [tests or acceptance criteria]."
+            f"Task: Improve {target} in [specific page/component] so [observable outcome]. "
+            "Context: [current behavior, screenshots, logs, or examples]. Constraints: keep "
+            "[important behavior or design constraints] unchanged. Output format: [patch, plan, "
+            "diff summary, screenshots, or docs]. Self-check: verify with [tests or acceptance criteria]."
         )
 
     action_match = ACTION_RE.search(text)
     if not action_match:
         return (
-            f"{text.rstrip('.!?')}. Desired outcome: [observable result]. "
-            "Scope: [specific area]. Constraints: [important boundaries]."
+            f"Task: {text.rstrip('.!?')}. Context: [relevant background or source material]. "
+            "Desired outcome: [observable result]. Scope: [specific area]. Constraints: "
+            "[important boundaries]. Output format: [exact structure expected]."
         )
 
     action = re.sub(r"\s+", " ", action_match.group(0).lower())
@@ -292,43 +301,53 @@ def suggest_rewrite(prompt: str, intent: str | None = None) -> str:
         if target == "[specific target]":
             target = "[specific bug]"
         return (
-            f"Fix {target} in [file/component]. Current behavior: [what happens]. "
-            "Expected behavior: [what should happen]. Preserve [constraints]. "
-            "Verify with [test or reproduction steps]."
+            f"Task: Fix {target} in [file/component]. Current behavior: [what happens]. "
+            "Expected behavior: [what should happen]. Context: [reproduction steps, logs, URL, "
+            "or failing test]. Constraints: preserve [important behavior]. Output format: "
+            "[patch plus brief summary]. Self-check: verify with [test or reproduction steps]."
         )
 
     if action in {"build", "create", "design", "implement"}:
         return (
-            f"{action.capitalize()} {target} for [target users/use case] using [platform or stack]. "
-            "Include [minimum required features]. Success means [acceptance criteria]."
+            f"Task: {action.capitalize()} {target} for [target users/use case] using "
+            "[platform or stack]. Context: [existing code, API, data, or design constraints]. "
+            "Include [minimum required features]. Output format: [patch, files changed, plan, "
+            "or demo notes]. Self-check: success means [acceptance criteria]."
         )
 
     if action in {"deploy", "migrate", "upgrade"}:
         if target == "[specific target]":
             target = "[service/application]"
         return (
-            f"{action.capitalize()} {target} in [target environment/scope]. "
-            "Preserve [critical behavior or data]. Follow [rollout/rollback constraints]. "
-            "Verify with [health checks or acceptance criteria]."
+            f"Task: {action.capitalize()} {target} in [target environment/scope]. "
+            "Context: [current version, dependencies, infra, or data shape]. Preserve "
+            "[critical behavior or data]. Follow [rollout/rollback constraints]. Output format: "
+            "[plan, commands, migration script, or checklist]. Self-check: verify with "
+            "[health checks or acceptance criteria]."
         )
 
     if action in {"optimize", "optimise"}:
         return (
-            f"Optimize {target} to achieve [measurable latency/throughput/cost target]. "
-            "Keep [behavior or compatibility constraints] unchanged. Verify with [benchmark]."
+            f"Task: Optimize {target} to achieve [measurable latency/throughput/cost target]. "
+            "Context: [baseline metric, traces, query plan, or workload]. Constraints: keep "
+            "[behavior or compatibility constraints] unchanged. Output format: [patch plus "
+            "before/after measurements]. Self-check: verify with [benchmark]."
         )
 
     if action in {"improve", "make", "modernize", "polish", "refactor", "rewrite", "clean up"}:
         return (
-            f"{action.capitalize()} {target}. Limit the scope to [specific files/components] "
-            "and achieve [observable outcome]. Preserve [constraints]. "
-            "Verify with [tests or acceptance criteria]."
+            f"Task: {action.capitalize()} {target}. Context: [current behavior, examples, "
+            "or source material]. Scope: limit to [specific files/components] and achieve "
+            "[observable outcome]. Constraints: preserve [constraints]. Output format: "
+            "[patch, plan, table, docs, or screenshots]. Self-check: verify with "
+            "[tests or acceptance criteria]."
         )
 
     return (
-        f"{text.rstrip('.!?')}. Scope: [specific files/components]. "
-        "Desired outcome: [observable result]. Constraints: [what must remain unchanged]. "
-        "Verify with [tests or acceptance criteria]."
+        f"Task: {text.rstrip('.!?')}. Context: [relevant background, files, data, or examples]. "
+        "Scope: [specific files/components]. Desired outcome: [observable result]. Constraints: "
+        "[what must remain unchanged]. Output format: [exact structure expected]. Self-check: "
+        "verify with [tests or acceptance criteria]."
     )
 
 
@@ -413,10 +432,24 @@ def analyze_prompt(
         reasons.append("no concrete file, component, URL, issue, or identifier")
         questions.append("What should this apply to—specific files/components, or the whole project?")
 
-    if is_new_build and len(words) <= 10 and not has_constraint:
+    if is_new_build and len(words) <= 10 and not has_constraint and not has_anchor:
         ambiguity += 8
         reasons.append("new build without platform or feature boundaries")
         questions.append("What platform or stack should it use, and what are the minimum required features?")
+
+    if (
+        is_action
+        and not has_format
+        and not has_anchor
+        and not is_image_request
+        and not is_content_request
+        and (vague_terms or len(words) <= 10 or has_broad_scope)
+    ):
+        ambiguity += 12
+        reasons.append("output format is underspecified")
+        questions.append(
+            "What should the final output look like—patch, plan, table, JSON, docs, screenshots, or another format?"
+        )
 
     if is_image_request:
         subject = _image_subject(text)
@@ -466,7 +499,7 @@ def analyze_prompt(
         if not has_tone_or_length:
             ambiguity += 10
             reasons.append("writing tone, length, or format is underspecified")
-            questions.append("What tone, length, and format should the writing use?")
+            questions.append("What tone, length, output format, and example style should the writing use?")
 
     if is_research_request:
         has_goal = bool(GOAL_RE.search(text) or QUESTION_RE.match(text))
@@ -484,7 +517,7 @@ def analyze_prompt(
         if not has_criteria:
             ambiguity += 10
             reasons.append("research criteria or output format is underspecified")
-            questions.append("What comparison criteria and output format do you want?")
+            questions.append("What comparison criteria, output format, citation needs, and uncertainty rules do you want?")
 
     if is_data_request:
         has_dataset = bool(DATASET_RE.search(text) or has_anchor)
@@ -502,7 +535,7 @@ def analyze_prompt(
         if not has_output:
             ambiguity += 8
             reasons.append("analysis output format is underspecified")
-            questions.append("What output do you want—chart, table, summary, dashboard, or code?")
+            questions.append("What output do you want—chart, table, summary, JSON, dashboard, or code—and how should it be validated?")
 
     if is_presentation_request:
         has_audience = bool(AUDIENCE_RE.search(text))
@@ -521,7 +554,7 @@ def analyze_prompt(
         if not has_deck_format:
             ambiguity += 8
             reasons.append("presentation format is underspecified")
-            questions.append("How many slides, what visual style, and do you need speaker notes?")
+            questions.append("How many slides, what visual style, speaker notes, timing, and example deck/style should it follow?")
 
     if has_broad_scope and not is_image_request and not is_content_request:
         ambiguity += 14

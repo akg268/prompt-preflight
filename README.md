@@ -152,6 +152,7 @@ The model receives a target, outcome, boundaries, and definition of done before 
 - Routes prompts by domain before selecting feedback.
 - Includes software, image-generation, and content feedback profiles.
 - Shows a tailored rewrite instead of only saying “be more specific.”
+- Structures rewrites around task, context, output format, examples, and self-checks.
 - Asks at most three high-value questions.
 - Lets clear prompts and conversational follow-ups pass through.
 - Supports a one-time `[preflight:skip]` bypass.
@@ -279,7 +280,7 @@ should receive content-specific feedback about audience, source material, resear
 With the current default threshold, the benchmark catches:
 
 ```text
-148 / 150 vague prompts
+150 / 150 vague prompts
 11 / 11 image-generation prompts
 11 / 11 writing prompts
 10 / 10 research prompts
@@ -287,14 +288,16 @@ With the current default threshold, the benchmark catches:
 11 / 11 presentation prompts
 ```
 
-The two current misses are:
+The earlier calibration misses:
 
 ```text
 Fix the flaky tests
 Generate more tests
 ```
 
-These misses are useful calibration cases. They show why the benchmark is not just a vanity metric: it gives maintainers concrete prompts to discuss, tune, and convert into regression tests when the desired behavior is clear.
+are now caught by the output-format check. That check asks what the final result should look like when a short actionable prompt lacks structure, while avoiding false positives when the prompt already names a concrete file or source.
+
+These calibration cases show why the benchmark is not just a vanity metric: it gives maintainers concrete prompts to discuss, tune, and convert into regression tests when the desired behavior is clear.
 
 This is a regression guard, not a token-savings guarantee. The benchmark consumes zero model tokens and helps catch changes that would let vague, costly prompts slip through.
 

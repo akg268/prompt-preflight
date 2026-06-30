@@ -156,6 +156,35 @@ class AnalyzerTests(unittest.TestCase):
             with self.subTest(prompt=prompt):
                 self.assertPasses(prompt)
 
+    def test_suggested_rewrites_use_contract_style_structure(self) -> None:
+        prompts = [
+            "Fix it",
+            "Write a better intro",
+            "Research this topic",
+            "Analyze the data",
+            "Create a presentation",
+            "Create a car image",
+        ]
+        for prompt in prompts:
+            with self.subTest(prompt=prompt):
+                result = analyze_prompt(prompt)
+                self.assertTrue(result.should_clarify, result)
+                self.assertIn("Task:", result.suggested_prompt)
+                self.assertIn("Output format:", result.suggested_prompt)
+                self.assertTrue(
+                    any(
+                        marker in result.suggested_prompt
+                        for marker in ("Self-check:", "Uncertainty rule:", "Example/style reference:")
+                    ),
+                    result.suggested_prompt,
+                )
+
+    def test_short_action_without_output_format_gets_clarified(self) -> None:
+        result = analyze_prompt("Generate more tests")
+        self.assertTrue(result.should_clarify, result)
+        self.assertIn("output format is underspecified", result.reasons)
+        self.assertIn("final output", " ".join(result.questions).lower())
+
     def test_image_hook_feedback_is_domain_specific(self) -> None:
         result = process_payload({"prompt": "Create a car image"})
         reason = result["reason"].lower()
