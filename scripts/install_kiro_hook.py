@@ -14,8 +14,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import shlex
+import subprocess
 import sys
 from typing import Any
 
@@ -64,12 +66,15 @@ def validate_source(root: Path) -> None:
         raise InstallerError("Source checkout is incomplete. Missing: " + ", ".join(missing))
 
 
-def hook_command(root: Path, python_bin: str) -> str:
+def hook_command(root: Path, python_bin: str, target_os: str | None = None) -> str:
+    target_os = target_os or os.name
     script = root / "scripts" / "prompt_preflight_kiro_hook.py"
+    if target_os == "nt":
+        return subprocess.list2cmdline([python_bin, str(script)])
     return f"{shlex.quote(python_bin)} {shlex.quote(str(script))}"
 
 
-def hook_config(root: Path, python_bin: str) -> dict[str, Any]:
+def hook_config(root: Path, python_bin: str, target_os: str | None = None) -> dict[str, Any]:
     return {
         "version": "v1",
         "hooks": [
@@ -81,7 +86,7 @@ def hook_config(root: Path, python_bin: str) -> dict[str, Any]:
                 "trigger": "UserPromptSubmit",
                 "action": {
                     "type": "command",
-                    "command": hook_command(root, python_bin),
+                    "command": hook_command(root, python_bin, target_os=target_os),
                 },
                 "timeout": 5,
                 "enabled": True,
@@ -156,7 +161,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--python-bin",
-        default="python3",
+        default="python" if sys.platform.startswith("win") else "python3",
         help="Python executable to use in the Kiro hook command",
     )
     parser.add_argument(
