@@ -155,7 +155,7 @@ The model receives a target, outcome, boundaries, and definition of done before 
 - Structures rewrites around task, context, output format, examples, and self-checks.
 - Detects likely secrets and redacts them in user-facing feedback.
 - Adds risk and plan-first checks for production deploys, migrations, destructive actions, and broad repo changes.
-- Checks for missing attachments or referenced source files without reading file contents.
+- Checks for missing attachments or referenced source files, using host attachment metadata when available to avoid re-asking for provided files (file contents are NEVER read).
 - Asks at most three high-value questions.
 - Lets clear prompts and conversational follow-ups pass through.
 - Supports a one-time `[preflight:skip]` bypass for normal clarity/risk checks; likely-secret privacy blocks are not bypassed.
