@@ -12,7 +12,7 @@ The check uses deterministic Python rules. It makes no network requests and call
 
 ## Prompt examples and templates
 
-When Prompt Preflight catches a vague prompt, it links to [vague prompt examples and templates](docs/EXAMPLES.md). The examples page includes common vague prompts for bug fixes, new features, refactors, UI work, performance, deployment, tests, documentation, security, analytics, image generation, writing, research, data analysis, and presentations.
+When Prompt Preflight catches a vague prompt, it links to vague prompt examples and templates. The [examples page](docs/EXAMPLES.md) includes common vague prompts for bug fixes, new features, refactors, UI work, performance, deployment, tests, documentation, security, analytics, image generation, writing, research, data analysis, and presentations.
 
 The canonical vague-prompt library lives in [`src/prompt_preflight/data/vague_prompts.txt`](src/prompt_preflight/data/vague_prompts.txt). Codex, Claude Code, Kiro, the CLI, and the benchmark all use the same Python package, so new vague-prompt examples should be added there instead of creating tool-specific lists.
 
