@@ -36,6 +36,15 @@ class ClaudeHookTests(unittest.TestCase):
         )
         self.assertIsNone(result)
 
+    def test_claude_hook_with_attachment_metadata_bypasses_missing_file(self) -> None:
+        result = process_payload(
+            {
+                "prompt": "Summarize the attached report.pdf",
+                "attachments": [{"name": "report.pdf"}]
+            }
+        )
+        self.assertIsNone(result)
+
     def test_claude_hook_nudge_mode_adds_context(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             Path(directory, ".prompt-preflight.json").write_text(

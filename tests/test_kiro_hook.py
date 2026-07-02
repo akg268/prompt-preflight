@@ -36,6 +36,15 @@ class KiroHookTests(unittest.TestCase):
         )
         self.assertEqual((code, stdout, stderr), (0, "", ""))
 
+    def test_kiro_hook_with_attachment_metadata_bypasses_missing_file(self) -> None:
+        code, stdout, stderr = process_payload(
+            {
+                "prompt": "Summarize the attached report.pdf",
+                "attachments": [{"name": "report.pdf"}]
+            }
+        )
+        self.assertEqual((code, stdout, stderr), (0, "", ""))
+
     def test_kiro_hook_nudge_mode_writes_context_to_stdout(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             Path(directory, ".prompt-preflight.json").write_text(

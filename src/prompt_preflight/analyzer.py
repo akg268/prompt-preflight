@@ -480,6 +480,7 @@ def analyze_prompt(
     threshold: int = 45,
     max_questions: int = 3,
     cwd: str | Path | None = None,
+    attachments: list[str] | None = None,
 ) -> Analysis:
     """Score a prompt and return targeted clarification questions.
 
@@ -563,7 +564,14 @@ def analyze_prompt(
     has_rollback = bool(ROLLBACK_RE.search(text))
     has_plan_first = bool(PLAN_FIRST_RE.search(text))
     references_attachment = bool(ATTACHMENT_CUE_RE.search(text))
-    missing_files = _missing_referenced_files(text, cwd)
+    
+    provided_attachments = set(a.lower() for a in (attachments or []))
+    provided_attachment_names = set(Path(a).name.lower() for a in (attachments or []))
+    missing_files = tuple(
+        f for f in _missing_referenced_files(text, cwd)
+        if f.lower() not in provided_attachments and Path(f).name.lower() not in provided_attachment_names
+    )
+
     requires_plan_first = bool(
         is_action
         and (
@@ -615,7 +623,7 @@ def analyze_prompt(
             "What should the final output look like—patch, plan, table, JSON, docs, screenshots, or another format?"
         )
 
-    if references_attachment and not has_anchor and len(words) <= 6:
+    if references_attachment and not has_anchor and len(words) <= 6 and not provided_attachments:
         checks.append("context")
         ambiguity += 16
         reasons.append("referenced attachment or source material is missing")

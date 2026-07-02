@@ -57,11 +57,23 @@ def process_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
     if not config.enabled:
         return None
 
+    raw_attachments = payload.get("attachments")
+    attachments: list[str] = []
+    if isinstance(raw_attachments, list):
+        for att in raw_attachments:
+            if isinstance(att, dict):
+                val = att.get("name") or att.get("path")
+                if isinstance(val, str):
+                    attachments.append(val)
+            elif isinstance(att, str):
+                attachments.append(att)
+
     analysis = analyze_prompt(
         prompt,
         threshold=config.threshold,
         max_questions=config.max_questions,
         cwd=payload.get("cwd"),
+        attachments=attachments,
     )
     record_analysis_safely(
         analysis,

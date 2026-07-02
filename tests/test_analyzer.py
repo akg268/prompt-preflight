@@ -242,6 +242,19 @@ class AnalyzerTests(unittest.TestCase):
             )
         self.assertFalse(result.should_clarify, result)
 
+    def test_attachment_metadata_satisfies_attached_pdf_reference(self) -> None:
+        result = analyze_prompt("Summarize the attached PDF", attachments=["report.pdf"])
+        self.assertNotIn("referenced attachment or source material is missing", result.reasons)
+
+    def test_attachment_metadata_satisfies_missing_file_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            result = analyze_prompt(
+                "Analyze missing.csv by month, calculate revenue, and output a table",
+                cwd=directory,
+                attachments=["missing.csv"]
+            )
+        self.assertFalse(result.should_clarify, result)
+
     def test_image_hook_feedback_is_domain_specific(self) -> None:
         result = process_payload({"prompt": "Create a car image"})
         reason = result["reason"].lower()
