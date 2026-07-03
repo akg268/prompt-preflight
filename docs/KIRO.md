@@ -54,6 +54,19 @@ This writes:
 ~/.kiro/hooks/prompt-preflight.json
 ```
 
+## Windows support
+
+The generated hook command is automatically formatted for your current operating system and correctly quotes paths with spaces on Windows, macOS, and Linux.
+
+By default, the installer uses `python3` for the hook command on macOS/Linux and `python` on Windows (since Windows typically exposes `python` or the `py` launcher). If your environment differs, you can override this by passing `--kiro-python-bin`:
+
+```cmd
+python scripts/install_prompt_preflight.py \
+  --target kiro \
+  --kiro-python-bin py \
+  --kiro-workspace C:\path\to\your\project
+```
+
 ## Preview without writing files
 
 ```bash

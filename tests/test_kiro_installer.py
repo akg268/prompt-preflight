@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import unittest.mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,6 +66,34 @@ class KiroInstallerTests(unittest.TestCase):
             config = self.installer.hook_config(ROOT, "python3")
             self.installer.write_hook_file(path, config, dry_run=True, force=False)
             self.assertFalse(path.exists())
+
+    def test_hook_command_posix(self) -> None:
+        cmd = self.installer.hook_command(Path("/test/path"), "python3", target_os="posix")
+        self.assertEqual(cmd, "python3 /test/path/scripts/prompt_preflight_kiro_hook.py")
+
+    def test_hook_command_posix_with_spaces(self) -> None:
+        cmd = self.installer.hook_command(Path("/test/some path"), "python3", target_os="posix")
+        self.assertEqual(cmd, "python3 '/test/some path/scripts/prompt_preflight_kiro_hook.py'")
+
+    def test_hook_command_windows(self) -> None:
+        cmd = self.installer.hook_command(Path("C:/test/path"), "python", target_os="nt")
+        self.assertEqual(cmd, "python C:/test/path/scripts/prompt_preflight_kiro_hook.py")
+
+    def test_hook_command_windows_with_spaces(self) -> None:
+        cmd = self.installer.hook_command(Path("C:/test/some path"), "python", target_os="nt")
+        self.assertEqual(cmd, 'python "C:/test/some path/scripts/prompt_preflight_kiro_hook.py"')
+
+    @unittest.mock.patch("sys.platform", "linux")
+    def test_parser_default_python_posix(self) -> None:
+        parser = self.installer.build_parser()
+        args = parser.parse_args([])
+        self.assertEqual(args.python_bin, "python3")
+
+    @unittest.mock.patch("sys.platform", "win32")
+    def test_parser_default_python_windows(self) -> None:
+        parser = self.installer.build_parser()
+        args = parser.parse_args([])
+        self.assertEqual(args.python_bin, "python")
 
 
 if __name__ == "__main__":
