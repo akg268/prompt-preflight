@@ -38,6 +38,32 @@ python3 scripts/prompt_preflight.py "Create a photorealistic image of a red 1967
 
 Expected result: `Clear to send` with exit code `0`.
 
+Print a structured prompt template before asking an agent to work:
+
+```bash
+python3 scripts/prompt_preflight.py --template image --template-format md
+python3 scripts/prompt_preflight.py --template software --template-format xml
+python3 scripts/prompt_preflight.py --template data-analysis --template-format toml
+```
+
+Prompt Preflight can validate Markdown, XML, and TOML prompt contracts. This incomplete image contract is paused because it omits the required style/mood field:
+
+```bash
+python3 scripts/prompt_preflight.py "$(cat <<'EOF'
+# Task
+Create a car image
+
+# Visual Details
+A red vintage Mustang on a rainy neon street.
+
+# Output Format
+16:9 PNG.
+EOF
+)"
+```
+
+See [Structured Prompt Templates](TEMPLATES.md) for the required and optional fields for each domain.
+
 ## Run the benchmark
 
 The repo includes a deterministic benchmark with 150 intentionally vague prompts. It checks how often Prompt Preflight pauses prompts that are likely to cause expensive retry loops across software work, image generation, writing, research, data analysis, and presentations.

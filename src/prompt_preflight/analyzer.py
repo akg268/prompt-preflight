@@ -7,6 +7,8 @@ from pathlib import Path
 import re
 from typing import Iterable
 
+from .templates import questions_for_missing_fields, validate_structured_prompt
+
 
 BYPASS_MARKERS = ("[preflight:skip]", "#preflight-ignore", "/preflight-skip")
 
@@ -268,7 +270,8 @@ def _missing_referenced_files(prompt: str, cwd: str | Path | None) -> tuple[str,
 
 def classify_intent(prompt: str) -> str:
     """Route a prompt to a feedback domain before choosing questions."""
-    text = " ".join((prompt or "").strip().split())
+    raw_prompt = (prompt or "").strip()
+    text = " ".join(raw_prompt.split())
     if IMAGE_REQUEST_RE.search(text) and not IMAGE_SOFTWARE_RE.search(text):
         return "image_generation"
     if PRESENTATION_REQUEST_RE.search(text):
@@ -333,7 +336,8 @@ def _action_target(prompt: str, action: str) -> str:
 
 def suggest_rewrite(prompt: str, intent: str | None = None) -> str:
     """Create a prompt-shaped example that preserves the user's likely intent."""
-    text = " ".join((prompt or "").strip().split())
+    raw_prompt = (prompt or "").strip()
+    text = " ".join(raw_prompt.split())
     intent = intent or classify_intent(text)
 
     if intent == "privacy":
@@ -487,7 +491,8 @@ def analyze_prompt(
     A prompt is paused only when it looks actionable, ambiguous, and impactful.
     """
 
-    text = " ".join((prompt or "").strip().split())
+    raw_prompt = (prompt or "").strip()
+    text = " ".join(raw_prompt.split())
     lowered = text.lower()
     words = _words(text)
 
@@ -531,6 +536,31 @@ def analyze_prompt(
     is_question = text.endswith("?") or bool(QUESTION_RE.match(text))
     is_creative = bool(CREATIVE_RE.search(text))
     intent = classify_intent(text)
+
+    template_validation = validate_structured_prompt(raw_prompt, intent)
+    if template_validation and template_validation.missing_required:
+        missing = template_validation.missing_required
+        ambiguity = _clamp(48 + 7 * len(missing))
+        impact = 55 if ACTION_RE.search(text) else 45
+        score = _clamp(round((ambiguity * impact) ** 0.5))
+        return Analysis(
+            text,
+            True,
+            score,
+            ambiguity,
+            impact,
+            (
+                "structured prompt is missing required fields: "
+                + ", ".join(missing),
+            ),
+            questions_for_missing_fields(missing)[: max(1, max_questions)],
+            intent=intent,
+            suggested_prompt=template_validation.suggested_template,
+            checks=("template_contract", "output_contract"),
+            severity="medium" if len(missing) >= 2 or score >= threshold else "low",
+            redacted_prompt=redacted_text,
+        )
+
     is_image_request = intent == "image_generation"
     is_writing_request = intent == "writing"
     is_research_request = intent == "research"

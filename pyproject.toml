@@ -18,4 +18,4 @@ prompt-preflight = "prompt_preflight.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-prompt_preflight = ["data/*.txt"]
+prompt_preflight = ["data/*.txt", "data/*.json"]

@@ -1,0 +1,396 @@
+{
+  "profiles": {
+    "general": {
+      "display_name": "General prompt contract",
+      "intents": ["general"],
+      "required": [
+        {"label": "task", "fields": ["task"]},
+        {"label": "context", "fields": ["context"]},
+        {"label": "output format", "fields": ["output_format"]},
+        {"label": "success criteria", "fields": ["success_criteria"]}
+      ],
+      "optional": ["constraints", "examples", "non_goals", "privacy_notes"],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Context",
+          "[Relevant background, files, source material, data, links, or constraints]",
+          "",
+          "# Output Format",
+          "[Exact structure: bullets, table, JSON, patch, report, image specs, etc.]",
+          "",
+          "# Success Criteria",
+          "- [How the agent should verify the result]",
+          "- [What must be true when the work is done]",
+          "",
+          "# Optional",
+          "- Constraints: [boundaries or things to preserve]",
+          "- Examples: [sample output or style reference]",
+          "- Non-goals: [what not to do]"
+        ],
+        "xml": [
+          "<prompt>",
+          "  <task>[Specific action to perform]</task>",
+          "  <context>[Relevant background, files, source material, data, links, or constraints]</context>",
+          "  <output_format>[Exact structure: bullets, table, JSON, patch, report, image specs, etc.]</output_format>",
+          "  <success_criteria>",
+          "    <item>[How the agent should verify the result]</item>",
+          "    <item>[What must be true when the work is done]</item>",
+          "  </success_criteria>",
+          "  <constraints>[Optional boundaries or things to preserve]</constraints>",
+          "  <examples>[Optional sample output or style reference]</examples>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"general\"",
+          "task = \"[Specific action to perform]\"",
+          "context = \"[Relevant background, files, source material, data, links, or constraints]\"",
+          "output_format = \"[Exact structure: bullets, table, JSON, patch, report, image specs, etc.]\"",
+          "success_criteria = [",
+          "  \"[How the agent should verify the result]\",",
+          "  \"[What must be true when the work is done]\"",
+          "]",
+          "constraints = \"[Optional boundaries or things to preserve]\"",
+          "examples = \"[Optional sample output or style reference]\""
+        ]
+      }
+    },
+    "software": {
+      "display_name": "Software / agent work contract",
+      "intents": ["bug_fix", "software_build", "optimization", "deployment", "migration", "general_action"],
+      "required": [
+        {"label": "task", "fields": ["task"]},
+        {"label": "scope or context", "fields": ["scope", "context", "files_components"]},
+        {"label": "constraints", "fields": ["constraints"]},
+        {"label": "output format", "fields": ["output_format"]},
+        {"label": "success criteria", "fields": ["success_criteria"]}
+      ],
+      "optional": ["platform_stack", "non_goals", "examples", "plan_first", "privacy_notes"],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Build/fix/change/refactor specific thing]",
+          "",
+          "# Scope / Context",
+          "[Files, components, issue, current behavior, logs, API, or existing code to use]",
+          "",
+          "# Constraints",
+          "- Preserve [behavior/API/data/design]",
+          "- Do not change [out-of-scope area]",
+          "",
+          "# Output Format",
+          "[Patch, plan, table, diff summary, commands, docs, screenshots, etc.]",
+          "",
+          "# Success Criteria",
+          "- [Test, command, acceptance criterion, or observable behavior]",
+          "- [How to know the work is complete]",
+          "",
+          "# Optional",
+          "- Platform/stack: [language/framework/service]",
+          "- Plan-first: [when to inspect and wait for confirmation]",
+          "- Non-goals: [what not to touch]"
+        ],
+        "xml": [
+          "<prompt profile=\"software\">",
+          "  <task>[Build/fix/change/refactor specific thing]</task>",
+          "  <scope>[Files, components, issue, current behavior, logs, API, or existing code to use]</scope>",
+          "  <constraints>",
+          "    <item>Preserve [behavior/API/data/design]</item>",
+          "    <item>Do not change [out-of-scope area]</item>",
+          "  </constraints>",
+          "  <output_format>[Patch, plan, table, diff summary, commands, docs, screenshots, etc.]</output_format>",
+          "  <success_criteria>",
+          "    <item>[Test, command, acceptance criterion, or observable behavior]</item>",
+          "    <item>[How to know the work is complete]</item>",
+          "  </success_criteria>",
+          "  <plan_first>[Optional approval boundary for risky work]</plan_first>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"software\"",
+          "task = \"[Build/fix/change/refactor specific thing]\"",
+          "scope = \"[Files, components, issue, current behavior, logs, API, or existing code to use]\"",
+          "constraints = [",
+          "  \"Preserve [behavior/API/data/design]\",",
+          "  \"Do not change [out-of-scope area]\"",
+          "]",
+          "output_format = \"[Patch, plan, table, diff summary, commands, docs, screenshots, etc.]\"",
+          "success_criteria = [",
+          "  \"[Test, command, acceptance criterion, or observable behavior]\",",
+          "  \"[How to know the work is complete]\"",
+          "]",
+          "plan_first = \"[Optional approval boundary for risky work]\""
+        ]
+      }
+    },
+    "image": {
+      "display_name": "Image generation contract",
+      "intents": ["image_generation"],
+      "required": [
+        {"label": "task", "fields": ["task"]},
+        {"label": "visual details", "fields": ["visual_details", "context"]},
+        {"label": "style or mood", "fields": ["style"]},
+        {"label": "output format", "fields": ["output_format"]}
+      ],
+      "optional": ["avoid", "examples", "success_criteria"],
+      "templates": {
+        "md": [
+          "# Task",
+          "Create an image of [specific subject].",
+          "",
+          "# Visual Details",
+          "[Subject details: type, color, materials, pose, condition, objects, scene]",
+          "",
+          "# Style",
+          "[Photorealistic, cinematic, 3D, watercolor, vector, anime, brand style, mood]",
+          "",
+          "# Output Format",
+          "[Aspect ratio, orientation, resolution, transparent background, file type]",
+          "",
+          "# Optional",
+          "- Avoid: [text, logos, extra people, clutter, unsafe elements]",
+          "- Example/style reference: [image, brand, artist-free visual reference]",
+          "- Success criteria: [what should be visually obvious]"
+        ],
+        "xml": [
+          "<prompt profile=\"image\">",
+          "  <task>Create an image of [specific subject].</task>",
+          "  <visual_details>[Subject details: type, color, materials, pose, condition, objects, scene]</visual_details>",
+          "  <style>[Photorealistic, cinematic, 3D, watercolor, vector, anime, brand style, mood]</style>",
+          "  <output_format>[Aspect ratio, orientation, resolution, transparent background, file type]</output_format>",
+          "  <avoid>[Optional: text, logos, extra people, clutter, unsafe elements]</avoid>",
+          "  <examples>[Optional image, brand, or style reference]</examples>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"image\"",
+          "task = \"Create an image of [specific subject].\"",
+          "visual_details = \"[Subject details: type, color, materials, pose, condition, objects, scene]\"",
+          "style = \"[Photorealistic, cinematic, 3D, watercolor, vector, anime, brand style, mood]\"",
+          "output_format = \"[Aspect ratio, orientation, resolution, transparent background, file type]\"",
+          "avoid = \"[Optional: text, logos, extra people, clutter, unsafe elements]\"",
+          "examples = \"[Optional image, brand, or style reference]\""
+        ]
+      }
+    },
+    "writing": {
+      "display_name": "Writing contract",
+      "intents": ["writing"],
+      "required": [
+        {"label": "task", "fields": ["task"]},
+        {"label": "audience", "fields": ["audience"]},
+        {"label": "purpose", "fields": ["purpose", "goal"]},
+        {"label": "context or source material", "fields": ["context", "source_material"]},
+        {"label": "output format", "fields": ["output_format"]}
+      ],
+      "optional": ["tone", "length", "examples", "exclusions", "success_criteria"],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Write, rewrite, edit, summarize, or proofread specific material]",
+          "",
+          "# Audience",
+          "[Who will read it and what they already know]",
+          "",
+          "# Purpose",
+          "[What the writing should accomplish or make the reader do/understand]",
+          "",
+          "# Context / Source Material",
+          "[Paste notes, outline, transcript, draft, link, or attachment path]",
+          "",
+          "# Output Format",
+          "[Tone, length, structure, headings, bullets, email, memo, AP style, etc.]",
+          "",
+          "# Optional",
+          "- Include/exclude: [required points and boundaries]",
+          "- Example/style reference: [sample to imitate]",
+          "- Success criteria: [quality bar]"
+        ],
+        "xml": [
+          "<prompt profile=\"writing\">",
+          "  <task>[Write, rewrite, edit, summarize, or proofread specific material]</task>",
+          "  <audience>[Who will read it and what they already know]</audience>",
+          "  <purpose>[What the writing should accomplish or make the reader do/understand]</purpose>",
+          "  <source_material>[Paste notes, outline, transcript, draft, link, or attachment path]</source_material>",
+          "  <output_format>[Tone, length, structure, headings, bullets, email, memo, AP style, etc.]</output_format>",
+          "  <examples>[Optional sample to imitate]</examples>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"writing\"",
+          "task = \"[Write, rewrite, edit, summarize, or proofread specific material]\"",
+          "audience = \"[Who will read it and what they already know]\"",
+          "purpose = \"[What the writing should accomplish or make the reader do/understand]\"",
+          "source_material = \"[Paste notes, outline, transcript, draft, link, or attachment path]\"",
+          "output_format = \"[Tone, length, structure, headings, bullets, email, memo, AP style, etc.]\"",
+          "examples = \"[Optional sample to imitate]\""
+        ]
+      }
+    },
+    "research": {
+      "display_name": "Research contract",
+      "intents": ["research"],
+      "required": [
+        {"label": "research question", "fields": ["research_question", "task"]},
+        {"label": "scope", "fields": ["scope", "context"]},
+        {"label": "sources", "fields": ["sources"]},
+        {"label": "criteria", "fields": ["criteria"]},
+        {"label": "output format", "fields": ["output_format"]}
+      ],
+      "optional": ["date_range", "geography", "citation_style", "uncertainty_rule"],
+      "templates": {
+        "md": [
+          "# Research Question",
+          "[Specific question or decision the research should answer]",
+          "",
+          "# Scope",
+          "[Date range, geography, audience, exclusions, and depth]",
+          "",
+          "# Sources",
+          "[Official docs, papers, credible sources, links, or allowed source types]",
+          "",
+          "# Criteria",
+          "[How options should be compared: cost, features, risks, tradeoffs, etc.]",
+          "",
+          "# Output Format",
+          "[Brief, table, memo, recommendation, citations, uncertainty notes]",
+          "",
+          "# Optional",
+          "- Citation style: [links, footnotes, APA, etc.]",
+          "- Uncertainty rule: [mark unknowns instead of guessing]"
+        ],
+        "xml": [
+          "<prompt profile=\"research\">",
+          "  <research_question>[Specific question or decision the research should answer]</research_question>",
+          "  <scope>[Date range, geography, audience, exclusions, and depth]</scope>",
+          "  <sources>[Official docs, papers, credible sources, links, or allowed source types]</sources>",
+          "  <criteria>[How options should be compared: cost, features, risks, tradeoffs, etc.]</criteria>",
+          "  <output_format>[Brief, table, memo, recommendation, citations, uncertainty notes]</output_format>",
+          "  <uncertainty_rule>[Optional: mark unknowns instead of guessing]</uncertainty_rule>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"research\"",
+          "research_question = \"[Specific question or decision the research should answer]\"",
+          "scope = \"[Date range, geography, audience, exclusions, and depth]\"",
+          "sources = \"[Official docs, papers, credible sources, links, or allowed source types]\"",
+          "criteria = \"[How options should be compared: cost, features, risks, tradeoffs, etc.]\"",
+          "output_format = \"[Brief, table, memo, recommendation, citations, uncertainty notes]\"",
+          "uncertainty_rule = \"[Optional: mark unknowns instead of guessing]\""
+        ]
+      }
+    },
+    "data_analysis": {
+      "display_name": "Data analysis contract",
+      "intents": ["data_analysis"],
+      "required": [
+        {"label": "task", "fields": ["task"]},
+        {"label": "data source", "fields": ["data_source", "context"]},
+        {"label": "question", "fields": ["question"]},
+        {"label": "metrics", "fields": ["metrics"]},
+        {"label": "output format", "fields": ["output_format"]},
+        {"label": "validation", "fields": ["validation", "success_criteria"]}
+      ],
+      "optional": ["segments", "assumptions", "filters", "examples"],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Analyze, clean, calculate, visualize, or summarize specific data]",
+          "",
+          "# Data Source",
+          "[File/table/query/source and relevant columns]",
+          "",
+          "# Question",
+          "[Metric, segment, hypothesis, comparison, or trend to answer]",
+          "",
+          "# Metrics",
+          "[Definitions for revenue, churn, conversion, retention, p95, etc.]",
+          "",
+          "# Output Format",
+          "[Chart, table, summary, JSON, notebook, dashboard, or code]",
+          "",
+          "# Validation",
+          "[Row counts, totals, expected ranges, reconciliation, or sanity checks]",
+          "",
+          "# Optional",
+          "- Segments/filters: [time range, region, cohort, product]",
+          "- Assumptions: [how to handle missing or ambiguous data]"
+        ],
+        "xml": [
+          "<prompt profile=\"data_analysis\">",
+          "  <task>[Analyze, clean, calculate, visualize, or summarize specific data]</task>",
+          "  <data_source>[File/table/query/source and relevant columns]</data_source>",
+          "  <question>[Metric, segment, hypothesis, comparison, or trend to answer]</question>",
+          "  <metrics>[Definitions for revenue, churn, conversion, retention, p95, etc.]</metrics>",
+          "  <output_format>[Chart, table, summary, JSON, notebook, dashboard, or code]</output_format>",
+          "  <validation>[Row counts, totals, expected ranges, reconciliation, or sanity checks]</validation>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"data_analysis\"",
+          "task = \"[Analyze, clean, calculate, visualize, or summarize specific data]\"",
+          "data_source = \"[File/table/query/source and relevant columns]\"",
+          "question = \"[Metric, segment, hypothesis, comparison, or trend to answer]\"",
+          "metrics = \"[Definitions for revenue, churn, conversion, retention, p95, etc.]\"",
+          "output_format = \"[Chart, table, summary, JSON, notebook, dashboard, or code]\"",
+          "validation = \"[Row counts, totals, expected ranges, reconciliation, or sanity checks]\""
+        ]
+      }
+    },
+    "presentation": {
+      "display_name": "Presentation contract",
+      "intents": ["presentation"],
+      "required": [
+        {"label": "task", "fields": ["task"]},
+        {"label": "audience", "fields": ["audience"]},
+        {"label": "goal", "fields": ["goal", "purpose"]},
+        {"label": "storyline", "fields": ["storyline"]},
+        {"label": "output format", "fields": ["output_format"]}
+      ],
+      "optional": ["source_material", "visual_style", "speaker_notes", "success_criteria"],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Create, polish, summarize, or turn material into a deck]",
+          "",
+          "# Audience",
+          "[Who will see the presentation and what they care about]",
+          "",
+          "# Goal",
+          "[Decision, pitch, update, training outcome, or takeaway]",
+          "",
+          "# Storyline",
+          "[Key sections, narrative arc, and must-have messages]",
+          "",
+          "# Output Format",
+          "[Slide count, speaker notes, visual style, timing, format, brand constraints]",
+          "",
+          "# Optional",
+          "- Source material: [notes, transcript, report, metrics, attachment path]",
+          "- Success criteria: [what a good deck enables]"
+        ],
+        "xml": [
+          "<prompt profile=\"presentation\">",
+          "  <task>[Create, polish, summarize, or turn material into a deck]</task>",
+          "  <audience>[Who will see the presentation and what they care about]</audience>",
+          "  <goal>[Decision, pitch, update, training outcome, or takeaway]</goal>",
+          "  <storyline>[Key sections, narrative arc, and must-have messages]</storyline>",
+          "  <output_format>[Slide count, speaker notes, visual style, timing, format, brand constraints]</output_format>",
+          "  <source_material>[Optional notes, transcript, report, metrics, attachment path]</source_material>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"presentation\"",
+          "task = \"[Create, polish, summarize, or turn material into a deck]\"",
+          "audience = \"[Who will see the presentation and what they care about]\"",
+          "goal = \"[Decision, pitch, update, training outcome, or takeaway]\"",
+          "storyline = \"[Key sections, narrative arc, and must-have messages]\"",
+          "output_format = \"[Slide count, speaker notes, visual style, timing, format, brand constraints]\"",
+          "source_material = \"[Optional notes, transcript, report, metrics, attachment path]\""
+        ]
+      }
+    }
+  }
+}

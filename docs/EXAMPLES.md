@@ -4,7 +4,11 @@ This page shows common vague prompts that make AI agents guess, plus stronger te
 
 Use these patterns when Prompt Preflight pauses a request. Fill in the brackets, remove anything irrelevant, and send the clarified prompt.
 
+For stricter copy-paste contracts, see [Structured Prompt Templates](TEMPLATES.md). Prompt Preflight can validate Markdown, XML, and TOML prompt contracts and pause when required fields are missing or still placeholder-only.
+
 The canonical benchmark prompt library lives at [`src/prompt_preflight/data/vague_prompts.txt`](../src/prompt_preflight/data/vague_prompts.txt). Add new vague-prompt examples there first so Codex, Claude Code, Kiro, and the benchmark stay aligned.
+
+The structured prompt template catalog lives at [`src/prompt_preflight/data/prompt_templates.json`](../src/prompt_preflight/data/prompt_templates.json). Add shared template changes there so all integrations stay aligned.
 
 Prompt Preflight also checks for likely secrets, missing context, missing output contracts, and high-risk work that should start with a plan.
 
@@ -36,6 +40,14 @@ Example/style reference:
 
 Self-check:
 [how to verify constraints, citations, tests, or acceptance criteria]
+```
+
+You can print stricter Markdown, XML, or TOML versions from the CLI:
+
+```bash
+python3 scripts/prompt_preflight.py --template software --template-format md
+python3 scripts/prompt_preflight.py --template image --template-format xml
+python3 scripts/prompt_preflight.py --template research --template-format toml
 ```
 
 For high-risk prompts, add a plan-first boundary:

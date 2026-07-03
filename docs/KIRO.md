@@ -4,6 +4,8 @@ This guide shows how to install Prompt Preflight as a Kiro IDE `UserPromptSubmit
 
 Prompt Preflight runs locally before Kiro spends a model turn. When the prompt is vague and consequential, the hook blocks the submission and returns a clearer prompt template plus targeted questions.
 
+It also validates structured Markdown, XML, and TOML prompt contracts; see [Structured Prompt Templates](TEMPLATES.md).
+
 ## Requirements
 
 - Kiro IDE with agent hooks support.

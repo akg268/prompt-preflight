@@ -4,6 +4,8 @@ This guide shows how to test and install Prompt Preflight as a Claude Code plugi
 
 Prompt Preflight runs locally before Claude sees a submitted prompt. It uses a `UserPromptSubmit` hook to pause vague, consequential requests and ask for the missing details first. It makes no network calls and does not call a model.
 
+It also validates structured Markdown, XML, and TOML prompt contracts; see [Structured Prompt Templates](TEMPLATES.md).
+
 For Codex, use [Prompt Preflight setup guide for Codex](SETUP.md). For Kiro, use [Prompt Preflight for Kiro](KIRO.md).
 
 ## Requirements

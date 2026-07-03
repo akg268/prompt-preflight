@@ -10,6 +10,7 @@ import sys
 from .analyzer import analyze_prompt
 from .config import resolve_telemetry_report_path
 from .hook import clarification_message
+from .templates import SUPPORTED_TEMPLATE_FORMATS, render_template, template_profile_names
 from .telemetry import (
     DEFAULT_TELEMETRY_FILE,
     read_events,
@@ -28,6 +29,20 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--json", action="store_true", dest="as_json", help="Emit structured JSON")
     parser.add_argument("--threshold", type=int, default=45, help="Clarification threshold (default: 45)")
     parser.add_argument("--max-questions", type=int, default=3, help="Maximum questions to ask")
+    parser.add_argument(
+        "--template",
+        metavar="PROFILE",
+        help=(
+            "Print a structured prompt template and exit. Profiles: "
+            + ", ".join(template_profile_names())
+        ),
+    )
+    parser.add_argument(
+        "--template-format",
+        choices=SUPPORTED_TEMPLATE_FORMATS,
+        default="md",
+        help="Template format for --template (default: md)",
+    )
     parser.add_argument(
         "--record-telemetry",
         action="store_true",
@@ -54,7 +69,15 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    if args.template:
+        try:
+            print(render_template(args.template, args.template_format))
+        except ValueError as error:
+            parser.error(str(error))
+        return 0
 
     if args.telemetry_report is not None:
         if args.telemetry_report:

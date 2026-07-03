@@ -14,7 +14,11 @@ The check uses deterministic Python rules. It makes no network requests and call
 
 When Prompt Preflight catches a vague prompt, it links to [vague prompt examples and templates](docs/EXAMPLES.md). The examples page includes common vague prompts for bug fixes, new features, refactors, UI work, performance, deployment, tests, documentation, security, analytics, image generation, writing, research, data analysis, and presentations.
 
+Prompt Preflight also includes [structured prompt templates](docs/TEMPLATES.md) in Markdown, XML, and TOML. These prompt contracts define mandatory fields such as task, context, output format, constraints, and success criteria, plus domain-specific fields for image generation, writing, research, data analysis, and presentations.
+
 The canonical vague-prompt library lives in [`src/prompt_preflight/data/vague_prompts.txt`](src/prompt_preflight/data/vague_prompts.txt). Codex, Claude Code, Kiro, the CLI, and the benchmark all use the same Python package, so new vague-prompt examples should be added there instead of creating tool-specific lists.
+
+The structured template catalog lives in [`src/prompt_preflight/data/prompt_templates.json`](src/prompt_preflight/data/prompt_templates.json), so all supported tools validate the same required fields.
 
 ## Help the project grow
 
@@ -153,6 +157,8 @@ The model receives a target, outcome, boundaries, and definition of done before 
 - Includes software, image-generation, and content feedback profiles.
 - Shows a tailored rewrite instead of only saying “be more specific.”
 - Structures rewrites around task, context, output format, examples, and self-checks.
+- Provides Markdown, XML, and TOML prompt-contract templates.
+- Validates structured prompts and pauses when required fields are empty or placeholder-only.
 - Detects likely secrets and redacts them in user-facing feedback.
 - Adds risk and plan-first checks for production deploys, migrations, destructive actions, and broad repo changes.
 - Checks for missing attachments or referenced source files without reading file contents.
@@ -178,6 +184,7 @@ The analyzer also emits check categories in JSON output:
 - `clarity`: subjective or underspecified wording
 - `context`: missing files, components, attachments, data, audience, source material, or scope
 - `output_contract`: missing format, verification, examples, or success criteria
+- `template_contract`: structured Markdown/XML/TOML prompt is missing required fields
 - `risk`: production, migration, destructive, security-sensitive, or broad-scope work
 - `plan_first`: work that should start with a plan and confirmation
 - `privacy`: likely secrets or credentials in the prompt
@@ -218,6 +225,32 @@ python3 scripts/prompt_preflight.py --json "Rewrite the whole project"
 ```
 
 Structured output includes the detected `intent`, ambiguity score, impact score, severity, check categories, reasons, questions, and suggested prompt. If a likely secret is detected, JSON output uses the redacted prompt text.
+
+Print a structured prompt template:
+
+```bash
+python3 scripts/prompt_preflight.py --template image --template-format md
+python3 scripts/prompt_preflight.py --template software --template-format xml
+python3 scripts/prompt_preflight.py --template research --template-format toml
+```
+
+If a structured prompt is missing required fields, Prompt Preflight catches that too:
+
+```bash
+python3 scripts/prompt_preflight.py "$(cat <<'EOF'
+# Task
+Create a car image
+
+# Visual Details
+A red vintage Mustang on a rainy neon street.
+
+# Output Format
+16:9 PNG.
+EOF
+)"
+```
+
+Expected result: Prompt Preflight asks for the missing `style or mood` section before the model spends a turn.
 
 ## Benchmark vague-prompt detection
 
