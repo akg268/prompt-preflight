@@ -27,6 +27,12 @@ Supported profiles:
 - `research`
 - `data_analysis`
 - `presentation`
+- `customer_support`
+- `prd`
+- `incident_response`
+- `sql`
+- `design_critique`
+- `meeting_notes`
 
 Supported formats:
 
@@ -45,6 +51,12 @@ Supported formats:
 | `research` | research question, scope, sources, criteria, output format | date range, geography, citation style, uncertainty rule |
 | `data_analysis` | task, data source, question, metrics, output format, validation | segments, filters, assumptions |
 | `presentation` | task, audience, goal, storyline, output format | source material, visual style, speaker notes |
+| `customer_support` | task, customer issue, prior interactions, desired tone, policy or constraints, resolution, channel, output format | examples |
+| `prd` | task, problem statement, target users, functional requirements, non-functional requirements, scope, success metrics, output format | constraints, examples |
+| `incident_response` | task, incident summary, severity, timeline, impact, root cause, remediation, output format | constraints |
+| `sql` | query goal, schema, dialect, filters, performance constraints, expected output, success criteria | examples |
+| `design_critique` | task, artifact, design goals, target users, evaluation criteria, severity, deliverable format | constraints |
+| `meeting_notes` | task, meeting purpose, attendees, source transcript, decisions, action items, output format | constraints |
 
 If a user submits a structured prompt but leaves a required field empty or placeholder-only, Prompt Preflight pauses the request and asks only for the missing required fields.
 

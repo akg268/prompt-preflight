@@ -2,14 +2,41 @@
   "profiles": {
     "general": {
       "display_name": "General prompt contract",
-      "intents": ["general"],
-      "required": [
-        {"label": "task", "fields": ["task"]},
-        {"label": "context", "fields": ["context"]},
-        {"label": "output format", "fields": ["output_format"]},
-        {"label": "success criteria", "fields": ["success_criteria"]}
+      "intents": [
+        "general"
       ],
-      "optional": ["constraints", "examples", "non_goals", "privacy_notes"],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "context",
+          "fields": [
+            "context"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        },
+        {
+          "label": "success criteria",
+          "fields": [
+            "success_criteria"
+          ]
+        }
+      ],
+      "optional": [
+        "constraints",
+        "examples",
+        "non_goals",
+        "privacy_notes"
+      ],
       "templates": {
         "md": [
           "# Task",
@@ -59,15 +86,55 @@
     },
     "software": {
       "display_name": "Software / agent work contract",
-      "intents": ["bug_fix", "software_build", "optimization", "deployment", "migration", "general_action"],
-      "required": [
-        {"label": "task", "fields": ["task"]},
-        {"label": "scope or context", "fields": ["scope", "context", "files_components"]},
-        {"label": "constraints", "fields": ["constraints"]},
-        {"label": "output format", "fields": ["output_format"]},
-        {"label": "success criteria", "fields": ["success_criteria"]}
+      "intents": [
+        "bug_fix",
+        "software_build",
+        "optimization",
+        "deployment",
+        "migration",
+        "general_action"
       ],
-      "optional": ["platform_stack", "non_goals", "examples", "plan_first", "privacy_notes"],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "scope or context",
+          "fields": [
+            "scope",
+            "context",
+            "files_components"
+          ]
+        },
+        {
+          "label": "constraints",
+          "fields": [
+            "constraints"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        },
+        {
+          "label": "success criteria",
+          "fields": [
+            "success_criteria"
+          ]
+        }
+      ],
+      "optional": [
+        "platform_stack",
+        "non_goals",
+        "examples",
+        "plan_first",
+        "privacy_notes"
+      ],
       "templates": {
         "md": [
           "# Task",
@@ -127,14 +194,41 @@
     },
     "image": {
       "display_name": "Image generation contract",
-      "intents": ["image_generation"],
-      "required": [
-        {"label": "task", "fields": ["task"]},
-        {"label": "visual details", "fields": ["visual_details", "context"]},
-        {"label": "style or mood", "fields": ["style"]},
-        {"label": "output format", "fields": ["output_format"]}
+      "intents": [
+        "image_generation"
       ],
-      "optional": ["avoid", "examples", "success_criteria"],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "visual details",
+          "fields": [
+            "visual_details",
+            "context"
+          ]
+        },
+        {
+          "label": "style or mood",
+          "fields": [
+            "style"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "avoid",
+        "examples",
+        "success_criteria"
+      ],
       "templates": {
         "md": [
           "# Task",
@@ -177,15 +271,50 @@
     },
     "writing": {
       "display_name": "Writing contract",
-      "intents": ["writing"],
-      "required": [
-        {"label": "task", "fields": ["task"]},
-        {"label": "audience", "fields": ["audience"]},
-        {"label": "purpose", "fields": ["purpose", "goal"]},
-        {"label": "context or source material", "fields": ["context", "source_material"]},
-        {"label": "output format", "fields": ["output_format"]}
+      "intents": [
+        "writing"
       ],
-      "optional": ["tone", "length", "examples", "exclusions", "success_criteria"],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "audience",
+          "fields": [
+            "audience"
+          ]
+        },
+        {
+          "label": "purpose",
+          "fields": [
+            "purpose",
+            "goal"
+          ]
+        },
+        {
+          "label": "context or source material",
+          "fields": [
+            "context",
+            "source_material"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "tone",
+        "length",
+        "examples",
+        "exclusions",
+        "success_criteria"
+      ],
       "templates": {
         "md": [
           "# Task",
@@ -231,15 +360,49 @@
     },
     "research": {
       "display_name": "Research contract",
-      "intents": ["research"],
-      "required": [
-        {"label": "research question", "fields": ["research_question", "task"]},
-        {"label": "scope", "fields": ["scope", "context"]},
-        {"label": "sources", "fields": ["sources"]},
-        {"label": "criteria", "fields": ["criteria"]},
-        {"label": "output format", "fields": ["output_format"]}
+      "intents": [
+        "research"
       ],
-      "optional": ["date_range", "geography", "citation_style", "uncertainty_rule"],
+      "required": [
+        {
+          "label": "research question",
+          "fields": [
+            "research_question",
+            "task"
+          ]
+        },
+        {
+          "label": "scope",
+          "fields": [
+            "scope",
+            "context"
+          ]
+        },
+        {
+          "label": "sources",
+          "fields": [
+            "sources"
+          ]
+        },
+        {
+          "label": "criteria",
+          "fields": [
+            "criteria"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "date_range",
+        "geography",
+        "citation_style",
+        "uncertainty_rule"
+      ],
       "templates": {
         "md": [
           "# Research Question",
@@ -284,16 +447,55 @@
     },
     "data_analysis": {
       "display_name": "Data analysis contract",
-      "intents": ["data_analysis"],
-      "required": [
-        {"label": "task", "fields": ["task"]},
-        {"label": "data source", "fields": ["data_source", "context"]},
-        {"label": "question", "fields": ["question"]},
-        {"label": "metrics", "fields": ["metrics"]},
-        {"label": "output format", "fields": ["output_format"]},
-        {"label": "validation", "fields": ["validation", "success_criteria"]}
+      "intents": [
+        "data_analysis"
       ],
-      "optional": ["segments", "assumptions", "filters", "examples"],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "data source",
+          "fields": [
+            "data_source",
+            "context"
+          ]
+        },
+        {
+          "label": "question",
+          "fields": [
+            "question"
+          ]
+        },
+        {
+          "label": "metrics",
+          "fields": [
+            "metrics"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        },
+        {
+          "label": "validation",
+          "fields": [
+            "validation",
+            "success_criteria"
+          ]
+        }
+      ],
+      "optional": [
+        "segments",
+        "assumptions",
+        "filters",
+        "examples"
+      ],
       "templates": {
         "md": [
           "# Task",
@@ -341,15 +543,48 @@
     },
     "presentation": {
       "display_name": "Presentation contract",
-      "intents": ["presentation"],
-      "required": [
-        {"label": "task", "fields": ["task"]},
-        {"label": "audience", "fields": ["audience"]},
-        {"label": "goal", "fields": ["goal", "purpose"]},
-        {"label": "storyline", "fields": ["storyline"]},
-        {"label": "output format", "fields": ["output_format"]}
+      "intents": [
+        "presentation"
       ],
-      "optional": ["source_material", "visual_style", "speaker_notes", "success_criteria"],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "audience",
+          "fields": [
+            "audience"
+          ]
+        },
+        {
+          "label": "goal",
+          "fields": [
+            "goal",
+            "purpose"
+          ]
+        },
+        {
+          "label": "storyline",
+          "fields": [
+            "storyline"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "source_material",
+        "visual_style",
+        "speaker_notes",
+        "success_criteria"
+      ],
       "templates": {
         "md": [
           "# Task",
@@ -389,6 +624,654 @@
           "storyline = \"[Key sections, narrative arc, and must-have messages]\"",
           "output_format = \"[Slide count, speaker notes, visual style, timing, format, brand constraints]\"",
           "source_material = \"[Optional notes, transcript, report, metrics, attachment path]\""
+        ]
+      }
+    },
+    "customer_support": {
+      "display_name": "Customer support contract",
+      "intents": [
+        "customer_support"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "customer issue",
+          "fields": [
+            "customer_issue",
+            "context"
+          ]
+        },
+        {
+          "label": "prior interactions",
+          "fields": [
+            "prior_interactions"
+          ]
+        },
+        {
+          "label": "desired tone",
+          "fields": [
+            "desired_tone",
+            "tone"
+          ]
+        },
+        {
+          "label": "policy or constraints",
+          "fields": [
+            "policy",
+            "constraints",
+            "policy_or_constraints"
+          ]
+        },
+        {
+          "label": "resolution",
+          "fields": [
+            "resolution",
+            "success_criteria"
+          ]
+        },
+        {
+          "label": "channel",
+          "fields": [
+            "channel"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "examples"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Customer Issue",
+          "[Customer issue/context]",
+          "",
+          "# Prior Interactions",
+          "[Prior interactions]",
+          "",
+          "# Desired Tone",
+          "[Desired tone]",
+          "",
+          "# Policy or Constraints",
+          "[Policy/constraints]",
+          "",
+          "# Resolution",
+          "[Resolution + explicit next step]",
+          "",
+          "# Channel",
+          "[Email/chat]",
+          "",
+          "# Output Format",
+          "[Exact structure: draft email, bullet points, etc.]"
+        ],
+        "xml": [
+          "<prompt profile=\"customer_support\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <customer_issue>[Customer issue/context]</customer_issue>",
+          "  <prior_interactions>[Prior interactions]</prior_interactions>",
+          "  <desired_tone>[Desired tone]</desired_tone>",
+          "  <policy>[Policy/constraints]</policy>",
+          "  <resolution>[Resolution + explicit next step]</resolution>",
+          "  <channel>[Email/chat]</channel>",
+          "  <output_format>[Exact structure: draft email, bullet points, etc.]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"customer_support\"",
+          "task = \"[Specific action to perform]\"",
+          "customer_issue = \"[Customer issue/context]\"",
+          "prior_interactions = \"[Prior interactions]\"",
+          "desired_tone = \"[Desired tone]\"",
+          "policy = \"[Policy/constraints]\"",
+          "resolution = \"[Resolution + explicit next step]\"",
+          "channel = \"[Email/chat]\"",
+          "output_format = \"[Exact structure: draft email, bullet points, etc.]\""
+        ]
+      }
+    },
+    "prd": {
+      "display_name": "Product requirements contract",
+      "intents": [
+        "prd",
+        "product_requirements"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "problem statement",
+          "fields": [
+            "problem_statement",
+            "context"
+          ]
+        },
+        {
+          "label": "target users",
+          "fields": [
+            "target_users",
+            "audience"
+          ]
+        },
+        {
+          "label": "functional requirements",
+          "fields": [
+            "functional_requirements"
+          ]
+        },
+        {
+          "label": "non-functional requirements",
+          "fields": [
+            "non_functional_requirements"
+          ]
+        },
+        {
+          "label": "scope",
+          "fields": [
+            "scope"
+          ]
+        },
+        {
+          "label": "success metrics",
+          "fields": [
+            "success_metrics",
+            "success_criteria"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "constraints",
+        "examples"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Problem Statement",
+          "[Problem statement]",
+          "",
+          "# Target Users",
+          "[Target users/personas]",
+          "",
+          "# Functional Requirements",
+          "[Functional requirements]",
+          "",
+          "# Non-functional Requirements",
+          "[Non-functional requirements]",
+          "",
+          "# Scope",
+          "[In-scope vs out-of-scope]",
+          "",
+          "# Success Metrics",
+          "[Success metrics]",
+          "",
+          "# Output Format",
+          "[Exact structure: PRD doc, markdown, etc.]"
+        ],
+        "xml": [
+          "<prompt profile=\"prd\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <problem_statement>[Problem statement]</problem_statement>",
+          "  <target_users>[Target users/personas]</target_users>",
+          "  <functional_requirements>[Functional requirements]</functional_requirements>",
+          "  <non_functional_requirements>[Non-functional requirements]</non_functional_requirements>",
+          "  <scope>[In-scope vs out-of-scope]</scope>",
+          "  <success_metrics>[Success metrics]</success_metrics>",
+          "  <output_format>[Exact structure: PRD doc, markdown, etc.]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"prd\"",
+          "task = \"[Specific action to perform]\"",
+          "problem_statement = \"[Problem statement]\"",
+          "target_users = \"[Target users/personas]\"",
+          "functional_requirements = \"[Functional requirements]\"",
+          "non_functional_requirements = \"[Non-functional requirements]\"",
+          "scope = \"[In-scope vs out-of-scope]\"",
+          "success_metrics = \"[Success metrics]\"",
+          "output_format = \"[Exact structure: PRD doc, markdown, etc.]\""
+        ]
+      }
+    },
+    "incident_response": {
+      "display_name": "Incident response contract",
+      "intents": [
+        "incident_response",
+        "postmortem"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "incident summary",
+          "fields": [
+            "incident_summary",
+            "context"
+          ]
+        },
+        {
+          "label": "severity",
+          "fields": [
+            "severity"
+          ]
+        },
+        {
+          "label": "timeline",
+          "fields": [
+            "timeline"
+          ]
+        },
+        {
+          "label": "impact",
+          "fields": [
+            "impact"
+          ]
+        },
+        {
+          "label": "root cause",
+          "fields": [
+            "root_cause"
+          ]
+        },
+        {
+          "label": "remediation",
+          "fields": [
+            "remediation",
+            "success_criteria"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "constraints"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Incident Summary",
+          "[Incident summary]",
+          "",
+          "# Severity",
+          "[Severity]",
+          "",
+          "# Timeline",
+          "[Timeline]",
+          "",
+          "# Impact",
+          "[User/system impact]",
+          "",
+          "# Root Cause",
+          "[Root cause]",
+          "",
+          "# Remediation",
+          "[Remediation/action items (owner + status)]",
+          "",
+          "# Output Format",
+          "[Exact structure: postmortem doc, email, etc.]"
+        ],
+        "xml": [
+          "<prompt profile=\"incident_response\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <incident_summary>[Incident summary]</incident_summary>",
+          "  <severity>[Severity]</severity>",
+          "  <timeline>[Timeline]</timeline>",
+          "  <impact>[User/system impact]</impact>",
+          "  <root_cause>[Root cause]</root_cause>",
+          "  <remediation>[Remediation/action items (owner + status)]</remediation>",
+          "  <output_format>[Exact structure: postmortem doc, email, etc.]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"incident_response\"",
+          "task = \"[Specific action to perform]\"",
+          "incident_summary = \"[Incident summary]\"",
+          "severity = \"[Severity]\"",
+          "timeline = \"[Timeline]\"",
+          "impact = \"[User/system impact]\"",
+          "root_cause = \"[Root cause]\"",
+          "remediation = \"[Remediation/action items (owner + status)]\"",
+          "output_format = \"[Exact structure: postmortem doc, email, etc.]\""
+        ]
+      }
+    },
+    "sql": {
+      "display_name": "SQL contract",
+      "intents": [
+        "sql",
+        "data_engineering"
+      ],
+      "required": [
+        {
+          "label": "query goal",
+          "fields": [
+            "query_goal",
+            "task"
+          ]
+        },
+        {
+          "label": "schema",
+          "fields": [
+            "schema",
+            "context"
+          ]
+        },
+        {
+          "label": "dialect",
+          "fields": [
+            "dialect"
+          ]
+        },
+        {
+          "label": "filters",
+          "fields": [
+            "filters"
+          ]
+        },
+        {
+          "label": "performance constraints",
+          "fields": [
+            "performance_constraints",
+            "constraints"
+          ]
+        },
+        {
+          "label": "expected output",
+          "fields": [
+            "expected_output",
+            "output_format"
+          ]
+        },
+        {
+          "label": "success criteria",
+          "fields": [
+            "success_criteria"
+          ]
+        }
+      ],
+      "optional": [
+        "examples"
+      ],
+      "templates": {
+        "md": [
+          "# Query Goal",
+          "[Query goal]",
+          "",
+          "# Schema",
+          "[Relevant schema/tables]",
+          "",
+          "# Dialect",
+          "[Dialect/engine (e.g. Postgres/BigQuery)]",
+          "",
+          "# Filters",
+          "[Filters/grain]",
+          "",
+          "# Performance Constraints",
+          "[Performance constraints]",
+          "",
+          "# Expected Output",
+          "[Expected output columns/shape]",
+          "",
+          "# Success Criteria",
+          "[How the agent should verify the result]"
+        ],
+        "xml": [
+          "<prompt profile=\"sql\">",
+          "  <query_goal>[Query goal]</query_goal>",
+          "  <schema>[Relevant schema/tables]</schema>",
+          "  <dialect>[Dialect/engine (e.g. Postgres/BigQuery)]</dialect>",
+          "  <filters>[Filters/grain]</filters>",
+          "  <performance_constraints>[Performance constraints]</performance_constraints>",
+          "  <expected_output>[Expected output columns/shape]</expected_output>",
+          "  <success_criteria>[How the agent should verify the result]</success_criteria>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"sql\"",
+          "query_goal = \"[Query goal]\"",
+          "schema = \"[Relevant schema/tables]\"",
+          "dialect = \"[Dialect/engine (e.g. Postgres/BigQuery)]\"",
+          "filters = \"[Filters/grain]\"",
+          "performance_constraints = \"[Performance constraints]\"",
+          "expected_output = \"[Expected output columns/shape]\"",
+          "success_criteria = \"[How the agent should verify the result]\""
+        ]
+      }
+    },
+    "design_critique": {
+      "display_name": "Design critique contract",
+      "intents": [
+        "design_critique",
+        "ux_review"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "artifact",
+          "fields": [
+            "artifact",
+            "context"
+          ]
+        },
+        {
+          "label": "design goals",
+          "fields": [
+            "design_goals"
+          ]
+        },
+        {
+          "label": "target users",
+          "fields": [
+            "target_users",
+            "audience"
+          ]
+        },
+        {
+          "label": "evaluation criteria",
+          "fields": [
+            "evaluation_criteria",
+            "success_criteria"
+          ]
+        },
+        {
+          "label": "severity",
+          "fields": [
+            "severity"
+          ]
+        },
+        {
+          "label": "deliverable format",
+          "fields": [
+            "deliverable_format",
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "constraints"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Artifact",
+          "[Artifact under review]",
+          "",
+          "# Design Goals",
+          "[Design goals]",
+          "",
+          "# Target Users",
+          "[Target users]",
+          "",
+          "# Evaluation Criteria",
+          "[Evaluation criteria/heuristics]",
+          "",
+          "# Severity",
+          "[Severity/priority]",
+          "",
+          "# Deliverable Format",
+          "[Prioritized findings + recommendations]"
+        ],
+        "xml": [
+          "<prompt profile=\"design_critique\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <artifact>[Artifact under review]</artifact>",
+          "  <design_goals>[Design goals]</design_goals>",
+          "  <target_users>[Target users]</target_users>",
+          "  <evaluation_criteria>[Evaluation criteria/heuristics]</evaluation_criteria>",
+          "  <severity>[Severity/priority]</severity>",
+          "  <deliverable_format>[Prioritized findings + recommendations]</deliverable_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"design_critique\"",
+          "task = \"[Specific action to perform]\"",
+          "artifact = \"[Artifact under review]\"",
+          "design_goals = \"[Design goals]\"",
+          "target_users = \"[Target users]\"",
+          "evaluation_criteria = \"[Evaluation criteria/heuristics]\"",
+          "severity = \"[Severity/priority]\"",
+          "deliverable_format = \"[Prioritized findings + recommendations]\""
+        ]
+      }
+    },
+    "meeting_notes": {
+      "display_name": "Meeting notes contract",
+      "intents": [
+        "meeting_notes"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "meeting purpose",
+          "fields": [
+            "meeting_purpose",
+            "goal"
+          ]
+        },
+        {
+          "label": "attendees",
+          "fields": [
+            "attendees"
+          ]
+        },
+        {
+          "label": "source transcript",
+          "fields": [
+            "source_transcript",
+            "source_material",
+            "context"
+          ]
+        },
+        {
+          "label": "decisions",
+          "fields": [
+            "decisions"
+          ]
+        },
+        {
+          "label": "action items",
+          "fields": [
+            "action_items",
+            "success_criteria"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "constraints"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Meeting Purpose",
+          "[Meeting purpose]",
+          "",
+          "# Attendees",
+          "[Attendees]",
+          "",
+          "# Source Transcript",
+          "[Source transcript/raw notes]",
+          "",
+          "# Decisions",
+          "[Decisions]",
+          "",
+          "# Action Items",
+          "[Action items (owner + due date)]",
+          "",
+          "# Output Format",
+          "[Exact structure: bullets, markdown, etc.]"
+        ],
+        "xml": [
+          "<prompt profile=\"meeting_notes\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <meeting_purpose>[Meeting purpose]</meeting_purpose>",
+          "  <attendees>[Attendees]</attendees>",
+          "  <source_transcript>[Source transcript/raw notes]</source_transcript>",
+          "  <decisions>[Decisions]</decisions>",
+          "  <action_items>[Action items (owner + due date)]</action_items>",
+          "  <output_format>[Exact structure: bullets, markdown, etc.]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"meeting_notes\"",
+          "task = \"[Specific action to perform]\"",
+          "meeting_purpose = \"[Meeting purpose]\"",
+          "attendees = \"[Attendees]\"",
+          "source_transcript = \"[Source transcript/raw notes]\"",
+          "decisions = \"[Decisions]\"",
+          "action_items = \"[Action items (owner + due date)]\"",
+          "output_format = \"[Exact structure: bullets, markdown, etc.]\""
         ]
       }
     }
