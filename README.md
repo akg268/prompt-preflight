@@ -240,10 +240,8 @@ If a structured prompt is missing required fields, Prompt Preflight catches that
 python3 scripts/prompt_preflight.py "$(cat <<'EOF'
 # Task
 Create a car image
-
 # Visual Details
 A red vintage Mustang on a rainy neon street.
-
 # Output Format
 16:9 PNG.
 EOF
@@ -397,7 +395,7 @@ The host-specific installers are still available when you need advanced options.
 | --- | --- | --- | --- | --- | --- |
 | Codex | `python3 scripts/install_prompt_preflight.py --target codex` | `UserPromptSubmit` | Yes — blocks vague prompts before model work | Yes — set `mode: "nudge"` in `.prompt-preflight.json` | [Codex setup](docs/SETUP.md) |
 | Claude Code | `python3 scripts/install_prompt_preflight.py --target claude` | `UserPromptSubmit` | Yes — returns a blocking hook decision | Yes — set `mode: "nudge"` in `.prompt-preflight.json` | [Claude Code setup](docs/CLAUDE.md) |
-| Claude Code (Postflight) | `scripts/prompt_preflight_postflight_claude_hook.py` | `Stop` / `SubagentStop` | Yes — can return blocking decision | Yes — logs context via `hookSpecificOutput` | [Postflight Note](docs/POSTFLIGHT.md) |
+| Claude Code (Postflight) | `scripts/prompt_preflight_postflight_claude_hook.py` | `Stop` / `SubagentStop` | Yes — returns a `decision: block` asking the agent to fix | N/A — blocks or stays silent (no nudge path) | [Postflight note](docs/POSTFLIGHT.md) |
 | Kiro IDE | `python3 scripts/install_prompt_preflight.py --target kiro --kiro-workspace /path/to/project` | `userPromptSubmit` | Yes — exits `2` with clarification feedback | Yes — set `mode: "nudge"` in `.prompt-preflight.json` | [Kiro setup](docs/KIRO.md) |
 | Kiro CLI | Run `python3 scripts/prompt_preflight.py "<prompt>"` before invoking Kiro CLI, or wire the same command into a custom-agent hook | `userPromptSubmit` custom-agent hook | No documented blocking path; CLI hooks add stdout to context | Yes — use direct preflight output or nudge-mode context | [Kiro CLI note](docs/KIRO.md#kiro-cli-note) |
 
@@ -530,7 +528,9 @@ Create `.prompt-preflight.json` in the project where Codex, Claude Code, or Kiro
 - `telemetry`: optional local-only counts; disabled by default.
 
 ### Per-Check Safe Defaults
+
 If a specific check is not explicitly set in `checks`, Prompt Preflight uses these safe defaults:
+
 - `privacy`, `risk`, and `plan_first`: **block**
 - `clarity`, `context`, `output_contract`, and `template_contract`: **nudge** (or the global `mode` if configured)
 
@@ -692,8 +692,6 @@ For Claude Code, review `.claude-plugin/plugin.json`, `hooks/claude-hooks.json`,
 
 For Kiro, review the generated `.kiro/hooks/prompt-preflight.json` file and `scripts/prompt_preflight_kiro_hook.py`.
 
-
-
 ## Limitations
 
 - Rule-based intent routing cannot understand every phrasing.
@@ -748,7 +746,6 @@ The project currently has regression coverage for vague and detailed prompts, do
 - Per-domain thresholds
 - More host adapters beyond Codex, Claude Code, and Kiro
 - False-positive feedback capture and calibration reports
-
 
 ## License
 
