@@ -397,6 +397,7 @@ The host-specific installers are still available when you need advanced options.
 | --- | --- | --- | --- | --- | --- |
 | Codex | `python3 scripts/install_prompt_preflight.py --target codex` | `UserPromptSubmit` | Yes — blocks vague prompts before model work | Yes — set `mode: "nudge"` in `.prompt-preflight.json` | [Codex setup](docs/SETUP.md) |
 | Claude Code | `python3 scripts/install_prompt_preflight.py --target claude` | `UserPromptSubmit` | Yes — returns a blocking hook decision | Yes — set `mode: "nudge"` in `.prompt-preflight.json` | [Claude Code setup](docs/CLAUDE.md) |
+| Claude Code (Postflight) | `scripts/prompt_preflight_postflight_claude_hook.py` | `Stop` / `SubagentStop` | Yes — can return blocking decision | Yes — logs context via `hookSpecificOutput` | [Postflight Note](docs/POSTFLIGHT.md) |
 | Kiro IDE | `python3 scripts/install_prompt_preflight.py --target kiro --kiro-workspace /path/to/project` | `userPromptSubmit` | Yes — exits `2` with clarification feedback | Yes — set `mode: "nudge"` in `.prompt-preflight.json` | [Kiro setup](docs/KIRO.md) |
 | Kiro CLI | Run `python3 scripts/prompt_preflight.py "<prompt>"` before invoking Kiro CLI, or wire the same command into a custom-agent hook | `userPromptSubmit` custom-agent hook | No documented blocking path; CLI hooks add stdout to context | Yes — use direct preflight output or nudge-mode context | [Kiro CLI note](docs/KIRO.md#kiro-cli-note) |
 
@@ -539,6 +540,49 @@ Bypass one request without changing configuration:
 Create a car image [preflight:skip]
 ```
 
+## Postflight quality checks (experimental)
+
+Preflight checks a prompt before a model turn. **Postflight** checks an agent
+response *after* the turn and flags common failure modes deterministically:
+wrong output format, missing tests, hollow file-change claims, violated negative
+constraints, leftover `[TODO]` placeholders, and missing citations. It makes no
+network or model calls and never reads file contents. See
+[docs/POSTFLIGHT.md](docs/POSTFLIGHT.md) for the design note and limitations.
+
+Run it on a response (exit `0` = clean, `2` = needs attention):
+
+```
+python3 scripts/prompt_postflight.py --prompt "Return the result as JSON" "the status is ok"
+python3 scripts/prompt_postflight.py --json --prompt "Research X with citations" "$(cat answer.txt)"
+```
+
+Configure it in `.prompt-preflight.json` under an optional `postflight` block.
+Defaults are strict (every check blocks) so the exit code is a useful CI gate;
+soften any check to `nudge` (surfaced but non-blocking) or `off`:
+
+```json
+{
+  "postflight": {
+    "enabled": true,
+    "checks": {
+      "output_format": "block",
+      "tests_present": "block",
+      "file_change_claim": "block",
+      "constraint_adherence": "nudge",
+      "placeholders": "block",
+      "citations": "nudge",
+      "privacy": "block"
+    }
+  }
+}
+```
+
+| Host | Command | Trigger | Status |
+| --- | --- | --- | --- |
+| CLI | `python3 scripts/prompt_postflight.py "<response>"` | direct invocation | Supported |
+| Claude Code | `scripts/prompt_preflight_postflight_claude_hook.py` | `Stop` | Prototype (verify hook contract) |
+| Codex / Kiro | — | — | Not supported yet |
+
 ## Local telemetry
 
 Prompt Preflight can record local, opt-in telemetry to help estimate avoided retry loops. It is disabled by default.
@@ -647,6 +691,8 @@ As with any local plugin, review `.codex-plugin/plugin.json`, `hooks/hooks.json`
 For Claude Code, review `.claude-plugin/plugin.json`, `hooks/claude-hooks.json`, and `scripts/prompt_preflight_claude_hook.py`.
 
 For Kiro, review the generated `.kiro/hooks/prompt-preflight.json` file and `scripts/prompt_preflight_kiro_hook.py`.
+
+
 
 ## Limitations
 
