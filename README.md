@@ -391,6 +391,8 @@ The host-specific installers are still available when you need advanced options.
 
 ### Host compatibility matrix
 
+For research on potential new integrations (Cursor, Windsurf, VS Code), see the [Host Integrations Report](docs/INTEGRATIONS.md).
+
 | Host | Install command | Hook trigger | Block mode | Nudge mode | Setup guide |
 | --- | --- | --- | --- | --- | --- |
 | Codex | `python3 scripts/install_prompt_preflight.py --target codex` | `UserPromptSubmit` | Yes — blocks vague prompts before model work | Yes — set `mode: "nudge"` in `.prompt-preflight.json` | [Codex setup](docs/SETUP.md) |
