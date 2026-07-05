@@ -194,11 +194,85 @@ The report shows prompts checked, blocked prompts, nudges, bypasses, follow-up p
 - `src/prompt_preflight/kiro_hook.py`: Kiro hook output logic.
 - `src/prompt_preflight/analyzer.py`: shared prompt clarity analyzer.
 
-## Kiro CLI note
+## Kiro CLI custom-agent usage
 
-Kiro IDE hooks support blocking `UserPromptSubmit` command hooks. Kiro CLI custom-agent hooks also support `userPromptSubmit`, but the CLI docs currently describe this trigger as adding stdout to context rather than blocking prompt submission. For that reason, the installer above targets Kiro IDE hook files.
+Kiro IDE and Kiro CLI both support `userPromptSubmit`, but they handle the hook result differently:
 
-If you want a CLI-style workflow, use Prompt Preflight directly before calling Kiro:
+| Host | Best Prompt Preflight mode | Behavior |
+| --- | --- | --- |
+| Kiro IDE | Blocking mode | The hook exits `2` and Kiro IDE stops the vague prompt before model work. |
+| Kiro CLI custom agent | Nudge mode | The hook exits `0` and adds clarification guidance from stdout to the agent context. |
+
+Use the IDE installer above when you want hard blocking. Use the CLI custom-agent path when you want Prompt Preflight to add a local, model-free clarification nudge before the agent acts.
+
+### Kiro CLI custom-agent example
+
+From your project, create a local custom agent at `.kiro/agents/preflight-nudge.json`:
+
+```json
+{
+  "name": "preflight-nudge",
+  "description": "Runs Prompt Preflight before each submitted prompt and adds clarification guidance to context.",
+  "hooks": {
+    "userPromptSubmit": [
+      {
+        "command": "python3 /absolute/path/to/prompt-preflight/scripts/prompt_preflight_kiro_hook.py"
+      }
+    ]
+  }
+}
+```
+
+Replace `/absolute/path/to/prompt-preflight` with this repository checkout. For a shared team setup, keep the agent file in `.kiro/agents/`; for a personal setup, place the same JSON in `~/.kiro/agents/`.
+
+Enable nudge mode in the workspace config so CLI hook output is added to context instead of trying to block:
+
+```json
+{
+  "enabled": true,
+  "mode": "nudge",
+  "threshold": 45,
+  "max_questions": 3,
+  "telemetry": {
+    "enabled": false,
+    "path": ".prompt-preflight-telemetry.jsonl"
+  }
+}
+```
+
+Save that as `.prompt-preflight.json` in the project where you run Kiro CLI.
+
+### Kiro CLI smoke test
+
+Test the same hook contract without starting Kiro CLI:
+
+```bash
+cat > .prompt-preflight.json <<'EOF'
+{
+  "enabled": true,
+  "mode": "nudge",
+  "threshold": 45,
+  "max_questions": 3,
+  "telemetry": {"enabled": false}
+}
+EOF
+
+python3 /absolute/path/to/prompt-preflight/scripts/prompt_preflight_kiro_hook.py <<'EOF'
+{"hook_event_name":"userPromptSubmit","cwd":".","prompt":"Create a car image"}
+EOF
+```
+
+Expected result: the command exits `0` and prints a Prompt Preflight nudge that Kiro CLI can add to the agent context. The nudge includes a stronger prompt example, targeted clarification questions, and the original prompt. No network or model calls are made.
+
+A clear prompt should exit `0` with no output:
+
+```bash
+python3 /absolute/path/to/prompt-preflight/scripts/prompt_preflight_kiro_hook.py <<'EOF'
+{"hook_event_name":"userPromptSubmit","cwd":".","prompt":"Create a photorealistic image of a red 1967 Ford Mustang on a wet Tokyo street at night, low camera angle, cinematic lighting, 16:9."}
+EOF
+```
+
+If you prefer to run Prompt Preflight manually before Kiro CLI instead of wiring a custom agent hook, call the standalone CLI directly:
 
 ```bash
 python3 scripts/prompt_preflight.py "Create a car image"

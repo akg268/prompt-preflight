@@ -398,7 +398,7 @@ The host-specific installers are still available when you need advanced options.
 | Codex | `python3 scripts/install_prompt_preflight.py --target codex` | `UserPromptSubmit` | Yes — blocks vague prompts before model work | Yes — set `mode: "nudge"` in `.prompt-preflight.json` | [Codex setup](docs/SETUP.md) |
 | Claude Code | `python3 scripts/install_prompt_preflight.py --target claude` | `UserPromptSubmit` | Yes — returns a blocking hook decision | Yes — set `mode: "nudge"` in `.prompt-preflight.json` | [Claude Code setup](docs/CLAUDE.md) |
 | Kiro IDE | `python3 scripts/install_prompt_preflight.py --target kiro --kiro-workspace /path/to/project` | `userPromptSubmit` | Yes — exits `2` with clarification feedback | Yes — set `mode: "nudge"` in `.prompt-preflight.json` | [Kiro setup](docs/KIRO.md) |
-| Kiro CLI | Run `python3 scripts/prompt_preflight.py "<prompt>"` before invoking Kiro CLI, or wire the same command into a custom-agent hook | `userPromptSubmit` custom-agent hook | No documented blocking path; CLI hooks add stdout to context | Yes — use direct preflight output or nudge-mode context | [Kiro CLI note](docs/KIRO.md#kiro-cli-note) |
+| Kiro CLI | Run `python3 scripts/prompt_preflight.py "<prompt>"` before invoking Kiro CLI, or wire the Kiro hook adapter into a custom-agent hook | `userPromptSubmit` custom-agent hook | No documented blocking path; CLI hooks add stdout to context | Yes — use nudge-mode hook output as context | [Kiro CLI custom-agent usage](docs/KIRO.md#kiro-cli-custom-agent-usage) |
 
 ## Install in Codex
 
