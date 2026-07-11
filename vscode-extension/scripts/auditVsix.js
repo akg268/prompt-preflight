@@ -47,7 +47,7 @@ const REQUIRED_FILES = [
  * Text that must appear in the packaged README after vsce rewrites relative images.
  */
 const REQUIRED_README_SNIPPETS = [
-  "https://raw.githubusercontent.com/akg268/prompt-preflight/master/vscode-extension/media/demo.gif"
+  "https://raw.githubusercontent.com/akg268/prompt-preflight/main/vscode-extension/media/demo.gif"
 ];
 
 /**

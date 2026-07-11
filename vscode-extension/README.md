@@ -2,11 +2,31 @@
 
 Check AI prompts directly inside VS Code before sending them to Codex, Claude, Kiro, Copilot, or another AI agent.
 
-Prompt Preflight for VS Code uses the same local Python analyzer as the CLI and hooks in the main project. It makes no model calls, uses no API key, and does not send prompt text to a network service.
+Prompt Preflight can be added to coding-agent tools as a preflight plugin/hook, and it can also be installed as this VS Code extension. The extension is for people and teams who draft prompts in Markdown/XML/TOML files and want feedback before the prompt reaches an AI tool.
+
+Prompt Preflight for VS Code uses the same local Python analyzer as the CLI and coding-agent hooks in the main project. It makes no model calls, uses no API key, and does not send prompt text to a network service.
 
 Author: Arunkumar Ganesan
 
-This extension is currently intended for local development, from-source testing, and local VSIX installation. Marketplace publishing can be added later.
+This extension is available as a public Marketplace beta.
+
+## Install from Marketplace
+
+[Install Prompt Preflight for VS Code](https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode)
+
+Or install from the command line:
+
+```bash
+code --install-extension arunkumar-ganesan.prompt-preflight-vscode
+```
+
+After installation, open a Markdown prompt file and click:
+
+```text
+🟢 ▶ Run Prompt Preflight Check
+```
+
+The Marketplace package bundles the Python analyzer, so normal users do not need to clone the repo or configure `promptPreflight.repoPath`.
 
 ## Demo
 

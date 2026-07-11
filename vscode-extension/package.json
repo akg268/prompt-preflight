@@ -32,14 +32,18 @@
   ],
   "keywords": [
     "prompt",
+    "prompting",
     "preflight",
     "ai",
+    "generative-ai",
     "llm",
     "copilot",
     "claude",
     "codex",
     "prompt-engineering",
+    "prompt-linting",
     "ai-agents",
+    "ai-tools",
     "token-cost",
     "developer-tools",
     "productivity"
@@ -208,7 +212,7 @@
     "test": "npm run compile && node out/test/runTests.js",
     "package:stage-analyzer": "node scripts/stageAnalyzer.js",
     "package:list": "npm run compile && npm run package:stage-analyzer && vsce ls --no-dependencies --tree",
-    "package:vsix": "vsce package --no-dependencies --baseImagesUrl https://raw.githubusercontent.com/akg268/prompt-preflight/master/vscode-extension",
+    "package:vsix": "vsce package --no-dependencies --baseImagesUrl https://raw.githubusercontent.com/akg268/prompt-preflight/main/vscode-extension",
     "package:audit": "node scripts/auditVsix.js prompt-preflight-vscode-0.0.1.vsix"
   },
   "devDependencies": {

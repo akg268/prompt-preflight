@@ -1,14 +1,45 @@
 # Prompt Preflight
 
-> Catch underspecified requests before they become expensive model turns.
+> Catch vague prompts before coding agents and AI tools spend model turns.
 
-Prompt Preflight is a local Codex plugin, Claude Code plugin, Kiro hook, VS Code extension, and standalone CLI that checks whether a prompt is safe and specific enough to act on. It now looks at prompt clarity, missing context, output expectations, high-risk operations, plan-first needs, and likely secrets before an AI agent spends a model turn. When ambiguity or risk is high, it pauses the request and gives the user:
+Prompt Preflight is a local prompt-quality layer for AI workflows. It can be used in two main ways:
+
+1. **As a preflight plugin/hook for coding agents** — add it to tools such as Codex, Claude Code, or Kiro so prompts are checked before the agent starts reading files, calling tools, or spending a model turn.
+2. **As a VS Code extension** — install it from the Visual Studio Marketplace to check, lint, compose, and improve prompts directly inside Markdown/XML/TOML prompt files before pasting or sending them to any AI tool.
+
+Both paths use the same deterministic Python analyzer. Prompt Preflight makes no model calls, uses no API key, and sends no prompt text to a network service.
+
+Prompt Preflight checks whether a prompt is safe and specific enough to act on. It looks at prompt clarity, missing context, output expectations, high-risk operations, plan-first needs, and likely secrets before an AI agent spends a model turn. When ambiguity or risk is high, it pauses the request and gives the user:
 
 1. Their original prompt.
 2. A domain-aware example of a stronger prompt.
 3. Up to three questions that fill the most important gaps.
 
-The check uses deterministic Python rules. It makes no network requests and calls no model.
+## Where Prompt Preflight fits
+
+Use Prompt Preflight when prompts are about to enter an expensive or state-changing AI workflow:
+
+| Surface | How it helps |
+| --- | --- |
+| Coding-agent plugins/hooks | Blocks or nudges vague prompts before Codex, Claude Code, or Kiro start acting on a repo. |
+| VS Code extension | Lets users check prompt files, insert better prompt templates, lint team prompt libraries, and view local telemetry. |
+| CLI and scripts | Provides the same analyzer for local testing, automation, benchmarks, and custom integrations. |
+
+The same prompt rules, vague-prompt library, structured templates, and telemetry format are shared across all integrations.
+
+## VS Code Marketplace beta
+
+Prompt Preflight for VS Code is available as a Marketplace beta:
+
+[Install Prompt Preflight for VS Code](https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode)
+
+Or install from the command line:
+
+```bash
+code --install-extension arunkumar-ganesan.prompt-preflight-vscode
+```
+
+The VS Code extension bundles the Python analyzer, so Marketplace users do not need to clone this repo or set `promptPreflight.repoPath`.
 
 ## Prompt examples and templates
 
@@ -26,16 +57,16 @@ If Prompt Preflight saves you even one failed agent turn, please consider starri
 
 ## Demo
 
-Prompt Preflight catches a vague Codex prompt before model work begins:
+Prompt Preflight catches a vague prompt inside the VS Code extension before model work begins:
 
-![Prompt Preflight demo](docs/assets/prompt-preflight-demo.gif)
+![Prompt Preflight VS Code extension demo](vscode-extension/media/demo.gif)
 
 The demo shows the core loop:
 
 ```text
 User submits a vague request
   → Prompt Preflight runs locally
-  → Codex gets blocked before spending a model turn
+  → the coding agent or AI workflow is blocked/nudged before spending a model turn
   → the user receives a stronger prompt template and targeted questions
 ```
 
@@ -127,9 +158,9 @@ Fill in the brackets by answering:
 
 This prevents an arbitrary first image followed by several rounds of visual corrections.
 
-Example output after the prompt is clarified:
+Prompt Preflight does not create the image itself; it makes the request specific before the AI tool runs. The current project visual is the VS Code extension logo:
 
-![Photorealistic red Mustang on a rainy neon-lit street](docs/assets/clarified-car-image.png)
+![Prompt Preflight VS Code extension logo](vscode-extension/media/icon.png)
 
 ## Example: software work
 
