@@ -139,7 +139,66 @@ ONLY_PLACEHOLDERS_RE = re.compile(
 )
 MARKDOWN_HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s+(.+?)\s*$")
 MARKDOWN_LABEL_RE = re.compile(r"^\s*(?:[-*]\s*)?([A-Za-z][A-Za-z0-9 /_-]{1,48})\s*:\s*(.*)$")
+MARKDOWN_PROFILE_COMMENT_RE = re.compile(r"^\s*<!--\s*profile\s*:\s*([A-Za-z0-9_-]+)\s*-->\s*$", re.IGNORECASE)
 TOML_KEY_RE = re.compile(r"^\s*([A-Za-z_][A-Za-z0-9_-]*)\s*=\s*(.*)$")
+CONCRETE_SIGNAL_RE = re.compile(
+    r"`[^`]+`|https?://\S+|(?:[\w.-]+/)*[\w.-]+\.[A-Za-z0-9]{1,8}\b|#\d+|\d"
+)
+FILLER_TOKENS = frozenset(
+    {
+        "any",
+        "anything",
+        "asdf",
+        "bar",
+        "baz",
+        "blah",
+        "blabla",
+        "dummy",
+        "foo",
+        "ipsum",
+        "lorem",
+        "random",
+        "some",
+        "someone",
+        "something",
+        "someth",
+        "somewhere",
+        "stuff",
+        "thing",
+        "things",
+        "whatever",
+    }
+)
+GENERIC_FIELD_TOKENS = frozenset(
+    {
+        "constraint",
+        "constraints",
+        "content",
+        "context",
+        "criteria",
+        "data",
+        "detail",
+        "details",
+        "example",
+        "examples",
+        "field",
+        "format",
+        "info",
+        "information",
+        "input",
+        "material",
+        "output",
+        "prompt",
+        "request",
+        "rule",
+        "rules",
+        "section",
+        "source",
+        "success",
+        "task",
+        "text",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -254,10 +313,35 @@ def _is_meaningful_value(value: str) -> bool:
         return False
     if ONLY_PLACEHOLDERS_RE.fullmatch(compact):
         return False
+    if is_low_information_value(compact):
+        return False
     without_markers = re.sub(r"[-*#>\s`\"'.,:;()]+", "", compact)
     if not without_markers:
         return False
     return True
+
+
+def is_low_information_value(value: str) -> bool:
+    """Return true when text is just filler rather than usable prompt detail."""
+
+    compact = re.sub(r"\s+", " ", value.strip()).strip(" .,:;`\"'")
+    if not compact:
+        return False
+    if CONCRETE_SIGNAL_RE.search(compact):
+        return False
+
+    tokens = re.findall(r"[a-z]+", compact.lower())
+    if not tokens:
+        return False
+    if all(token in FILLER_TOKENS for token in tokens):
+        return True
+    if (
+        len(tokens) <= 5
+        and any(token in FILLER_TOKENS for token in tokens)
+        and all(token in FILLER_TOKENS or token in GENERIC_FIELD_TOKENS for token in tokens)
+    ):
+        return True
+    return False
 
 
 def _canonical_field(label: str) -> str | None:
@@ -280,6 +364,12 @@ def _parse_markdown_fields(prompt: str) -> dict[str, str]:
     markers = 0
 
     for line in prompt.splitlines():
+        profile_comment = MARKDOWN_PROFILE_COMMENT_RE.match(line)
+        if profile_comment:
+            fields.setdefault("profile", []).append(profile_comment.group(1))
+            markers += 1
+            continue
+
         heading = MARKDOWN_HEADING_RE.match(line)
         if heading:
             field = _canonical_field(heading.group(1))

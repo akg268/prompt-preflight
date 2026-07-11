@@ -1,3 +1,20 @@
+# Task
+[Specific action to perform]
+
+# Context
+[Relevant background, files, source material, data, links, or constraints]
+
+# Output Format
+[Exact structure: bullets, table, JSON, patch, report, image specs, etc.]
+
+# Success Criteria
+- [How the agent should verify the result]
+- [What must be true when the work is done]
+
+# Optional
+- Constraints: [boundaries or things to preserve]
+- Examples: [sample output or style reference]
+- Non-goals: [what not to do]
 import re
 from pathlib import Path
 

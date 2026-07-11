@@ -11,11 +11,14 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 import sys
 from typing import TextIO
 
+from .config import load_config
 from .postflight import analyze_postflight
 from .postflight_config import load_postflight_config
+from .telemetry import DEFAULT_TELEMETRY_FILE, record_postflight_safely
 
 
 def _parse_changed_files(value: str | None) -> list[str] | None:
@@ -46,6 +49,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--cwd", default=None, help="Directory used to locate .prompt-preflight.json.")
     parser.add_argument("--json", action="store_true", help="Emit the full result as JSON.")
+    parser.add_argument(
+        "--record-telemetry",
+        action="store_true",
+        help="Record prompt-free local postflight telemetry for this response",
+    )
+    parser.add_argument(
+        "--telemetry-path",
+        type=Path,
+        help=f"Telemetry JSONL path (default: {DEFAULT_TELEMETRY_FILE})",
+    )
     return parser
 
 
@@ -84,6 +97,19 @@ def main(
         changed_files=_parse_changed_files(args.changed_files),
         config=config,
     )
+    if args.record_telemetry or args.telemetry_path is not None:
+        preflight_config = load_config(args.cwd)
+        record_postflight_safely(
+            result,
+            host="cli-postflight",
+            telemetry_path=args.telemetry_path
+            or preflight_config.telemetry_path
+            or Path(DEFAULT_TELEMETRY_FILE),
+            enabled=True,
+            token_observability_enabled=preflight_config.token_observability_enabled,
+            token_default_max_output_tokens=preflight_config.token_default_max_output_tokens,
+            token_estimated_retry_output_tokens=preflight_config.token_estimated_retry_output_tokens,
+        )
 
     if args.json:
         json.dump(result.to_dict(), stdout, indent=2)

@@ -35,6 +35,15 @@ class AnalyzerTests(unittest.TestCase):
     def test_pauses_pronoun_only_fix(self) -> None:
         self.assertClarifies("Fix it")
 
+    def test_pauses_low_information_filler_prompts(self) -> None:
+        for prompt in ("blah blah", "something", "some task", "random thing"):
+            with self.subTest(prompt=prompt):
+                result = analyze_prompt(prompt)
+                self.assertTrue(result.should_clarify, result)
+                self.assertGreater(result.score, 0)
+                self.assertIn("low-information filler text", result.reasons)
+                self.assertIn("clarity", result.checks)
+
     def test_pauses_broad_rewrite(self) -> None:
         self.assertClarifies("Rewrite the whole project to be production ready")
 
@@ -114,6 +123,7 @@ class AnalyzerTests(unittest.TestCase):
             "Write a better intro": "writing",
             "Make this sound professional": "writing",
             "Summarize it": "writing",
+            "Create a story for kids": "writing",
             "Research this topic": "research",
             "Compare vendor options": "research",
             "Look into pricing": "research",
@@ -148,6 +158,7 @@ class AnalyzerTests(unittest.TestCase):
     def test_detailed_content_domain_prompts_pass(self) -> None:
         prompts = [
             "Write a 500-word blog post for startup founders explaining how Prompt Preflight reduces AI-agent retry loops, using a practical tone and three examples.",
+            "Write a 700-word bedtime story for children ages 4 to 6 about a shy turtle learning to sing, with two short chorus songs, a joyful read-aloud tone, and a happy ending.",
             "Research current SOC 2 alternatives for a seed-stage SaaS and compare cost, implementation effort, and audit readiness in a markdown table with links to official sources.",
             "Analyze sales.csv by month and region, calculate revenue and conversion rate, and output a table plus a short summary of trends.",
             "Create a 10-slide investor deck for seed-stage AI developer tool buyers with problem, market, product, traction, GTM, and ask sections.",
@@ -178,6 +189,43 @@ class AnalyzerTests(unittest.TestCase):
                     ),
                     result.suggested_prompt,
                 )
+
+    def test_vague_story_prompt_gets_writing_feedback(self) -> None:
+        result = analyze_prompt("Create a story for kids. Story should be joyful with songs")
+        self.assertTrue(result.should_clarify, result)
+        self.assertEqual(result.intent, "writing")
+        self.assertGreater(result.score, 0)
+        self.assertEqual(result.severity, "high")
+        self.assertIn("context", result.checks)
+        self.assertIn("output_contract", result.checks)
+        self.assertIn("template_contract", result.checks)
+        self.assertIn("risk", result.checks)
+        feedback = " ".join(result.questions).lower()
+        self.assertIn("age range", feedback)
+        self.assertIn("characters", feedback)
+        self.assertIn("songs", feedback)
+        self.assertIn("Story elements:", result.suggested_prompt)
+        self.assertIn("Use this structured template", result.suggested_prompt)
+        self.assertIn("# Task", result.suggested_prompt)
+        self.assertIn("# Output Format", result.suggested_prompt)
+
+    def test_missing_prompt_contract_fields_are_high_risk_and_template_backed(self) -> None:
+        result = analyze_prompt("Make the dashboard better")
+        self.assertTrue(result.should_clarify, result)
+        self.assertEqual(result.severity, "high")
+        self.assertIn("template_contract", result.checks)
+        self.assertIn("risk", result.checks)
+        self.assertTrue(
+            any("missing prompt contract fields" in reason for reason in result.reasons),
+            result.reasons,
+        )
+        self.assertIn("Use this structured template", result.suggested_prompt)
+        self.assertIn("# Task", result.suggested_prompt)
+        self.assertIn("# Constraints", result.suggested_prompt)
+        self.assertIn("# Output Format", result.suggested_prompt)
+
+    def test_short_low_risk_haiku_prompt_still_passes(self) -> None:
+        self.assertPasses("Write a haiku about rain")
 
     def test_short_action_without_output_format_gets_clarified(self) -> None:
         result = analyze_prompt("Generate more tests")

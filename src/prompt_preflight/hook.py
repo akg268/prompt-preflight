@@ -83,6 +83,9 @@ def process_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
         telemetry_path=config.telemetry_path,
         enabled=config.telemetry_enabled,
         timestamp_mode=config.telemetry_timestamp_mode,
+        token_observability_enabled=config.token_observability_enabled,
+        token_default_max_output_tokens=config.token_default_max_output_tokens,
+        token_estimated_retry_output_tokens=config.token_estimated_retry_output_tokens,
     )
     if not analysis.should_clarify:
         return None

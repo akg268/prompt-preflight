@@ -18,15 +18,22 @@ regresses, so it doubles as a pre-launch smoke test.
 
 ## One-line description
 
-> Prompt Preflight is a local check that catches underspecified prompts before
-> they become expensive model turns. No model calls, no network, no API keys.
+> Prompt Preflight is a local preflight layer for coding agents and VS Code that
+> catches underspecified prompts before they become expensive model turns. No
+> model calls, no network, no API keys.
+
+## Links
+
+- Repo: <https://github.com/akg268/prompt-preflight>
+- VS Code Marketplace beta: <https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode>
 
 ## Short description (for X, LinkedIn lead, Reddit title)
 
-> Prompt Preflight pauses vague prompts before your coding agent spends a model
-> turn on them. It runs locally with deterministic Python rules, shows a
-> stronger rewrite, and asks at most three high-value questions. Works as a
-> Codex plugin, Claude Code plugin, Kiro hook, or CLI.
+> Prompt Preflight pauses vague prompts before your coding agent or AI workflow
+> spends a model turn on them. It runs locally with deterministic Python rules,
+> shows a stronger rewrite, and asks at most three high-value questions. Add it
+> to Codex, Claude Code, or Kiro as a preflight hook, or install the VS Code
+> Marketplace beta to check prompt files before sending them to any AI tool.
 
 ## Hacker News
 
@@ -36,15 +43,20 @@ Title (under 80 chars):
 
 Body:
 
-> Prompt Preflight is a local check that runs before a Codex, Claude Code, or
-> Kiro turn. When a prompt is actionable but underspecified, it blocks the
-> request and returns a tailored rewrite plus up to three targeted questions.
+> Prompt Preflight is a local preflight layer for coding agents and VS Code. It
+> can run before a Codex, Claude Code, or Kiro turn, and it can also check prompt
+> files directly inside VS Code. When a prompt is actionable but underspecified,
+> it blocks or nudges the request and returns a tailored rewrite plus up to
+> three targeted questions.
 >
 > It uses deterministic Python rules. No model calls, no network, no API key.
-> The bundled 100-prompt benchmark catches 98/100 vague prompts today and is
-> meant as a regression guard, not a savings guarantee.
+> The bundled vague-prompt benchmark is meant as a regression guard, not a
+> savings guarantee.
 >
-> Repo and install instructions: <link to repo>
+> Repo and install instructions: https://github.com/akg268/prompt-preflight
+>
+> VS Code Marketplace beta:
+> https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode
 >
 > Try it without installing:
 >
@@ -68,11 +80,13 @@ Body:
 > the model runs and shows a stronger rewrite plus up to three questions.
 >
 > - Deterministic Python rules, no model or network calls
-> - Plugs into Codex, Claude Code, Kiro, or runs as a standalone CLI
-> - Ships with a 100-prompt benchmark for regression testing
+> - VS Code Marketplace beta, plus Codex, Claude Code, Kiro, and CLI support
+> - Ships with a 168-prompt benchmark for regression testing
 > - MIT licensed
 >
-> Repo: <link to repo>
+> Repo: https://github.com/akg268/prompt-preflight
+>
+> VS Code beta: https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode
 >
 > Local demo:
 >
@@ -92,12 +106,14 @@ Body:
 > When a prompt is actionable but underspecified, it pauses the request and
 > returns a tailored rewrite plus up to three high-value questions.
 >
-> - Works with Codex, Claude Code, Kiro, or as a standalone CLI
+> - VS Code Marketplace beta, plus Codex, Claude Code, Kiro, and CLI support
 > - No model calls, no network, no API key
-> - Ships with a 100-prompt regression benchmark
+> - Ships with a 168-prompt regression benchmark
 > - MIT licensed
 >
-> Repo: <link to repo>
+> Repo: https://github.com/akg268/prompt-preflight
+>
+> VS Code beta: https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode
 
 ## X / Twitter
 
@@ -105,9 +121,9 @@ Single post:
 
 > Prompt Preflight: a local pre-check that blocks vague prompts before your
 > coding agent spends a model turn. Deterministic Python rules, no network,
-> no API key. Codex / Claude Code / Kiro / CLI. MIT.
+> no API key. VS Code beta + Codex / Claude Code / Kiro / CLI. MIT.
 >
-> <link to repo>
+> https://github.com/akg268/prompt-preflight
 
 Thread (optional follow-ups):
 
@@ -119,7 +135,7 @@ Thread (optional follow-ups):
 >    by detected intent (software build, bug fix, deployment, migration,
 >    optimization, image generation).
 >
-> 3/ 100-prompt benchmark is included as a regression guard. The repo has a
+> 3/ 168-prompt benchmark is included as a regression guard. The repo has a
 >    one-command demo: `python3 scripts/demo.py`.
 
 ## GIF or short-video recording checklist

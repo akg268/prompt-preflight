@@ -21,6 +21,7 @@ from prompt_preflight.postflight_claude_hook import (  # noqa: E402
     main as claude_hook_main,
     process_payload as claude_process_payload,
 )
+from prompt_preflight.telemetry import read_events  # noqa: E402
 
 
 def _checks(prompt: str, response: str, **kwargs) -> tuple[str, ...]:
@@ -255,6 +256,29 @@ class PostflightCliTests(unittest.TestCase):
         self.assertEqual(absent_code, 0)
         self.assertEqual(empty_code, 2)
 
+    def test_records_postflight_telemetry_without_response_text(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "telemetry.jsonl"
+            code, _ = self._run(
+                [
+                    "--prompt",
+                    "Return JSON",
+                    "--record-telemetry",
+                    "--telemetry-path",
+                    str(path),
+                    "the answer is 42",
+                ]
+            )
+            raw = path.read_text(encoding="utf-8")
+            events = read_events(path)
+
+        self.assertEqual(code, 2)
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0]["phase"], "postflight")
+        self.assertIn("token_observability", events[0])
+        self.assertNotIn("Return JSON", raw)
+        self.assertNotIn("answer is 42", raw)
+
 
 class PostflightClaudeHookTests(unittest.TestCase):
     def _write_transcript(self, directory: Path, assistant: str, user: str = "Return JSON") -> Path:
@@ -306,6 +330,36 @@ class PostflightClaudeHookTests(unittest.TestCase):
             code = claude_hook_main(stdin=StringIO(payload), stdout=stdout)
         self.assertEqual(code, 0)
         json.loads(stdout.getvalue())  # must be valid JSON
+
+    def test_stop_hook_records_postflight_telemetry_when_enabled(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".prompt-preflight.json").write_text(
+                json.dumps(
+                    {
+                        "telemetry": {
+                            "enabled": True,
+                            "path": "telemetry.jsonl",
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            transcript = self._write_transcript(root, "the answer is 42")
+            result = claude_process_payload(
+                {"hook_event_name": "Stop", "transcript_path": str(transcript), "cwd": directory}
+            )
+            telemetry_path = root / "telemetry.jsonl"
+            raw = telemetry_path.read_text(encoding="utf-8")
+            events = read_events(telemetry_path)
+
+        self.assertIsNotNone(result)
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0]["host"], "claude-code-postflight")
+        self.assertEqual(events[0]["phase"], "postflight")
+        self.assertIn("token_observability", events[0])
+        self.assertNotIn("Return JSON", raw)
+        self.assertNotIn("answer is 42", raw)
 
     def test_stop_hook_fails_open_on_bad_json(self) -> None:
         stdout = StringIO()

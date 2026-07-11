@@ -10,7 +10,12 @@ from typing import Iterable, TYPE_CHECKING
 if TYPE_CHECKING:
     from .config import Config
 
-from .templates import questions_for_missing_fields, validate_structured_prompt
+from .templates import (
+    is_low_information_value,
+    questions_for_missing_fields,
+    template_profile_for_intent,
+    validate_structured_prompt,
+)
 
 
 BYPASS_MARKERS = ("[preflight:skip]", "#preflight-ignore", "/preflight-skip")
@@ -84,6 +89,24 @@ CREATIVE_RE = re.compile(
     r"\b(haiku|joke|poem|story|tagline|translate|translation)\b",
     re.IGNORECASE,
 )
+STORY_REQUEST_RE = re.compile(
+    r"\b(?:create|draft|make|tell|write)\b.*\b(?:bedtime story|children'?s story|"
+    r"kids'? story|short story|story|storybook)\b|\bstory\s+(?:about|for|with)\b",
+    re.IGNORECASE,
+)
+STORY_AGE_RANGE_RE = re.compile(
+    r"\b(?:ages?\s*\d|age\s+range|reading level|grade\s+\d|"
+    r"\d+\s*(?:-|to)\s*\d+\s*(?:year|yr)?s?\s*old|"
+    r"\d+\s*(?:year|yr)s?\s*old|toddlers?|preschoolers?|kindergarten|"
+    r"early readers?|middle grade|young adults?)\b",
+    re.IGNORECASE,
+)
+STORY_ELEMENT_RE = re.compile(
+    r"\b(?:character|characters|conflict|ending|hero|lesson|moral|plot|"
+    r"protagonist|setting|theme|villain)\b|"
+    r"\babout\s+[A-Za-z0-9][A-Za-z0-9' -]{3,}",
+    re.IGNORECASE,
+)
 NEW_BUILD_RE = re.compile(r"\b(build|create|design|implement)\b", re.IGNORECASE)
 IMAGE_REQUEST_RE = re.compile(
     r"\b(?:create|generate|draw|illustrate|make|paint|render)\b.*\b(?:artwork|graphic|"
@@ -140,6 +163,11 @@ PRESENTATION_REQUEST_RE = re.compile(
 )
 AUDIENCE_RE = re.compile(r"\b(?:audience|for|to)\s+(?:[A-Za-z][\w-]+|the\s+\w+)", re.IGNORECASE)
 GOAL_RE = re.compile(r"\b(?:goal|purpose|so that|to help|decision|objective|call to action|cta)\b", re.IGNORECASE)
+PURPOSE_RE = re.compile(
+    r"\b(?:announce|clarify|convince|drive|educate|edit|explain(?:ing)?|help|"
+    r"inform|onboard(?:ing)?|persuade|proofread|sell|summari[sz]e|teach|rewrite)\b",
+    re.IGNORECASE,
+)
 SOURCE_RE = re.compile(r"\b(?:attached|based on|provided|source|include|exclude|from|using|according to|dataset|csv|spreadsheet|table)\b", re.IGNORECASE)
 TONE_RE = re.compile(r"\b(?:tone|voice|professional|casual|friendly|formal|concise|persuasive|technical)\b", re.IGNORECASE)
 LENGTH_RE = re.compile(r"\b(?:words?|pages?|paragraphs?|slides?|minutes?|short|brief|one-page|long-form)\b|\b\d+\s*(?:words?|pages?|slides?|minutes?)\b", re.IGNORECASE)
@@ -166,6 +194,11 @@ INPUT_FILE_CUE_RE = re.compile(
     re.IGNORECASE,
 )
 OUTPUT_FILE_PREFIX_RE = re.compile(r"\b(?:create|generate|output|save|write)\s+`?$", re.IGNORECASE)
+OUTPUT_ARTIFACT_RE = re.compile(
+    r"\b(?:create|generate|output|save|write)\s+`?(?:[\w.-]+/)*[\w.-]+\."
+    r"(?:csv|docx?|html|json|md|pdf|pptx?|toml|txt|xlsx?|ya?ml)\b",
+    re.IGNORECASE,
+)
 SENSITIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "private key",
@@ -335,6 +368,8 @@ def classify_intent(prompt: str) -> str:
         return "data_analysis"
     if RESEARCH_REQUEST_RE.search(text):
         return "research"
+    if STORY_REQUEST_RE.search(text):
+        return "writing"
     if WRITING_REQUEST_RE.search(text):
         return "writing"
     if re.search(r"\bfix\b", text, re.IGNORECASE):
@@ -389,6 +424,22 @@ def _action_target(prompt: str, action: str) -> str:
     return target
 
 
+def _template_suggestion_for_intent(intent: str) -> str:
+    """Return the Markdown prompt-contract template that best matches intent."""
+
+    return template_profile_for_intent(intent).templates["md"]
+
+
+def _append_template_suggestion(base_prompt: str, intent: str) -> str:
+    """Attach a structured template so vague prompts point users to a contract."""
+
+    return (
+        f"{base_prompt}\n\n"
+        "Use this structured template to fill the missing fields:\n"
+        f"{_template_suggestion_for_intent(intent)}"
+    )
+
+
 def suggest_rewrite(prompt: str, intent: str | None = None) -> str:
     """Create a prompt-shaped example that preserves the user's likely intent."""
     raw_prompt = (prompt or "").strip()
@@ -417,6 +468,15 @@ def suggest_rewrite(prompt: str, intent: str | None = None) -> str:
         )
 
     if intent == "writing":
+        if STORY_REQUEST_RE.search(text):
+            return (
+                f"Task: {text.rstrip('.!?')}. Audience/reading level: [specific age range, "
+                "grade, or reading level]. Story elements: [main character, setting, simple "
+                "plot/conflict, ending, and lesson or theme]. Tone/song details: [mood, number "
+                "of songs, chorus/refrain style, and any words to include or avoid]. Output "
+                "format: [word count, sections, rhyme/no rhyme, plain text, or markdown]. "
+                "Self-check: verify it is age-appropriate, coherent, joyful, and easy to read aloud."
+            )
         return (
             f"Task: {text.rstrip('.!?')}. Audience: [who will read it]. "
             "Purpose: [what the writing should accomplish]. Context/source material: "
@@ -604,6 +664,7 @@ def analyze_prompt(
     is_question = text.endswith("?") or bool(QUESTION_RE.match(text))
     is_creative = bool(CREATIVE_RE.search(text))
     intent = classify_intent(text)
+    is_story_request = bool(STORY_REQUEST_RE.search(text))
 
     template_validation = validate_structured_prompt(raw_prompt, intent)
     if template_validation and template_validation.missing_required and (_is_enabled("template_contract") or _is_enabled("output_contract")):
@@ -675,16 +736,53 @@ def analyze_prompt(
     def _is_enabled(cat: str) -> bool:
         return config.policy_for(cat) != "disable" if config else True
 
+    if is_followup:
+        return Analysis(text, False, 0, 0, 0, ("conversational follow-up",), ())
+
+    if is_low_information_value(text) and (_is_enabled("clarity") or _is_enabled("template_contract")):
+        enabled_checks = tuple(
+            check for check in ("clarity", "template_contract") if _is_enabled(check)
+        )
+        decision = config.mode if config and config.checks is None else "block"
+        if config and config.checks is not None:
+            policies = tuple(config.policy_for(check) for check in enabled_checks)
+            if "block" in policies:
+                decision = "block"
+            elif "nudge" in policies:
+                decision = "nudge"
+            else:
+                decision = "allow"
+        should_clarify = decision != "allow"
+        return Analysis(
+            text,
+            should_clarify,
+            55 if should_clarify else 0,
+            72 if should_clarify else 0,
+            42 if should_clarify else 0,
+            ("low-information filler text",),
+            (
+                "Can you replace filler words with the actual task, context, output format, and success criteria?",
+            )[: max(1, max_questions)] if should_clarify else (),
+            intent=intent,
+            suggested_prompt=_append_template_suggestion(suggest_rewrite(text, intent), intent)
+            if should_clarify
+            else None,
+            checks=enabled_checks,
+            severity="medium" if should_clarify else "low",
+            redacted_prompt=redacted_text,
+            decision=decision,
+        )
+
     # Do not interrupt conversation, explanations, confirmations, or lightweight prose.
-    if is_followup or (is_question and not is_action) or (is_creative and not HIGH_IMPACT_RE.search(text)):
-        reason = "conversational follow-up" if is_followup else "low-risk informational request"
-        return Analysis(text, False, 0, 0, 0, (reason,), ())
+    if (is_question and not is_action) or (is_creative and not is_story_request and not HIGH_IMPACT_RE.search(text)):
+        return Analysis(text, False, 0, 0, 0, ("low-risk informational request",), ())
 
     ambiguity = 0
     impact = 0
     reasons: list[str] = []
     questions: list[str] = []
     checks: list[str] = []
+    needs_prompt_contract_template = False
 
     vague_terms = _unique(match.group(0).lower() for match in VAGUE_RE.finditer(text))
     has_anchor = bool(ANCHOR_RE.search(text))
@@ -821,12 +919,30 @@ def analyze_prompt(
         has_goal = bool(GOAL_RE.search(text))
         has_source = bool(SOURCE_RE.search(text))
         has_tone_or_length = bool(TONE_RE.search(text) or LENGTH_RE.search(text) or has_format)
+        has_story_age_range = bool(STORY_AGE_RANGE_RE.search(text))
+        has_story_elements = bool(STORY_ELEMENT_RE.search(text))
+        has_story_length = bool(LENGTH_RE.search(text))
 
         if not has_audience and _is_enabled('context'):
             checks.append("context")
             ambiguity += 10
             reasons.append("no writing audience")
             questions.append("Who is the audience, and what should they do or understand after reading it?")
+        if is_story_request and not has_story_age_range and _is_enabled('context'):
+            checks.append("context")
+            ambiguity += 8
+            reasons.append("children's story age range or reading level is underspecified")
+            questions.append("What exact age range or reading level should the story target?")
+        if is_story_request and not has_story_elements and _is_enabled('context'):
+            checks.append("context")
+            ambiguity += 14
+            reasons.append("story characters, setting, plot, or lesson are underspecified")
+            questions.append("Who are the main characters, what is the setting, and what simple plot or lesson should the story include?")
+        if is_story_request and not has_story_length and _is_enabled('output_contract'):
+            checks.append("output_contract")
+            ambiguity += 10
+            reasons.append("story length or structure is underspecified")
+            questions.append("How long should the story be, and should songs be full lyrics, short choruses, or simple placeholders?")
         if (not has_goal or not has_source) and _is_enabled('context'):
             checks.append("context")
             ambiguity += 12
@@ -920,6 +1036,69 @@ def analyze_prompt(
         reasons.append("no verification or success criteria")
         questions.append("How should completion be verified—tests, examples, or acceptance criteria?")
 
+    first_action = action_matches[0] if action_matches else ""
+    task_target = _action_target(text, first_action) if first_action else "[specific target]"
+    has_contract_task = bool(is_action and task_target != "[specific target]")
+    has_contract_intent = bool(GOAL_RE.search(text) or PURPOSE_RE.search(text) or has_success)
+    if is_story_request:
+        has_contract_context = bool(STORY_ELEMENT_RE.search(text))
+    elif is_writing_request:
+        has_contract_context = bool(SOURCE_RE.search(text) or AUDIENCE_RE.search(text))
+    elif is_image_request:
+        has_contract_context = bool(IMAGE_SCENE_RE.search(text))
+    elif is_research_request:
+        has_contract_context = bool(RESEARCH_SOURCE_RE.search(text) or SOURCE_RE.search(text))
+    elif is_data_request:
+        has_contract_context = bool(DATASET_RE.search(text) or has_anchor)
+    elif is_presentation_request:
+        has_contract_context = bool(PRESENTATION_STORY_RE.search(text) or SOURCE_RE.search(text))
+    else:
+        has_contract_context = bool(has_anchor or references_attachment or SOURCE_RE.search(text))
+    has_contract_rules = bool(
+        has_constraint
+        or has_plan_first
+        or has_rollback
+        or TONE_RE.search(text)
+        or CRITERIA_RE.search(text)
+    )
+    has_contract_output = bool(
+        has_format
+        or has_success
+        or LENGTH_RE.search(text)
+        or IMAGE_FORMAT_RE.search(text)
+        or PRESENTATION_FORMAT_RE.search(text)
+        or OUTPUT_ARTIFACT_RE.search(text)
+    )
+    missing_contract_fields: list[str] = []
+    if not has_contract_task:
+        missing_contract_fields.append("task")
+    if not has_contract_intent:
+        missing_contract_fields.append("intent/purpose")
+    if not has_contract_context:
+        missing_contract_fields.append("context")
+    if not has_contract_rules:
+        missing_contract_fields.append("rules/constraints")
+    if not has_contract_output:
+        missing_contract_fields.append("output format")
+
+    if (
+        len(missing_contract_fields) >= 3
+        and (is_action or is_content_request or is_image_request)
+        and (_is_enabled("template_contract") or _is_enabled("risk") or _is_enabled("output_contract"))
+    ):
+        needs_prompt_contract_template = True
+        if _is_enabled("template_contract"):
+            checks.append("template_contract")
+        if _is_enabled("risk"):
+            checks.append("risk")
+        ambiguity += min(28, 10 + 4 * len(missing_contract_fields))
+        impact += 20
+        reasons.append("missing prompt contract fields: " + ", ".join(missing_contract_fields))
+        if not questions:
+            questions.append(
+                "Can you rewrite this using a structured template with task, intent/purpose, context, rules/constraints, and output format?"
+            )
+
     if has_anchor:
         ambiguity -= 18
     if has_constraint:
@@ -958,7 +1137,10 @@ def analyze_prompt(
     score = _clamp(round((ambiguity * impact) ** 0.5)) if ambiguity and impact else 0
 
     # A clear target plus explicit verification is sufficient even for costly work.
-    should_clarify = bool(is_action and ambiguity >= 30 and impact >= 35 and score >= threshold)
+    should_clarify = bool(
+        needs_prompt_contract_template
+        or (is_action and ambiguity >= 30 and impact >= 35 and score >= threshold)
+    )
 
     if should_clarify and not questions:
         if is_image_request:
@@ -969,6 +1151,8 @@ def analyze_prompt(
         questions.insert(0, "Which part should we start with instead of changing the entire project at once?")
 
     suggested_prompt = suggest_rewrite(text, intent) if should_clarify else None
+    if should_clarify and needs_prompt_contract_template and suggested_prompt:
+        suggested_prompt = _append_template_suggestion(suggested_prompt, intent)
     if should_clarify and requires_plan_first and suggested_prompt and "Plan-first:" not in suggested_prompt:
         suggested_prompt += (
             " Plan-first: inspect the relevant context, propose a safe plan, and wait for "
@@ -977,7 +1161,7 @@ def analyze_prompt(
 
     severity = "low"
     if should_clarify:
-        if "risk" in checks or impact >= 80:
+        if needs_prompt_contract_template or "risk" in checks or (impact >= 80 and not is_content_request and not is_image_request):
             severity = "high"
         elif score >= 55:
             severity = "medium"

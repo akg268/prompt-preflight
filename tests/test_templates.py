@@ -71,6 +71,55 @@ Photorealistic, cinematic, high contrast night mood.
         self.assertIsNotNone(validation)
         self.assertEqual(validation.missing_required, ())
 
+    def test_markdown_profile_comment_overrides_fallback_intent(self) -> None:
+        prompt = """<!-- prompt-preflight: check -->
+<!-- profile: general -->
+
+# Task
+Refactor the unit tests for the payment module.
+
+# Context
+The existing tests are flaky around retry handling.
+
+# Output Format
+Patch plus short summary.
+
+# Success Criteria
+- Unit tests must pass.
+"""
+        validation = validate_structured_prompt(prompt, "software_build")
+        self.assertIsNotNone(validation)
+        self.assertEqual(validation.profile, "general")
+        self.assertEqual(validation.missing_required, ())
+
+    def test_filler_values_do_not_satisfy_markdown_contract_fields(self) -> None:
+        prompt = """<!-- prompt-preflight: check -->
+<!-- profile: general -->
+
+# Task
+some task
+
+# Context
+something
+
+# Output Format
+someth format
+
+# Success Criteria
+some
+"""
+        validation = validate_structured_prompt(prompt, "general")
+        self.assertIsNotNone(validation)
+        self.assertEqual(
+            validation.missing_required,
+            ("task", "context", "output format", "success criteria"),
+        )
+
+        result = analyze_prompt(prompt)
+        self.assertTrue(result.should_clarify, result)
+        self.assertGreater(result.score, 0)
+        self.assertIn("structured prompt is missing required fields", result.reasons[0])
+
     def test_xml_contract_uses_profile_attribute(self) -> None:
         prompt = """<prompt profile="research">
   <research_question>Which SOC 2 alternative is best for a seed-stage SaaS?</research_question>

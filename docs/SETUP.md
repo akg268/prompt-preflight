@@ -313,6 +313,11 @@ Create `.prompt-preflight.json` in the project where Codex is running:
   "telemetry": {
     "enabled": false,
     "path": ".prompt-preflight-telemetry.jsonl"
+  },
+  "token_observability": {
+    "enabled": true,
+    "default_max_output_tokens": 1000,
+    "estimated_retry_output_tokens": 800
   }
 }
 ```
@@ -321,13 +326,14 @@ Create `.prompt-preflight.json` in the project where Codex is running:
 - `mode: "nudge"` allows the turn but instructs Codex to clarify first.
 - A higher `threshold` interrupts less often.
 - `telemetry` is optional local-only count reporting and is disabled by default.
+- `token_observability` adds local token estimates to telemetry reports; it is enabled by default when telemetry is recorded.
 - Set `enabled` to `false` to disable checks for that project.
 
 To bypass one prompt without changing configuration, add `[preflight:skip]`.
 
 ## View local telemetry
 
-If telemetry is enabled, use Codex normally. Prompt Preflight writes prompt-free count events to the configured local file, usually:
+If telemetry is enabled, use Codex normally. Prompt Preflight writes prompt-free count and token-estimate events to the configured local file, usually:
 
 ```text
 .prompt-preflight-telemetry.jsonl
@@ -358,7 +364,7 @@ python3 scripts/prompt_preflight.py \
   --telemetry-report path/to/telemetry.jsonl
 ```
 
-The report shows prompts checked, blocked prompts, nudges, bypasses, follow-up prompts accepted, estimated avoided retry turns, and average clarification score. It does not show original prompts.
+The report shows prompts checked, blocked prompts, nudges, bypasses, follow-up prompts accepted, estimated avoided retry turns, average clarification score, and token estimate totals. It does not show original prompts.
 
 ## Updating
 

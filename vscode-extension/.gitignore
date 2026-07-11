@@ -1,0 +1,6 @@
+node_modules/
+out/
+bundled-analyzer/
+.vscode-test/
+*.vsix
+testprompt.md

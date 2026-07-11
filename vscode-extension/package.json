@@ -1,0 +1,224 @@
+{
+  "name": "prompt-preflight-vscode",
+  "displayName": "Prompt Preflight",
+  "description": "Catch vague AI-agent prompts in VS Code before they burn model turns.",
+  "version": "0.0.1",
+  "publisher": "arunkumar-ganesan",
+  "author": {
+    "name": "Arunkumar Ganesan"
+  },
+  "license": "MIT",
+  "preview": true,
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akg268/prompt-preflight.git",
+    "directory": "vscode-extension"
+  },
+  "bugs": {
+    "url": "https://github.com/akg268/prompt-preflight/issues"
+  },
+  "homepage": "https://github.com/akg268/prompt-preflight#readme",
+  "engines": {
+    "vscode": "^1.84.0"
+  },
+  "extensionKind": [
+    "workspace"
+  ],
+  "categories": [
+    "Linters",
+    "Machine Learning",
+    "Other"
+  ],
+  "keywords": [
+    "prompt",
+    "prompting",
+    "preflight",
+    "ai",
+    "generative-ai",
+    "llm",
+    "copilot",
+    "claude",
+    "codex",
+    "prompt-engineering",
+    "prompt-linting",
+    "ai-agents",
+    "ai-tools",
+    "token-cost",
+    "developer-tools",
+    "productivity"
+  ],
+  "activationEvents": [
+    "onCommand:promptPreflight.checkSelection",
+    "onCommand:promptPreflight.checkDocument",
+    "onCommand:promptPreflight.insertSuggestedPrompt",
+    "onCommand:promptPreflight.closeGeneratedTabs",
+    "onCommand:promptPreflight.insertMarkdownTemplate",
+    "onCommand:promptPreflight.insertXmlTemplate",
+    "onCommand:promptPreflight.insertTomlTemplate",
+    "onCommand:promptPreflight.openExamples",
+    "onCommand:promptPreflight.lintWorkspacePrompts",
+    "onCommand:promptPreflight.openTeamPolicy",
+    "onCommand:promptPreflight.createTeamPolicy",
+    "onCommand:promptPreflight.enableTelemetry",
+    "onCommand:promptPreflight.openComposer",
+    "onCommand:promptPreflight.openTelemetryDashboard",
+    "onCommand:promptPreflight.runSetupDoctor",
+    "onCommand:promptPreflight.openReleaseReadinessChecklist",
+    "onLanguage:markdown",
+    "onLanguage:xml",
+    "onLanguage:toml"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "promptPreflight.checkSelection",
+        "title": "Check Selected Prompt",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.checkDocument",
+        "title": "Check Current Markdown Prompt",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.insertSuggestedPrompt",
+        "title": "Insert Suggested Prompt into Original File",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.closeGeneratedTabs",
+        "title": "Close Generated Tabs",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.insertMarkdownTemplate",
+        "title": "New Markdown Prompt Template",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.insertXmlTemplate",
+        "title": "New XML Prompt Template",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.insertTomlTemplate",
+        "title": "New TOML Prompt Template",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.openExamples",
+        "title": "Open Prompt Examples",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.lintWorkspacePrompts",
+        "title": "Lint Workspace Prompt Files",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.openTeamPolicy",
+        "title": "Open Team Policy",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.createTeamPolicy",
+        "title": "Create .prompt-preflight.json",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.enableTelemetry",
+        "title": "Enable Local Telemetry",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.openComposer",
+        "title": "Open Prompt Composer",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.openTelemetryDashboard",
+        "title": "Open Telemetry Dashboard",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.runSetupDoctor",
+        "title": "Run Setup Doctor",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.openReleaseReadinessChecklist",
+        "title": "Open Release Readiness Checklist",
+        "category": "Prompt Preflight"
+      }
+    ],
+    "configuration": {
+      "title": "Prompt Preflight",
+      "properties": {
+        "promptPreflight.pythonPath": {
+          "type": "string",
+          "default": "python3",
+          "description": "Python executable used to run Prompt Preflight."
+        },
+        "promptPreflight.repoPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to a prompt-preflight repository checkout. Leave empty when developing this extension inside the main repo."
+        },
+        "promptPreflight.threshold": {
+          "type": "number",
+          "default": 45,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Clarification threshold passed to the Prompt Preflight analyzer."
+        },
+        "promptPreflight.maxQuestions": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Maximum clarification questions to return."
+        },
+        "promptPreflight.diagnostics.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Prompt Preflight diagnostics for prompt-like Markdown, XML, and TOML files."
+        },
+        "promptPreflight.diagnostics.debounceMs": {
+          "type": "number",
+          "default": 900,
+          "minimum": 100,
+          "maximum": 5000,
+          "description": "Milliseconds to wait after edits before refreshing Prompt Preflight diagnostics."
+        }
+      }
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "promptPreflight.checkSelection",
+          "when": "editorHasSelection",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile && npm run package:stage-analyzer",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "check": "tsc -p ./ --noEmit",
+    "test": "npm run compile && node out/test/runTests.js",
+    "package:stage-analyzer": "node scripts/stageAnalyzer.js",
+    "package:list": "npm run compile && npm run package:stage-analyzer && vsce ls --no-dependencies --tree",
+    "package:vsix": "vsce package --no-dependencies --baseImagesUrl https://raw.githubusercontent.com/akg268/prompt-preflight/main/vscode-extension",
+    "package:audit": "node scripts/auditVsix.js prompt-preflight-vscode-0.0.1.vsix"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/vscode": "^1.84.0",
+    "@vscode/vsce": "^3.9.2",
+    "typescript": "^5.4.5"
+  }
+}

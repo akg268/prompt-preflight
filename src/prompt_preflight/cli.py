@@ -108,9 +108,12 @@ def main(argv: list[str] | None = None) -> int:
             analysis,
             host="cli",
             mode="block",
-            telemetry_path=args.telemetry_path or Path(DEFAULT_TELEMETRY_FILE),
+            telemetry_path=args.telemetry_path or config.telemetry_path or Path(DEFAULT_TELEMETRY_FILE),
             enabled=True,
             timestamp_mode=config.telemetry_timestamp_mode,
+            token_observability_enabled=config.token_observability_enabled,
+            token_default_max_output_tokens=config.token_default_max_output_tokens,
+            token_estimated_retry_output_tokens=config.token_estimated_retry_output_tokens,
         )
     if args.as_json:
         print(json.dumps(analysis.to_dict(), indent=2))

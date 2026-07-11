@@ -16,12 +16,15 @@ from prompt_preflight.analyzer import analyze_prompt
 from prompt_preflight.cli import main
 from prompt_preflight.config import load_config, resolve_telemetry_report_path
 from prompt_preflight.telemetry import (
+    postflight_telemetry_event,
     read_events,
     record_analysis,
+    record_postflight,
     render_report,
     summarize_events,
     telemetry_event,
 )
+from prompt_preflight.postflight import analyze_postflight
 
 
 class TelemetryTests(unittest.TestCase):
@@ -36,6 +39,19 @@ class TelemetryTests(unittest.TestCase):
         self.assertEqual(event["decision"], "blocked")
         self.assertEqual(event["intent"], "image_generation")
         self.assertEqual(event["question_count"], 3)
+        self.assertIn("token_observability", event)
+        self.assertNotIn("car", json.dumps(event["token_observability"]).lower())
+
+    def test_telemetry_event_can_disable_token_observability(self) -> None:
+        analysis = analyze_prompt("Create a car image")
+        event = telemetry_event(
+            analysis,
+            host="test",
+            decision="blocked",
+            token_observability_enabled=False,
+        )
+
+        self.assertNotIn("token_observability", event)
 
     def test_telemetry_event_timestamp_modes(self) -> None:
         analysis = analyze_prompt("Create a car image")
@@ -87,19 +103,48 @@ class TelemetryTests(unittest.TestCase):
 
     def test_render_report_explains_privacy(self) -> None:
         summary = summarize_events(
-            [
-                {
-                    "decision": "blocked",
-                    "host": "codex",
-                    "intent": "software_build",
-                    "score": 60,
-                }
-            ]
+            [telemetry_event(analyze_prompt("Create a car image"), host="codex", decision="blocked")]
         )
         report = render_report(summary, path=Path("telemetry.jsonl"))
         self.assertIn("Prompts checked: 1", report)
         self.assertIn("Estimated avoided retry turns: 1", report)
         self.assertIn("does not store prompt text", report)
+        self.assertIn("Token observability", report)
+
+    def test_postflight_event_and_report_are_prompt_free(self) -> None:
+        result = analyze_postflight("Return JSON", "the answer is 42")
+        event = postflight_telemetry_event(result, host="claude-code-postflight")
+        encoded = json.dumps(event)
+
+        self.assertEqual(event["phase"], "postflight")
+        self.assertEqual(event["decision"], "postflight_blocked")
+        self.assertIn("token_observability", event)
+        self.assertNotIn("Return JSON", encoded)
+        self.assertNotIn("answer is 42", encoded)
+
+        summary = summarize_events([event])
+        report = render_report(summary, path=Path("telemetry.jsonl"))
+        self.assertIn("Postflight", report)
+        self.assertIn("Responses checked: 1", report)
+        self.assertIn("Estimated response tokens observed", report)
+
+    def test_record_postflight_writes_prompt_free_event(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "telemetry.jsonl"
+            result = analyze_postflight("Return JSON", "the answer is 42")
+            record_postflight(
+                result,
+                host="cli-postflight",
+                telemetry_path=path,
+                enabled=True,
+            )
+            raw = path.read_text(encoding="utf-8")
+            events = read_events(path)
+
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0]["phase"], "postflight")
+        self.assertNotIn("Return JSON", raw)
+        self.assertNotIn("answer is 42", raw)
 
     def test_record_and_render_structured_prompt_block(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -172,6 +217,26 @@ A red vintage Mustang on a rainy neon street
                 )
                 config = load_config(root)
             self.assertEqual(config.telemetry_timestamp_mode, mode)
+
+    def test_config_token_observability_settings(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            Path(root, ".prompt-preflight.json").write_text(
+                json.dumps(
+                    {
+                        "token_observability": {
+                            "enabled": False,
+                            "default_max_output_tokens": 123,
+                            "estimated_retry_output_tokens": 456,
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            config = load_config(root)
+        self.assertFalse(config.token_observability_enabled)
+        self.assertEqual(config.token_default_max_output_tokens, 123)
+        self.assertEqual(config.token_estimated_retry_output_tokens, 456)
 
     def test_resolve_telemetry_report_path_uses_configured_path(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -293,6 +358,23 @@ class TelemetryReportCliTests(unittest.TestCase):
                 code = main(["--cwd", str(project), "--telemetry-report"])
             self.assertEqual(code, 0)
             self.assertIn(str(telemetry_path.resolve()), stdout.getvalue())
+
+    def test_record_telemetry_uses_configured_path(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            telemetry_path = root / "project-telemetry.jsonl"
+            default_path = root / ".prompt-preflight-telemetry.jsonl"
+            Path(root, ".prompt-preflight.json").write_text(
+                json.dumps({"telemetry": {"enabled": True, "path": "project-telemetry.jsonl"}}),
+                encoding="utf-8",
+            )
+            stdout = StringIO()
+            with patch("sys.stdout", stdout):
+                code = main(["--cwd", str(root), "--record-telemetry", "Create a car image"])
+
+            self.assertEqual(code, 2)
+            self.assertTrue(telemetry_path.is_file())
+            self.assertFalse(default_path.exists())
 
 
 if __name__ == "__main__":

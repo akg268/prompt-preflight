@@ -1,0 +1,15 @@
+.vscode/**
+.vscode-test/**
+.gitignore
+node_modules/**
+src/**
+scripts/**
+out/test/**
+out/**/*.map
+*.vsix
+testprompt.md
+tsconfig.json
+package-lock.json
+npm-debug.log
+yarn.lock
+pnpm-lock.yaml

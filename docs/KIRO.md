@@ -135,6 +135,11 @@ Create `.prompt-preflight.json` in the project where Kiro is running:
   "telemetry": {
     "enabled": false,
     "path": ".prompt-preflight-telemetry.jsonl"
+  },
+  "token_observability": {
+    "enabled": true,
+    "default_max_output_tokens": 1000,
+    "estimated_retry_output_tokens": 800
   }
 }
 ```
@@ -144,6 +149,7 @@ Create `.prompt-preflight.json` in the project where Kiro is running:
 - `threshold`: raise it to interrupt less often.
 - `max_questions`: limit clarification questions from 1 to 5.
 - `telemetry`: optional local-only count reporting; disabled by default.
+- `token_observability`: optional local token estimates for reports; enabled by default when telemetry is recorded.
 - `enabled`: disable Prompt Preflight for one project.
 
 Bypass one request:
@@ -154,7 +160,7 @@ Create a car image [preflight:skip]
 
 ## View local telemetry
 
-If telemetry is enabled, use Kiro normally. Prompt Preflight writes prompt-free count events to the configured local file, usually:
+If telemetry is enabled, use Kiro normally. Prompt Preflight writes prompt-free count and token-estimate events to the configured local file, usually:
 
 ```text
 .prompt-preflight-telemetry.jsonl
@@ -185,7 +191,7 @@ python3 scripts/prompt_preflight.py \
   --telemetry-report path/to/telemetry.jsonl
 ```
 
-The report shows prompts checked, blocked prompts, nudges, bypasses, follow-up prompts accepted, estimated avoided retry turns, and average clarification score. It does not show original prompts.
+The report shows prompts checked, blocked prompts, nudges, bypasses, follow-up prompts accepted, estimated avoided retry turns, average clarification score, and token estimate totals. It does not show original prompts.
 
 ## Important files
 
@@ -236,6 +242,11 @@ Enable nudge mode in the workspace config so CLI hook output is added to context
   "telemetry": {
     "enabled": false,
     "path": ".prompt-preflight-telemetry.jsonl"
+  },
+  "token_observability": {
+    "enabled": true,
+    "default_max_output_tokens": 1000,
+    "estimated_retry_output_tokens": 800
   }
 }
 ```

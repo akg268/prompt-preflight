@@ -28,6 +28,10 @@ The CLI is the guaranteed path: it needs no host cooperation and doubles as a CI
 gate. The Claude Code `Stop` hook is the richest integration because it can hand
 the response back to the agent for a fix.
 
+Postflight telemetry is currently wired for the CLI and the Claude Code Stop
+hook. Codex and Kiro remain preflight-only until those hosts expose or confirm a
+post-response hook surface.
+
 ### A note on the Claude Code `Stop` contract
 
 This repo only ships `UserPromptSubmit` adapters, so the exact `Stop` payload
@@ -63,6 +67,49 @@ Each check emits at most one finding. A per-check **policy** (`block` /
 metadata never blocks. Defaults are strict so the CLI exit code is a meaningful
 gate; soften per check in `.prompt-preflight.json` under a `postflight` block.
 
+## Local telemetry and token observability
+
+Postflight can write the same prompt-free JSONL telemetry file used by
+preflight. The event stores aggregate counts and local token estimates only; it
+does not store the original prompt, response text, reason strings, or file
+contents.
+
+Record a one-off postflight telemetry event from the CLI:
+
+```bash
+python3 scripts/prompt_postflight.py \
+  --record-telemetry \
+  --prompt "Return the result as JSON" \
+  "the status is ok"
+```
+
+If `.prompt-preflight.json` enables telemetry, the Claude Code Stop hook records
+postflight events automatically:
+
+```json
+{
+  "telemetry": {
+    "enabled": true,
+    "path": ".prompt-preflight-telemetry.jsonl"
+  },
+  "token_observability": {
+    "enabled": true,
+    "default_max_output_tokens": 1000,
+    "estimated_retry_output_tokens": 800
+  }
+}
+```
+
+View the combined preflight/postflight report:
+
+```bash
+python3 scripts/prompt_preflight.py --telemetry-report
+```
+
+Token observability uses a deterministic local estimate (`~4 characters = 1
+token`). It is meant for trend reporting and risk signals, not exact provider
+billing reconciliation.
+
 ## Limitations
 
 - **Heuristic and high-precision by design.** The checks prefer to miss a subtle
@@ -74,7 +121,8 @@ gate; soften per check in `.prompt-preflight.json` under a `postflight` block.
 - **`file_change_claim` depends on host metadata.** Without an authoritative
   changed-file list (e.g. from a `Stop` payload) it degrades to informational.
 - **No token-savings guarantee.** Like preflight, postflight consumes zero model
-  tokens itself but does not measure exact savings.
+  tokens itself but does not measure exact savings. Telemetry can estimate
+  response size and retry opportunity, not provider billing truth.
 - **`Stop`-hook contract is unverified in-repo** (see above).
 
 ## Privacy and security

@@ -23,8 +23,10 @@ from pathlib import Path
 import sys
 from typing import Any, TextIO
 
+from .config import load_config
 from .postflight import analyze_postflight
 from .postflight_config import load_postflight_config
+from .telemetry import record_postflight_safely
 
 
 def _message_text(content: Any) -> str:
@@ -91,6 +93,16 @@ def process_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     result = analyze_postflight(prompt, response, changed_files=None, config=config)
+    preflight_config = load_config(payload.get("cwd"))
+    record_postflight_safely(
+        result,
+        host="claude-code-postflight",
+        telemetry_path=preflight_config.telemetry_path,
+        enabled=preflight_config.telemetry_enabled,
+        token_observability_enabled=preflight_config.token_observability_enabled,
+        token_default_max_output_tokens=preflight_config.token_default_max_output_tokens,
+        token_estimated_retry_output_tokens=preflight_config.token_estimated_retry_output_tokens,
+    )
     if not result.needs_attention:
         return None
 
