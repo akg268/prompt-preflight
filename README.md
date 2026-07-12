@@ -54,6 +54,7 @@ The canonical vague-prompt library lives in [`src/prompt_preflight/data/vague_pr
 The structured template catalog lives in [`src/prompt_preflight/data/prompt_templates.json`](src/prompt_preflight/data/prompt_templates.json), so all supported tools validate the same required fields.
 
 *(For teams managing shared prompt templates in VS Code, see the [Team Prompt Libraries](docs/TEAM_PROMPT_LIBRARIES.md) guide).*
+*(For teams using a spec-first approach to bound agents, see the [Team Spec-First Workflow](docs/TEAM_SPEC_FIRST_WORKFLOW.md) guide).*
 
 ## Help the project grow
 
