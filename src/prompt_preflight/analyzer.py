@@ -108,6 +108,29 @@ STORY_ELEMENT_RE = re.compile(
     re.IGNORECASE,
 )
 NEW_BUILD_RE = re.compile(r"\b(build|create|design|implement)\b", re.IGNORECASE)
+BROAD_BUILD_VERB_RE = re.compile(
+    r"\b(build|create|add|make|implement|develop|set up|setup|scaffold|introduce|stand up|design)\b",
+    re.IGNORECASE,
+)
+BROAD_FEATURE_DOMAIN_RE = re.compile(
+    r"\b(auth(?:entication)?|login|signup|sign-in|sso|oauth|billing|payments?|checkout|"
+    r"subscriptions?|invoicing|dashboard|onboarding|notifications?|admin(?: panel)?|"
+    r"user management|accounts?|profiles?|search|chat|messaging|reporting|analytics|"
+    r"settings|api|backend|service|cms|marketplace|feed|permissions?|roles?|rbac)\b",
+    re.IGNORECASE,
+)
+ARCH_SPEC_RE = re.compile(
+    r"\b(design|architecture|architect|integrate|scalable|distributed|migrate|rearchitect|system)\b",
+    re.IGNORECASE,
+)
+REQ_SPEC_RE = re.compile(
+    r"\b(requirements|stakeholders|acceptance criteria|compliance|prd|product spec)\b",
+    re.IGNORECASE,
+)
+CONCRETE_INTERFACE_RE = re.compile(
+    r"\b(?:GET|POST|PUT|DELETE|PATCH)\s+/[^\s]*|\b\w+\([^)]*\)|\b(?:return|status)\s+(?:code\s+)?[2-5]\d{2}\b",
+    re.IGNORECASE,
+)
 IMAGE_REQUEST_RE = re.compile(
     r"\b(?:create|generate|draw|illustrate|make|paint|render)\b.*\b(?:artwork|graphic|"
     r"icon|image|illustration|logo|photo(?:graph)?|picture|portrait|poster|render|"
@@ -814,6 +837,34 @@ def analyze_prompt(
         )
     )
     is_new_build = intent == "software_build"
+    is_bugfix = bool(re.search(r"\bfix\b", text, re.IGNORECASE))
+
+    broad_build_spec_template = None
+    if (
+        bool(BROAD_BUILD_VERB_RE.search(text))
+        and bool(BROAD_FEATURE_DOMAIN_RE.search(text))
+        and not has_anchor
+        and not has_success
+        and not is_bugfix
+        and not bool(CONCRETE_INTERFACE_RE.search(text))
+    ):
+        is_action = True
+        needs_prompt_contract_template = True
+        if ARCH_SPEC_RE.search(text):
+            broad_build_spec_template = "technical_design_spec"
+        elif REQ_SPEC_RE.search(text):
+            broad_build_spec_template = "requirements_spec"
+        else:
+            broad_build_spec_template = "feature_spec"
+            
+        if _is_enabled('plan_first'):
+            checks.append("plan_first")
+        if _is_enabled('context'):
+            checks.append("context")
+        ambiguity += 40
+        impact += 50
+        reasons.append("broad feature build should start with a spec")
+        questions.append(f"Consider starting with a spec. Print one using: prompt-preflight --template {broad_build_spec_template}")
 
     if len(words) <= 4:
         ambiguity += 24
@@ -1151,7 +1202,16 @@ def analyze_prompt(
         questions.insert(0, "Which part should we start with instead of changing the entire project at once?")
 
     suggested_prompt = suggest_rewrite(text, intent) if should_clarify else None
-    if should_clarify and needs_prompt_contract_template and suggested_prompt:
+    if should_clarify and broad_build_spec_template:
+        from .templates import load_template_profiles
+        profiles = load_template_profiles()
+        if broad_build_spec_template in profiles:
+            suggested_prompt = (
+                f"{suggested_prompt or text}\n\n"
+                "Use this structured template to fill the missing fields:\n"
+                f"{profiles[broad_build_spec_template].templates['md']}"
+            )
+    elif should_clarify and needs_prompt_contract_template and suggested_prompt:
         suggested_prompt = _append_template_suggestion(suggested_prompt, intent)
     if should_clarify and requires_plan_first and suggested_prompt and "Plan-first:" not in suggested_prompt:
         suggested_prompt += (

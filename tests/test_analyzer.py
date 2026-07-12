@@ -210,7 +210,7 @@ class AnalyzerTests(unittest.TestCase):
         self.assertIn("# Output Format", result.suggested_prompt)
 
     def test_missing_prompt_contract_fields_are_high_risk_and_template_backed(self) -> None:
-        result = analyze_prompt("Make the dashboard better")
+        result = analyze_prompt("Make the button better")
         self.assertTrue(result.should_clarify, result)
         self.assertEqual(result.severity, "high")
         self.assertIn("template_contract", result.checks)

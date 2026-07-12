@@ -58,6 +58,12 @@ Implement caching
 Add security everywhere
 Rewrite the whole repo
 Refactor database layer
+build auth
+create billing
+add a dashboard
+make onboarding
+implement notifications
+set up user management
 Modernize authentication
 Make forms nicer
 Fix accessibility
