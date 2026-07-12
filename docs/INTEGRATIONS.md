@@ -6,6 +6,8 @@ However, to provide a true **pre-prompt block**—pausing a vague prompt *before
 
 This document explores integration options for various hosts. For current installation instructions, see the Host compatibility matrix in the [README](../README.md#host-compatibility-matrix).
 
+*(For teams managing shared prompt templates in VS Code, see the [Team Prompt Libraries](TEAM_PROMPT_LIBRARIES.md) guide).*
+
 ## Classification Legend
 
 - `block` — Host exposes a pre-prompt hook that can PREVENT submission and show feedback to the user.

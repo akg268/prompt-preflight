@@ -61,7 +61,7 @@ It can flag issues such as:
 - Prompt Composer webview for users who prefer filling a form instead of writing template syntax.
 - Markdown, XML, and TOML prompt-template creation commands.
 - Automatic diagnostics in Markdown, XML, and TOML prompt files.
-- Workspace prompt lint for team prompt libraries.
+- Workspace prompt lint for team prompt libraries (see [Team Prompt Libraries](../docs/TEAM_PROMPT_LIBRARIES.md)).
 - Team policy template via `.prompt-preflight.json`.
 - Local telemetry dashboard with graph-style summaries for prompt checks, block reasons, postflight findings, hosts, daily activity, and token estimates.
 - Quick Fix to open the example prompt library.
