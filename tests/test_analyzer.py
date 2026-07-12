@@ -332,6 +332,72 @@ class AnalyzerTests(unittest.TestCase):
             with self.subTest(prompt=prompt):
                 self.assertEqual(analyze_prompt(prompt).should_clarify, expected)
 
+    def test_calibration_false_negatives_vague_prompts(self) -> None:
+        """False-negative guards: vaguely scoped prompts across domains that must block."""
+        cases = {
+            "make the app faster": "optimization",
+            "clean up the backend": "software_build",
+            "write something about our product": "writing",
+            "look into this": "research",
+            "analyze the numbers": "data_analysis",
+            "make a deck for the meeting": "presentation",
+            "make a nice picture": "image_generation",
+        }
+        for prompt, expected_intent in cases.items():
+            with self.subTest(prompt=prompt):
+                result = analyze_prompt(prompt)
+                self.assertTrue(
+                    result.should_clarify,
+                    f"False negative: '{prompt}' should block because it lacks specific scope or actionable outputs."
+                )
+                if result.intent != "general_action":
+                    self.assertEqual(
+                        result.intent,
+                        expected_intent,
+                        f"Intent for '{prompt}' should be '{expected_intent}'."
+                    )
+
+    def test_calibration_false_negatives_filler(self) -> None:
+        """Placeholder/filler answers that should count as vague, not satisfy clarity."""
+        for prompt in ("some task", "something", "blah blah", "stuff"):
+            with self.subTest(prompt=prompt):
+                result = analyze_prompt(prompt)
+                self.assertTrue(
+                    result.should_clarify,
+                    f"False negative: Filler prompt '{prompt}' must be blocked."
+                )
+
+    def test_calibration_false_positives_clear_prompts(self) -> None:
+        """False-positive guards: clear, scoped prompts that must pass."""
+        prompts = [
+            "add a `--verbose` flag to `scripts/prompt_preflight.py` that prints the JSON result; keep default output unchanged",
+            "write a 300-word release notes draft for the v1.2 users highlighting the new export feature in a professional tone",
+            "analyze the daily active users column in user_metrics.csv over the last month",
+            "create a photorealistic image of a vintage typewriter on a wooden desk, soft window lighting, 16:9 aspect ratio",
+            "thanks, that works",
+            "what does this function return?",
+        ]
+        for prompt in prompts:
+            with self.subTest(prompt=prompt):
+                result = analyze_prompt(prompt)
+                self.assertFalse(
+                    result.should_clarify,
+                    f"False positive: '{prompt}' is clear and bounded and should pass."
+                )
+
+    def test_calibration_short_but_clear_guard(self) -> None:
+        """Acceptance criterion: Clear prompts do not become high vagueness just because they are short."""
+        prompts = [
+            "Update README.md intro paragraph",
+        ]
+        for prompt in prompts:
+            with self.subTest(prompt=prompt):
+                result = analyze_prompt(prompt)
+                self.assertFalse(
+                    result.should_clarify,
+                    f"False positive: Short prompt '{prompt}' provides a specific anchor and must pass."
+                )
+
 
 class HookTests(unittest.TestCase):
     def test_hook_blocks_vague_prompt(self) -> None:
