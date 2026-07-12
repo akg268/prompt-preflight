@@ -38,6 +38,14 @@ class TemplateTests(unittest.TestCase):
         self.assertIn("implementation_plan", template_profile_names())
         self.assertIn("agent_execution_prompt", template_profile_names())
         self.assertIn("spec_review_checklist", template_profile_names())
+        self.assertIn("marketing_campaign", template_profile_names())
+        self.assertIn("blog_post", template_profile_names())
+        self.assertIn("competitive_research", template_profile_names())
+        self.assertIn("ux_research", template_profile_names())
+        self.assertIn("sales_email", template_profile_names())
+        self.assertIn("legal_review", template_profile_names())
+        self.assertIn("hiring_interview", template_profile_names())
+        self.assertIn("education_lesson", template_profile_names())
 
     def test_renders_markdown_xml_and_toml_templates(self) -> None:
         self.assertIn("# Visual Details", render_template("image", "md"))
@@ -410,6 +418,263 @@ output_format = "Email"
         self.assertTrue(result.should_clarify, result)
         self.assertIn("template_contract", result.checks)
         self.assertIn("action items", result.reasons[0])
+
+
+    def test_complete_marketing_campaign_contract_validates(self) -> None:
+        prompt = '''# Task
+Create a campaign brief
+# Campaign Goal
+Increase signups
+# Target Audience
+Developers
+# Key Message
+It is fast
+# Channels
+Twitter
+# Output Format
+Markdown document
+'''
+        validation = validate_structured_prompt(prompt, "marketing_campaign")
+        self.assertIsNotNone(validation)
+        self.assertEqual(validation.missing_required, ())
+
+    def test_incomplete_marketing_campaign_contract_is_blocked(self) -> None:
+        prompt = '''<prompt profile="marketing_campaign">
+  <task>Create a campaign brief</task>
+  <campaign_goal>Increase signups</campaign_goal>
+  <target_audience>Developers</target_audience>
+  <key_message>It is fast</key_message>
+  <output_format>Markdown document</output_format>
+</prompt>'''
+        result = analyze_prompt(prompt)
+        self.assertTrue(result.should_clarify, result)
+        self.assertIn("template_contract", result.checks)
+        self.assertIn("channels", result.reasons[0])
+
+    def test_complete_blog_post_contract_validates(self) -> None:
+        prompt = '''# Task
+Write a blog post
+# Topic
+AI Agents
+# Audience
+Engineers
+# Key Takeaways
+- They are fast
+# Desired Tone
+Professional
+# Output Format
+Blog post
+'''
+        validation = validate_structured_prompt(prompt, "blog_post")
+        self.assertIsNotNone(validation)
+        self.assertEqual(validation.missing_required, ())
+
+    def test_incomplete_blog_post_contract_is_blocked(self) -> None:
+        prompt = '''<prompt profile="blog_post">
+  <task>Write a post</task>
+  <topic>AI Agents</topic>
+  <key_takeaways>They are fast</key_takeaways>
+  <desired_tone>Professional</desired_tone>
+  <output_format>Blog post</output_format>
+</prompt>'''
+        result = analyze_prompt(prompt)
+        self.assertTrue(result.should_clarify, result)
+        self.assertIn("template_contract", result.checks)
+        self.assertIn("audience", result.reasons[0])
+
+    def test_complete_competitive_research_contract_validates(self) -> None:
+        prompt = '''# Task
+Compare competitors
+# Competitors
+Competitor A, Competitor B
+# Criteria
+Pricing
+# Sources
+Websites
+# Output Format
+Table
+'''
+        validation = validate_structured_prompt(prompt, "competitive_research")
+        self.assertIsNotNone(validation)
+        self.assertEqual(validation.missing_required, ())
+
+    def test_incomplete_competitive_research_contract_is_blocked(self) -> None:
+        prompt = '''<prompt profile="competitive_research">
+  <task>Compare</task>
+  <competitors>A and B</competitors>
+  <criteria>Pricing</criteria>
+  <output_format>Table</output_format>
+</prompt>'''
+        result = analyze_prompt(prompt)
+        self.assertTrue(result.should_clarify, result)
+        self.assertIn("template_contract", result.checks)
+        self.assertIn("sources", result.reasons[0])
+
+    def test_complete_ux_research_contract_validates(self) -> None:
+        prompt = '''# Task
+Synthesize research
+# Research Goal
+Find pain points
+# Data Sources
+Interviews
+# Themes
+Usability
+# Output Format
+Presentation
+'''
+        validation = validate_structured_prompt(prompt, "ux_research")
+        self.assertIsNotNone(validation)
+        self.assertEqual(validation.missing_required, ())
+
+    def test_incomplete_ux_research_contract_is_blocked(self) -> None:
+        prompt = '''<prompt profile="ux_research">
+  <task>Synthesize research</task>
+  <research_goal>Find pain points</research_goal>
+  <data_sources>Interviews</data_sources>
+  <output_format>Presentation</output_format>
+</prompt>'''
+        result = analyze_prompt(prompt)
+        self.assertTrue(result.should_clarify, result)
+        self.assertIn("template_contract", result.checks)
+        self.assertIn("themes", result.reasons[0])
+
+    def test_complete_sales_email_contract_validates(self) -> None:
+        prompt = '''# Task
+Write an email
+# Recipient
+CTOs
+# Value Proposition
+Save time
+# Call to Action
+Book a meeting
+# Tone
+Friendly
+# Output Format
+Email
+'''
+        validation = validate_structured_prompt(prompt, "sales_email")
+        self.assertIsNotNone(validation)
+        self.assertEqual(validation.missing_required, ())
+
+    def test_incomplete_sales_email_contract_is_blocked(self) -> None:
+        prompt = '''<prompt profile="sales_email">
+  <task>Write an email</task>
+  <recipient>CTOs</recipient>
+  <call_to_action>Book a meeting</call_to_action>
+  <tone>Friendly</tone>
+  <output_format>Email</output_format>
+</prompt>'''
+        result = analyze_prompt(prompt)
+        self.assertTrue(result.should_clarify, result)
+        self.assertIn("template_contract", result.checks)
+        self.assertIn("value proposition", result.reasons[0])
+
+    def test_complete_legal_review_contract_validates(self) -> None:
+        prompt = '''# Task
+Review policy
+# Document
+link
+# Compliance Criteria
+GDPR
+# Disclaimer
+The output is for informational purposes only and does not constitute legal advice.
+# Output Format
+Checklist
+'''
+        validation = validate_structured_prompt(prompt, "legal_review")
+        self.assertIsNotNone(validation)
+        self.assertEqual(validation.missing_required, ())
+
+    def test_incomplete_legal_review_contract_is_blocked(self) -> None:
+        prompt = '''<prompt profile="legal_review">
+  <task>Review policy</task>
+  <document>link</document>
+  <compliance_criteria>GDPR</compliance_criteria>
+  <output_format>Checklist</output_format>
+</prompt>'''
+        result = analyze_prompt(prompt)
+        self.assertTrue(result.should_clarify, result)
+        self.assertIn("template_contract", result.checks)
+        self.assertIn("disclaimer", result.reasons[0])
+
+    def test_complete_hiring_interview_contract_validates(self) -> None:
+        prompt = '''# Task
+Plan interview
+# Role
+Software Engineer
+# Competencies
+Coding
+# Interview Stage
+Technical
+# Output Format
+Document
+'''
+        validation = validate_structured_prompt(prompt, "hiring_interview")
+        self.assertIsNotNone(validation)
+        self.assertEqual(validation.missing_required, ())
+
+    def test_incomplete_hiring_interview_contract_is_blocked(self) -> None:
+        prompt = '''<prompt profile="hiring_interview">
+  <task>Plan interview</task>
+  <role>Software Engineer</role>
+  <interview_stage>Technical</interview_stage>
+  <output_format>Document</output_format>
+</prompt>'''
+        result = analyze_prompt(prompt)
+        self.assertTrue(result.should_clarify, result)
+        self.assertIn("template_contract", result.checks)
+        self.assertIn("competencies", result.reasons[0])
+
+    def test_complete_education_lesson_contract_validates(self) -> None:
+        prompt = '''# Task
+Create lesson
+# Subject
+Math
+# Target Audience
+Grade 5
+# Learning Objectives
+Addition
+# Duration
+1 hour
+# Output Format
+Lesson plan
+'''
+        validation = validate_structured_prompt(prompt, "education_lesson")
+        self.assertIsNotNone(validation)
+        self.assertEqual(validation.missing_required, ())
+
+    def test_incomplete_education_lesson_contract_is_blocked(self) -> None:
+        prompt = '''<prompt profile="education_lesson">
+  <task>Create lesson</task>
+  <subject>Math</subject>
+  <target_audience>Grade 5</target_audience>
+  <learning_objectives>Addition</learning_objectives>
+  <output_format>Lesson plan</output_format>
+</prompt>'''
+        result = analyze_prompt(prompt)
+        self.assertTrue(result.should_clarify, result)
+        self.assertIn("template_contract", result.checks)
+        self.assertIn("duration", result.reasons[0])
+
+    def test_optional_fields_left_blank_do_not_block_contract(self) -> None:
+        prompt = '''# Task
+Create a campaign brief
+# Campaign Goal
+Increase signups
+# Target Audience
+Developers
+# Key Message
+It is fast
+# Channels
+Twitter
+# Output Format
+Markdown document
+'''
+        validation = validate_structured_prompt(prompt, "marketing_campaign")
+        self.assertIsNotNone(validation)
+        # Marketing campaign has optional fields like 'examples', 'constraints', 'tone', 'budget'
+        # Since we did not include them, the contract should still be valid.
+        self.assertEqual(validation.missing_required, ())
 
 if __name__ == "__main__":
     unittest.main()

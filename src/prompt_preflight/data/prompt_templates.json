@@ -2051,6 +2051,727 @@
           "output_format = \"[Exact structure: bullets, markdown, etc.]\""
         ]
       }
+    },
+    "marketing_campaign": {
+      "display_name": "Marketing campaign brief contract",
+      "intents": [
+        "marketing",
+        "writing"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "campaign goal",
+          "fields": [
+            "goal",
+            "campaign_goal"
+          ]
+        },
+        {
+          "label": "target audience",
+          "fields": [
+            "target_audience",
+            "audience"
+          ]
+        },
+        {
+          "label": "key message",
+          "fields": [
+            "key_message",
+            "message"
+          ]
+        },
+        {
+          "label": "channels",
+          "fields": [
+            "channels",
+            "channel"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "examples",
+        "constraints",
+        "tone",
+        "budget"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Campaign Goal",
+          "[What the campaign must achieve]",
+          "",
+          "# Target Audience",
+          "[Who we are trying to reach]",
+          "",
+          "# Key Message",
+          "[The main takeaway or value proposition]",
+          "",
+          "# Channels",
+          "[Where this campaign will run]",
+          "",
+          "# Output Format",
+          "[Exact structure expected]"
+        ],
+        "xml": [
+          "<prompt profile=\"marketing_campaign\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <campaign_goal>[What the campaign must achieve]</campaign_goal>",
+          "  <target_audience>[Who we are trying to reach]</target_audience>",
+          "  <key_message>[The main takeaway or value proposition]</key_message>",
+          "  <channels>[Where this campaign will run]</channels>",
+          "  <output_format>[Exact structure expected]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"marketing_campaign\"",
+          "task = \"[Specific action to perform]\"",
+          "campaign_goal = \"[What the campaign must achieve]\"",
+          "target_audience = \"[Who we are trying to reach]\"",
+          "key_message = \"[The main takeaway or value proposition]\"",
+          "channels = \"[Where this campaign will run]\"",
+          "output_format = \"[Exact structure expected]\""
+        ]
+      }
+    },
+    "blog_post": {
+      "display_name": "Blog post or newsletter contract",
+      "intents": [
+        "writing",
+        "blog_post"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "topic",
+          "fields": [
+            "topic",
+            "subject"
+          ]
+        },
+        {
+          "label": "audience",
+          "fields": [
+            "audience"
+          ]
+        },
+        {
+          "label": "key takeaways",
+          "fields": [
+            "key_takeaways",
+            "takeaways"
+          ]
+        },
+        {
+          "label": "desired tone",
+          "fields": [
+            "desired_tone",
+            "tone"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "word_count",
+        "examples",
+        "seo_keywords",
+        "call_to_action"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Topic",
+          "[What the post is about]",
+          "",
+          "# Audience",
+          "[Who will read this]",
+          "",
+          "# Key Takeaways",
+          "- [Takeaway 1]",
+          "- [Takeaway 2]",
+          "",
+          "# Desired Tone",
+          "[Desired tone]",
+          "",
+          "# Output Format",
+          "[Exact structure expected]"
+        ],
+        "xml": [
+          "<prompt profile=\"blog_post\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <topic>[What the post is about]</topic>",
+          "  <audience>[Who will read this]</audience>",
+          "  <key_takeaways>",
+          "    <item>[Takeaway 1]</item>",
+          "  </key_takeaways>",
+          "  <desired_tone>[Desired tone]</desired_tone>",
+          "  <output_format>[Exact structure expected]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"blog_post\"",
+          "task = \"[Specific action to perform]\"",
+          "topic = \"[What the post is about]\"",
+          "audience = \"[Who will read this]\"",
+          "key_takeaways = [",
+          "  \"[Takeaway 1]\"",
+          "]",
+          "desired_tone = \"[Desired tone]\"",
+          "output_format = \"[Exact structure expected]\""
+        ]
+      }
+    },
+    "competitive_research": {
+      "display_name": "Competitive research contract",
+      "intents": [
+        "research",
+        "competitive_research"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "competitors",
+          "fields": [
+            "competitors"
+          ]
+        },
+        {
+          "label": "criteria",
+          "fields": [
+            "criteria",
+            "comparison_criteria"
+          ]
+        },
+        {
+          "label": "sources",
+          "fields": [
+            "sources"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "examples",
+        "constraints"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Competitors",
+          "[List of competitors to analyze]",
+          "",
+          "# Criteria",
+          "[What specific dimensions to compare]",
+          "",
+          "# Sources",
+          "[Where to find the information]",
+          "",
+          "# Output Format",
+          "[Exact structure expected]"
+        ],
+        "xml": [
+          "<prompt profile=\"competitive_research\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <competitors>[List of competitors to analyze]</competitors>",
+          "  <criteria>[What specific dimensions to compare]</criteria>",
+          "  <sources>[Where to find the information]</sources>",
+          "  <output_format>[Exact structure expected]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"competitive_research\"",
+          "task = \"[Specific action to perform]\"",
+          "competitors = \"[List of competitors to analyze]\"",
+          "criteria = \"[What specific dimensions to compare]\"",
+          "sources = \"[Where to find the information]\"",
+          "output_format = \"[Exact structure expected]\""
+        ]
+      }
+    },
+    "ux_research": {
+      "display_name": "UX research synthesis contract",
+      "intents": [
+        "research",
+        "ux_research"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "research goal",
+          "fields": [
+            "research_goal",
+            "goal"
+          ]
+        },
+        {
+          "label": "data sources",
+          "fields": [
+            "data_sources",
+            "sources"
+          ]
+        },
+        {
+          "label": "themes",
+          "fields": [
+            "themes",
+            "focus_areas"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "examples",
+        "constraints",
+        "target_audience"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Research Goal",
+          "[What we are trying to learn]",
+          "",
+          "# Data Sources",
+          "[Transcripts, survey results, notes, etc.]",
+          "",
+          "# Themes",
+          "[Specific focus areas to extract]",
+          "",
+          "# Output Format",
+          "[Exact structure expected]"
+        ],
+        "xml": [
+          "<prompt profile=\"ux_research\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <research_goal>[What we are trying to learn]</research_goal>",
+          "  <data_sources>[Transcripts, survey results, notes, etc.]</data_sources>",
+          "  <themes>[Specific focus areas to extract]</themes>",
+          "  <output_format>[Exact structure expected]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"ux_research\"",
+          "task = \"[Specific action to perform]\"",
+          "research_goal = \"[What we are trying to learn]\"",
+          "data_sources = \"[Transcripts, survey results, notes, etc.]\"",
+          "themes = \"[Specific focus areas to extract]\"",
+          "output_format = \"[Exact structure expected]\""
+        ]
+      }
+    },
+    "sales_email": {
+      "display_name": "Sales email contract",
+      "intents": [
+        "writing",
+        "sales_email"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "recipient",
+          "fields": [
+            "recipient",
+            "prospect"
+          ]
+        },
+        {
+          "label": "value proposition",
+          "fields": [
+            "value_proposition",
+            "pitch"
+          ]
+        },
+        {
+          "label": "call to action",
+          "fields": [
+            "call_to_action",
+            "cta"
+          ]
+        },
+        {
+          "label": "tone",
+          "fields": [
+            "tone",
+            "desired_tone"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "word_count",
+        "examples",
+        "context"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Recipient",
+          "[Who is receiving this email]",
+          "",
+          "# Value Proposition",
+          "[The main pitch or benefit]",
+          "",
+          "# Call to Action",
+          "[What the recipient should do next]",
+          "",
+          "# Tone",
+          "[Desired tone]",
+          "",
+          "# Output Format",
+          "[Exact structure expected]"
+        ],
+        "xml": [
+          "<prompt profile=\"sales_email\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <recipient>[Who is receiving this email]</recipient>",
+          "  <value_proposition>[The main pitch or benefit]</value_proposition>",
+          "  <call_to_action>[What the recipient should do next]</call_to_action>",
+          "  <tone>[Desired tone]</tone>",
+          "  <output_format>[Exact structure expected]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"sales_email\"",
+          "task = \"[Specific action to perform]\"",
+          "recipient = \"[Who is receiving this email]\"",
+          "value_proposition = \"[The main pitch or benefit]\"",
+          "call_to_action = \"[What the recipient should do next]\"",
+          "tone = \"[Desired tone]\"",
+          "output_format = \"[Exact structure expected]\""
+        ]
+      }
+    },
+    "legal_review": {
+      "display_name": "Legal review checklist contract",
+      "intents": [
+        "research",
+        "compliance",
+        "legal_review"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "document",
+          "fields": [
+            "document",
+            "context"
+          ]
+        },
+        {
+          "label": "compliance criteria",
+          "fields": [
+            "compliance_criteria",
+            "criteria"
+          ]
+        },
+        {
+          "label": "disclaimer",
+          "fields": [
+            "disclaimer"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "examples",
+        "constraints"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Document",
+          "[The text or link to review]",
+          "",
+          "# Compliance Criteria",
+          "[Specific policies or rules to check against]",
+          "",
+          "# Disclaimer",
+          "The output is for informational purposes only and does not constitute legal advice.",
+          "",
+          "# Output Format",
+          "[Exact structure expected]"
+        ],
+        "xml": [
+          "<prompt profile=\"legal_review\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <document>[The text or link to review]</document>",
+          "  <compliance_criteria>[Specific policies or rules to check against]</compliance_criteria>",
+          "  <disclaimer>The output is for informational purposes only and does not constitute legal advice.</disclaimer>",
+          "  <output_format>[Exact structure expected]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"legal_review\"",
+          "task = \"[Specific action to perform]\"",
+          "document = \"[The text or link to review]\"",
+          "compliance_criteria = \"[Specific policies or rules to check against]\"",
+          "disclaimer = \"The output is for informational purposes only and does not constitute legal advice.\"",
+          "output_format = \"[Exact structure expected]\""
+        ]
+      }
+    },
+    "hiring_interview": {
+      "display_name": "Hiring interview planning contract",
+      "intents": [
+        "hiring",
+        "interview_planning"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "role",
+          "fields": [
+            "role",
+            "position"
+          ]
+        },
+        {
+          "label": "competencies",
+          "fields": [
+            "competencies",
+            "skills"
+          ]
+        },
+        {
+          "label": "interview stage",
+          "fields": [
+            "interview_stage",
+            "stage"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "examples",
+        "company_values",
+        "constraints"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Role",
+          "[The job title and level]",
+          "",
+          "# Competencies",
+          "- [Skill or behavior 1]",
+          "- [Skill or behavior 2]",
+          "",
+          "# Interview Stage",
+          "[Screening, technical, behavioral, etc.]",
+          "",
+          "# Output Format",
+          "[Exact structure expected]"
+        ],
+        "xml": [
+          "<prompt profile=\"hiring_interview\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <role>[The job title and level]</role>",
+          "  <competencies>",
+          "    <item>[Skill or behavior 1]</item>",
+          "    <item>[Skill or behavior 2]</item>",
+          "  </competencies>",
+          "  <interview_stage>[Screening, technical, behavioral, etc.]</interview_stage>",
+          "  <output_format>[Exact structure expected]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"hiring_interview\"",
+          "task = \"[Specific action to perform]\"",
+          "role = \"[The job title and level]\"",
+          "competencies = [",
+          "  \"[Skill or behavior 1]\",",
+          "  \"[Skill or behavior 2]\"",
+          "]",
+          "interview_stage = \"[Screening, technical, behavioral, etc.]\"",
+          "output_format = \"[Exact structure expected]\""
+        ]
+      }
+    },
+    "education_lesson": {
+      "display_name": "Education lesson plan contract",
+      "intents": [
+        "education",
+        "lesson_plan"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "subject",
+          "fields": [
+            "subject",
+            "topic"
+          ]
+        },
+        {
+          "label": "target audience",
+          "fields": [
+            "target_audience",
+            "students",
+            "audience"
+          ]
+        },
+        {
+          "label": "learning objectives",
+          "fields": [
+            "learning_objectives",
+            "objectives"
+          ]
+        },
+        {
+          "label": "duration",
+          "fields": [
+            "duration",
+            "time"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "materials_needed",
+        "examples",
+        "constraints"
+      ],
+      "templates": {
+        "md": [
+          "# Task",
+          "[Specific action to perform]",
+          "",
+          "# Subject",
+          "[What is being taught]",
+          "",
+          "# Target Audience",
+          "[Age, grade level, or prior knowledge]",
+          "",
+          "# Learning Objectives",
+          "- [Objective 1]",
+          "- [Objective 2]",
+          "",
+          "# Duration",
+          "[How long the lesson takes]",
+          "",
+          "# Output Format",
+          "[Exact structure expected]"
+        ],
+        "xml": [
+          "<prompt profile=\"education_lesson\">",
+          "  <task>[Specific action to perform]</task>",
+          "  <subject>[What is being taught]</subject>",
+          "  <target_audience>[Age, grade level, or prior knowledge]</target_audience>",
+          "  <learning_objectives>",
+          "    <item>[Objective 1]</item>",
+          "    <item>[Objective 2]</item>",
+          "  </learning_objectives>",
+          "  <duration>[How long the lesson takes]</duration>",
+          "  <output_format>[Exact structure expected]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"education_lesson\"",
+          "task = \"[Specific action to perform]\"",
+          "subject = \"[What is being taught]\"",
+          "target_audience = \"[Age, grade level, or prior knowledge]\"",
+          "learning_objectives = [",
+          "  \"[Objective 1]\",",
+          "  \"[Objective 2]\"",
+          "]",
+          "duration = \"[How long the lesson takes]\"",
+          "output_format = \"[Exact structure expected]\""
+        ]
+      }
     }
   }
 }

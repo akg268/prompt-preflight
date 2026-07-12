@@ -55,6 +55,14 @@ Supported profiles:
 - `sql`
 - `design_critique`
 - `meeting_notes`
+- `marketing_campaign`
+- `blog_post`
+- `competitive_research`
+- `ux_research`
+- `sales_email`
+- `legal_review`
+- `hiring_interview`
+- `education_lesson`
 
 Supported formats:
 
@@ -85,6 +93,14 @@ Supported formats:
 | `sql` | query goal, schema, dialect, filters, performance constraints, expected output, success criteria | examples |
 | `design_critique` | task, artifact, design goals, target users, evaluation criteria, severity, deliverable format | constraints |
 | `meeting_notes` | task, meeting purpose, attendees, source transcript, decisions, action items, output format | constraints |
+| `marketing_campaign` | task, campaign goal, target audience, key message, channels, output format | examples, constraints, tone, budget |
+| `blog_post` | task, topic, audience, key takeaways, desired tone, output format | word count, examples, seo keywords, call to action |
+| `competitive_research` | task, competitors, criteria, sources, output format | examples, constraints |
+| `ux_research` | task, research goal, data sources, themes, output format | examples, constraints, target audience |
+| `sales_email` | task, recipient, value proposition, call to action, tone, output format | word count, examples, context |
+| `legal_review` | task, document, compliance criteria, disclaimer, output format | examples, constraints |
+| `hiring_interview` | task, role, competencies, interview stage, output format | examples, company values, constraints |
+| `education_lesson` | task, subject, target audience, learning objectives, duration, output format | materials needed, examples, constraints |
 <!-- END GENERATED TEMPLATE DOCS -->
 
 If a user submits a structured prompt but leaves a required field empty or placeholder-only, Prompt Preflight pauses the request and asks only for the missing required fields.
