@@ -3,7 +3,12 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { trackGeneratedPromptDocument } from "./generatedTabs";
 import { bundledAnalyzerPath } from "./repoResolver";
-import { FORMAT_LABEL, TemplateFormat, templateDocumentSpec } from "./templateDocument";
+import {
+  FORMAT_LABEL,
+  TemplateFormat,
+  templateDocumentSpec,
+  templateFormatOptions
+} from "./templateDocument";
 
 /**
  * Represents one required-field group from the shared prompt template catalog.
@@ -38,6 +43,29 @@ interface TemplateQuickPickItem extends vscode.QuickPickItem {
 }
 
 /**
+ * Adds the chosen template format to a VS Code QuickPick item.
+ */
+interface TemplateFormatQuickPickItem extends vscode.QuickPickItem {
+  format: TemplateFormat;
+}
+
+/**
+ * Asks the user which template format they want before opening the usual
+ * profile picker. This is the best default command for users who know they want
+ * a prompt template but have not chosen Markdown, TOML, or XML yet.
+ */
+export async function insertPromptTemplateWithFormatChoice(
+  context: vscode.ExtensionContext
+): Promise<void> {
+  const selectedFormat = await chooseTemplateFormat();
+  if (!selectedFormat) {
+    return;
+  }
+
+  await insertPromptTemplate(context, selectedFormat.format);
+}
+
+/**
  * Inserts a structured prompt template in the requested format. Users choose the
  * profile first, then the extension opens a new untitled prompt document. This
  * intentionally avoids changing whatever source file happens to be active.
@@ -69,6 +97,23 @@ export async function insertPromptTemplate(
     const message = error instanceof Error ? error.message : String(error);
     void vscode.window.showErrorMessage(`Prompt Preflight: ${message}`);
   }
+}
+
+/**
+ * Lets the user choose Markdown, TOML, or XML before choosing a template
+ * profile.
+ */
+async function chooseTemplateFormat(): Promise<TemplateFormatQuickPickItem | undefined> {
+  const picks = templateFormatOptions().map((option) => ({
+    label: option.label,
+    description: option.description,
+    format: option.format
+  }));
+
+  return vscode.window.showQuickPick(picks, {
+    title: "New Prompt Template",
+    placeHolder: "Choose Markdown, TOML, or XML"
+  });
 }
 
 /**

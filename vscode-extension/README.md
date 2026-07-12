@@ -56,6 +56,8 @@ It can flag issues such as:
   ```
 
 - Command Palette checks for selected text or the current Markdown document.
+- `Prompt Preflight: New Prompt Template` asks whether the user wants Markdown, TOML, or XML before opening the template.
+- Spec-driven development templates for feature specs, requirements specs, technical designs, implementation plans, agent execution prompts, and spec review checklists.
 - Markdown result reports with intent, Vagueness score, severity, reasons, questions, and suggested prompt.
 - One-click suggested prompt insertion back into the original file or selected range.
 - Prompt Composer webview for users who prefer filling a form instead of writing template syntax.
@@ -138,13 +140,13 @@ Expected:
 - `npm run package:vsix` creates a file like:
 
   ```text
-  prompt-preflight-vscode-0.0.1.vsix
+  prompt-preflight-vscode-0.0.2.vsix
   ```
 
 Install the generated package:
 
 ```bash
-code --install-extension prompt-preflight-vscode-0.0.1.vsix
+code --install-extension prompt-preflight-vscode-0.0.2.vsix
 ```
 
 After installation, run:

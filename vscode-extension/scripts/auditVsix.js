@@ -54,7 +54,11 @@ const REQUIRED_README_SNIPPETS = [
  * Reads the VSIX file path from argv and resolves it against cwd.
  */
 function resolveVsixPath() {
-  const argPath = process.argv[2] || "prompt-preflight-vscode-0.0.1.vsix";
+  const packageJson = JSON.parse(
+    fs.readFileSync(path.resolve(process.cwd(), "package.json"), "utf8")
+  );
+  const defaultName = `${packageJson.name}-${packageJson.version}.vsix`;
+  const argPath = process.argv[2] || defaultName;
   return path.resolve(process.cwd(), argPath);
 }
 
