@@ -21,7 +21,8 @@
     "path": ".prompt-preflight-telemetry.jsonl",
     "max_events": 1000,
     "max_bytes": 1048576,
-    "retention_days": 30
+    "retention_days": 30,
+    "timestamp_mode": "exact"
   },
   "token_observability": {
     "enabled": true,

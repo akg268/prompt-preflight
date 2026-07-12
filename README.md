@@ -45,11 +45,15 @@ The VS Code extension bundles the Python analyzer, so Marketplace users do not n
 
 When Prompt Preflight catches a vague prompt, it links to vague prompt examples and templates. The [examples page](docs/EXAMPLES.md) includes common vague prompts for bug fixes, new features, refactors, UI work, performance, deployment, tests, documentation, security, analytics, image generation, writing, research, data analysis, and presentations.
 
-Prompt Preflight also includes [structured prompt templates](docs/TEMPLATES.md) in Markdown, XML, and TOML. These prompt contracts define mandatory fields such as task, context, output format, constraints, and success criteria, plus domain-specific fields for image generation, writing, research, data analysis, and presentations.
+Prompt Preflight also includes [structured prompt templates](docs/TEMPLATES.md) in Markdown, XML, and TOML. These prompt contracts define mandatory fields such as task, context, output format, constraints, and success criteria, plus domain-specific fields for image generation, writing, research, data analysis, presentations, and spec-driven development.
+
+The spec-driven development pack includes feature specs, requirements specs, technical design specs, implementation plans, agent execution prompts, and spec review checklists. It is designed for teams that want Codex, Claude Code, Kiro, or another coding agent to work from a complete spec instead of a vague one-line request.
 
 The canonical vague-prompt library lives in [`src/prompt_preflight/data/vague_prompts.txt`](src/prompt_preflight/data/vague_prompts.txt). Codex, Claude Code, Kiro, the CLI, and the benchmark all use the same Python package, so new vague-prompt examples should be added there instead of creating tool-specific lists.
 
 The structured template catalog lives in [`src/prompt_preflight/data/prompt_templates.json`](src/prompt_preflight/data/prompt_templates.json), so all supported tools validate the same required fields.
+
+*(For teams managing shared prompt templates in VS Code, see the [Team Prompt Libraries](docs/TEAM_PROMPT_LIBRARIES.md) guide).*
 
 ## Help the project grow
 
@@ -189,6 +193,8 @@ The model receives a target, outcome, boundaries, and definition of done before 
 - Shows a tailored rewrite instead of only saying “be more specific.”
 - Structures rewrites around task, context, output format, examples, and self-checks.
 - Provides Markdown, XML, and TOML prompt-contract templates.
+- Adds spec-driven development templates for feature specs, requirements specs, technical designs, implementation plans, agent execution prompts, and spec review checklists.
+- In VS Code, `Prompt Preflight: New Prompt Template` asks users whether they want Markdown, TOML, or XML before opening a template.
 - Validates structured prompts and pauses when required fields are empty or placeholder-only.
 - Detects likely secrets and redacts them in user-facing feedback.
 - Adds risk and plan-first checks for production deploys, migrations, destructive actions, and broad repo changes.
@@ -552,6 +558,7 @@ Create `.prompt-preflight.json` in the project where Codex, Claude Code, or Kiro
     "max_events": 1000,
     "max_bytes": 1048576,
     "retention_days": 30
+    "timestamp_mode": "exact"
     "path": ".prompt-preflight-telemetry.jsonl"
   },
   "token_observability": {
@@ -569,6 +576,7 @@ Create `.prompt-preflight.json` in the project where Codex, Claude Code, or Kiro
 - `max_questions`: limit clarification questions from 1 to 5.
 - `enabled`: disable Prompt Preflight for a project.
 - `telemetry`: optional local-only counts; disabled by default. Under `telemetry`, you can configure `max_events` (integer limit), `max_bytes` (integer size limit), and `retention_days` (integer age limit) to automatically prune the file (oldest events first) so it stays bounded without manual cleanup. Note that `retention_days` requires timestamps; if you disable timestamps via a `timestamp_mode` of "none", age-based pruning will be skipped gracefully.
+- `telemetry`: optional local-only counts; disabled by default. Under `telemetry`, `timestamp_mode` ("exact", "date", or "none") sets the precision of per-event timestamps. "exact" gives precise analysis but can reveal usage timing, "date" reduces granularity to the day, and "none" removes per-event timing. The default is "exact".
 - `telemetry`: optional local-only counts; disabled by default.
 - `token_observability`: optional local token estimates for reports; enabled by default when telemetry is recorded.
 
@@ -675,6 +683,7 @@ The telemetry file stores only aggregate fields:
 - detected intent
 - clarification score, ambiguity score, and impact score
 - reason count and question count
+- timestamp (precision is configurable via `timestamp_mode`)
 - prompt and response character counts
 - prompt and response token estimates
 - estimated total request tokens

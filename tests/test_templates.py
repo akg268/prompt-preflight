@@ -32,11 +32,19 @@ class TemplateTests(unittest.TestCase):
         self.assertIn("sql", template_profile_names())
         self.assertIn("design_critique", template_profile_names())
         self.assertIn("meeting_notes", template_profile_names())
+        self.assertIn("feature_spec", template_profile_names())
+        self.assertIn("requirements_spec", template_profile_names())
+        self.assertIn("technical_design_spec", template_profile_names())
+        self.assertIn("implementation_plan", template_profile_names())
+        self.assertIn("agent_execution_prompt", template_profile_names())
+        self.assertIn("spec_review_checklist", template_profile_names())
 
     def test_renders_markdown_xml_and_toml_templates(self) -> None:
         self.assertIn("# Visual Details", render_template("image", "md"))
         self.assertIn("<visual_details>", render_template("image", "xml"))
         self.assertIn('profile = "image"', render_template("image", "toml"))
+        self.assertIn("# Problem Statement", render_template("feature-spec", "md"))
+        self.assertIn('profile = "agent_execution_prompt"', render_template("agent-prompt", "toml"))
 
     def test_incomplete_markdown_image_contract_is_blocked(self) -> None:
         prompt = """# Task
@@ -230,6 +238,50 @@ output_format = "Markdown"
         self.assertTrue(result.should_clarify, result)
         self.assertIn("template_contract", result.checks)
         self.assertIn("success metrics", result.reasons[0])
+
+    def test_complete_feature_spec_contract_validates(self) -> None:
+        prompt = """<!-- profile: feature_spec -->
+
+# Problem Statement
+Users cannot tell why a prompt was blocked.
+
+# Goals
+- Explain the exact missing fields.
+- Link to examples.
+
+# Target Users
+Developers writing AI-agent prompts.
+
+# Functional Requirements
+- Show a concise blocked-state explanation.
+- Offer a template insertion action.
+
+# Acceptance Criteria
+- The user can fix the prompt without opening docs manually.
+
+# Constraints
+- Do not send prompt text to a network service.
+"""
+        validation = validate_structured_prompt(prompt, "software_build")
+        self.assertIsNotNone(validation)
+        self.assertEqual(validation.profile, "feature_spec")
+        self.assertEqual(validation.missing_required, ())
+
+    def test_incomplete_agent_execution_prompt_is_blocked(self) -> None:
+        prompt = """profile = "agent_execution_prompt"
+task = "Implement the prompt template picker"
+source_spec = "Feature spec in docs"
+scope = "VS Code extension"
+constraints = "Do not edit source files when inserting templates"
+implementation_plan = "Add command and tests"
+verification_plan = "npm test"
+output_format = "[Patch plus summary, plan first, PR description, tests run, risks]"
+"""
+        result = analyze_prompt(prompt)
+        self.assertTrue(result.should_clarify, result)
+        self.assertIn("template_contract", result.checks)
+        self.assertIn("output format", result.reasons[0])
+        self.assertIn('profile = "agent_execution_prompt"', result.suggested_prompt)
 
     def test_complete_incident_response_contract_validates(self) -> None:
         prompt = """# Task

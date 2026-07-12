@@ -192,6 +192,783 @@
         ]
       }
     },
+    "feature_spec": {
+      "display_name": "Feature spec contract",
+      "intents": [
+        "feature_spec",
+        "spec_driven_development"
+      ],
+      "required": [
+        {
+          "label": "problem statement",
+          "fields": [
+            "problem_statement",
+            "context"
+          ]
+        },
+        {
+          "label": "goals",
+          "fields": [
+            "goals",
+            "goal"
+          ]
+        },
+        {
+          "label": "target users",
+          "fields": [
+            "target_users",
+            "audience"
+          ]
+        },
+        {
+          "label": "functional requirements",
+          "fields": [
+            "functional_requirements"
+          ]
+        },
+        {
+          "label": "acceptance criteria",
+          "fields": [
+            "success_criteria"
+          ]
+        },
+        {
+          "label": "constraints",
+          "fields": [
+            "constraints"
+          ]
+        }
+      ],
+      "optional": [
+        "non_goals",
+        "risks",
+        "open_questions",
+        "examples",
+        "output_format"
+      ],
+      "templates": {
+        "md": [
+          "<!-- profile: feature_spec -->",
+          "",
+          "# Problem Statement",
+          "[What user/customer/business problem are we solving?]",
+          "",
+          "# Goals",
+          "- [Outcome this feature must achieve]",
+          "- [Measurable behavior or user value]",
+          "",
+          "# Non-goals",
+          "- [Explicitly out-of-scope behavior or follow-up work]",
+          "",
+          "# Target Users",
+          "[Who uses this feature and what do they already know?]",
+          "",
+          "# Functional Requirements",
+          "- [Requirement 1]",
+          "- [Requirement 2]",
+          "",
+          "# Acceptance Criteria",
+          "- [Given/when/then or observable pass condition]",
+          "- [How the agent/user verifies the feature is complete]",
+          "",
+          "# Constraints",
+          "- Preserve [existing behavior/API/design/data]",
+          "- Do not change [out-of-scope area]",
+          "",
+          "# Risks / Open Questions",
+          "- Risks: [edge cases, dependencies, compliance, rollout concerns]",
+          "- Open questions: [unknowns to resolve before implementation]",
+          "",
+          "# Output Format",
+          "[Spec doc, issue body, implementation prompt, or checklist]"
+        ],
+        "xml": [
+          "<prompt profile=\"feature_spec\">",
+          "  <problem_statement>[What user/customer/business problem are we solving?]</problem_statement>",
+          "  <goals>",
+          "    <item>[Outcome this feature must achieve]</item>",
+          "    <item>[Measurable behavior or user value]</item>",
+          "  </goals>",
+          "  <non_goals>",
+          "    <item>[Explicitly out-of-scope behavior or follow-up work]</item>",
+          "  </non_goals>",
+          "  <target_users>[Who uses this feature and what do they already know?]</target_users>",
+          "  <functional_requirements>",
+          "    <item>[Requirement 1]</item>",
+          "    <item>[Requirement 2]</item>",
+          "  </functional_requirements>",
+          "  <success_criteria>",
+          "    <item>[Given/when/then or observable pass condition]</item>",
+          "    <item>[How the agent/user verifies the feature is complete]</item>",
+          "  </success_criteria>",
+          "  <constraints>",
+          "    <item>Preserve [existing behavior/API/design/data]</item>",
+          "    <item>Do not change [out-of-scope area]</item>",
+          "  </constraints>",
+          "  <risks>[Optional risks, dependencies, compliance, or rollout concerns]</risks>",
+          "  <open_questions>[Optional unknowns to resolve before implementation]</open_questions>",
+          "  <output_format>[Spec doc, issue body, implementation prompt, or checklist]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"feature_spec\"",
+          "problem_statement = \"[What user/customer/business problem are we solving?]\"",
+          "goals = [",
+          "  \"[Outcome this feature must achieve]\",",
+          "  \"[Measurable behavior or user value]\"",
+          "]",
+          "non_goals = [",
+          "  \"[Explicitly out-of-scope behavior or follow-up work]\"",
+          "]",
+          "target_users = \"[Who uses this feature and what do they already know?]\"",
+          "functional_requirements = [",
+          "  \"[Requirement 1]\",",
+          "  \"[Requirement 2]\"",
+          "]",
+          "success_criteria = [",
+          "  \"[Given/when/then or observable pass condition]\",",
+          "  \"[How the agent/user verifies the feature is complete]\"",
+          "]",
+          "constraints = [",
+          "  \"Preserve [existing behavior/API/design/data]\",",
+          "  \"Do not change [out-of-scope area]\"",
+          "]",
+          "risks = \"[Optional risks, dependencies, compliance, or rollout concerns]\"",
+          "open_questions = \"[Optional unknowns to resolve before implementation]\"",
+          "output_format = \"[Spec doc, issue body, implementation prompt, or checklist]\""
+        ]
+      }
+    },
+    "requirements_spec": {
+      "display_name": "Requirements spec contract",
+      "intents": [
+        "requirements_spec"
+      ],
+      "required": [
+        {
+          "label": "scope",
+          "fields": [
+            "scope",
+            "context"
+          ]
+        },
+        {
+          "label": "user stories",
+          "fields": [
+            "user_stories"
+          ]
+        },
+        {
+          "label": "functional requirements",
+          "fields": [
+            "functional_requirements"
+          ]
+        },
+        {
+          "label": "non-functional requirements",
+          "fields": [
+            "non_functional_requirements"
+          ]
+        },
+        {
+          "label": "edge cases",
+          "fields": [
+            "edge_cases"
+          ]
+        },
+        {
+          "label": "acceptance criteria",
+          "fields": [
+            "success_criteria"
+          ]
+        },
+        {
+          "label": "open questions",
+          "fields": [
+            "open_questions"
+          ]
+        }
+      ],
+      "optional": [
+        "constraints",
+        "dependencies",
+        "examples",
+        "risks",
+        "output_format"
+      ],
+      "templates": {
+        "md": [
+          "<!-- profile: requirements_spec -->",
+          "",
+          "# Scope",
+          "[Feature, product area, platform, repo, or user journey covered by these requirements]",
+          "",
+          "# User Stories",
+          "- As a [user], I want [capability], so that [outcome].",
+          "",
+          "# Functional Requirements",
+          "- [System behavior the implementation must provide]",
+          "",
+          "# Non-functional Requirements",
+          "- Performance: [latency, scale, reliability, accessibility, security, etc.]",
+          "",
+          "# Edge Cases",
+          "- [Error state, empty state, permission issue, race condition, or unusual input]",
+          "",
+          "# Acceptance Criteria",
+          "- [Observable pass/fail behavior]",
+          "",
+          "# Open Questions",
+          "- [Question to resolve, or 'None known']",
+          "",
+          "# Optional",
+          "- Constraints: [boundaries to preserve]",
+          "- Dependencies: [teams, APIs, migrations, services]",
+          "- Examples: [sample UI/API/output]",
+          "- Risks: [known risks]"
+        ],
+        "xml": [
+          "<prompt profile=\"requirements_spec\">",
+          "  <scope>[Feature, product area, platform, repo, or user journey covered by these requirements]</scope>",
+          "  <user_stories>",
+          "    <item>As a [user], I want [capability], so that [outcome].</item>",
+          "  </user_stories>",
+          "  <functional_requirements>",
+          "    <item>[System behavior the implementation must provide]</item>",
+          "  </functional_requirements>",
+          "  <non_functional_requirements>",
+          "    <item>Performance: [latency, scale, reliability, accessibility, security, etc.]</item>",
+          "  </non_functional_requirements>",
+          "  <edge_cases>",
+          "    <item>[Error state, empty state, permission issue, race condition, or unusual input]</item>",
+          "  </edge_cases>",
+          "  <success_criteria>",
+          "    <item>[Observable pass/fail behavior]</item>",
+          "  </success_criteria>",
+          "  <open_questions>[Question to resolve, or 'None known']</open_questions>",
+          "  <constraints>[Optional boundaries to preserve]</constraints>",
+          "  <dependencies>[Optional teams, APIs, migrations, or services]</dependencies>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"requirements_spec\"",
+          "scope = \"[Feature, product area, platform, repo, or user journey covered by these requirements]\"",
+          "user_stories = [",
+          "  \"As a [user], I want [capability], so that [outcome].\"",
+          "]",
+          "functional_requirements = [",
+          "  \"[System behavior the implementation must provide]\"",
+          "]",
+          "non_functional_requirements = [",
+          "  \"Performance: [latency, scale, reliability, accessibility, security, etc.]\"",
+          "]",
+          "edge_cases = [",
+          "  \"[Error state, empty state, permission issue, race condition, or unusual input]\"",
+          "]",
+          "success_criteria = [",
+          "  \"[Observable pass/fail behavior]\"",
+          "]",
+          "open_questions = \"[Question to resolve, or 'None known']\"",
+          "constraints = \"[Optional boundaries to preserve]\"",
+          "dependencies = \"[Optional teams, APIs, migrations, or services]\""
+        ]
+      }
+    },
+    "technical_design_spec": {
+      "display_name": "Technical design spec contract",
+      "intents": [
+        "technical_design_spec"
+      ],
+      "required": [
+        {
+          "label": "problem context",
+          "fields": [
+            "context",
+            "problem_statement"
+          ]
+        },
+        {
+          "label": "architecture",
+          "fields": [
+            "architecture"
+          ]
+        },
+        {
+          "label": "affected components",
+          "fields": [
+            "files_components",
+            "scope"
+          ]
+        },
+        {
+          "label": "data or API changes",
+          "fields": [
+            "api_changes",
+            "data_changes"
+          ]
+        },
+        {
+          "label": "tradeoffs",
+          "fields": [
+            "tradeoffs"
+          ]
+        },
+        {
+          "label": "compatibility",
+          "fields": [
+            "compatibility"
+          ]
+        },
+        {
+          "label": "verification plan",
+          "fields": [
+            "verification_plan",
+            "success_criteria"
+          ]
+        }
+      ],
+      "optional": [
+        "migration_plan",
+        "rollout_plan",
+        "rollback_plan",
+        "risks",
+        "alternatives",
+        "open_questions"
+      ],
+      "templates": {
+        "md": [
+          "<!-- profile: technical_design_spec -->",
+          "",
+          "# Problem Context",
+          "[Problem, feature spec, current architecture, and why a technical design is needed]",
+          "",
+          "# Architecture",
+          "[Proposed design, boundaries, services/modules, sequence, and ownership]",
+          "",
+          "# Affected Components",
+          "- [Files, packages, services, APIs, schemas, jobs, queues, or UI areas]",
+          "",
+          "# Data or API Changes",
+          "- Data changes: [schema, migration, storage, retention]",
+          "- API changes: [contracts, endpoints, events, backwards compatibility]",
+          "",
+          "# Tradeoffs",
+          "- [Option chosen and why]",
+          "- [Alternative rejected and why]",
+          "",
+          "# Compatibility",
+          "[Backward compatibility, migration constraints, feature flags, versioning, or rollout concerns]",
+          "",
+          "# Verification Plan",
+          "- [Tests, commands, observability, manual QA, load/security checks]",
+          "",
+          "# Optional",
+          "- Migration plan: [steps]",
+          "- Rollout plan: [phased launch or feature flag]",
+          "- Rollback plan: [how to safely undo]",
+          "- Risks/open questions: [known unknowns]"
+        ],
+        "xml": [
+          "<prompt profile=\"technical_design_spec\">",
+          "  <context>[Problem, feature spec, current architecture, and why a technical design is needed]</context>",
+          "  <architecture>[Proposed design, boundaries, services/modules, sequence, and ownership]</architecture>",
+          "  <files_components>",
+          "    <item>[Files, packages, services, APIs, schemas, jobs, queues, or UI areas]</item>",
+          "  </files_components>",
+          "  <data_changes>[Schema, migration, storage, or retention changes]</data_changes>",
+          "  <api_changes>[Contracts, endpoints, events, and backwards compatibility]</api_changes>",
+          "  <tradeoffs>",
+          "    <item>[Option chosen and why]</item>",
+          "    <item>[Alternative rejected and why]</item>",
+          "  </tradeoffs>",
+          "  <compatibility>[Backward compatibility, migration constraints, feature flags, versioning, or rollout concerns]</compatibility>",
+          "  <verification_plan>[Tests, commands, observability, manual QA, load/security checks]</verification_plan>",
+          "  <rollback_plan>[Optional safe undo plan]</rollback_plan>",
+          "  <risks>[Optional known risks]</risks>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"technical_design_spec\"",
+          "context = \"[Problem, feature spec, current architecture, and why a technical design is needed]\"",
+          "architecture = \"[Proposed design, boundaries, services/modules, sequence, and ownership]\"",
+          "files_components = [",
+          "  \"[Files, packages, services, APIs, schemas, jobs, queues, or UI areas]\"",
+          "]",
+          "data_changes = \"[Schema, migration, storage, or retention changes]\"",
+          "api_changes = \"[Contracts, endpoints, events, and backwards compatibility]\"",
+          "tradeoffs = [",
+          "  \"[Option chosen and why]\",",
+          "  \"[Alternative rejected and why]\"",
+          "]",
+          "compatibility = \"[Backward compatibility, migration constraints, feature flags, versioning, or rollout concerns]\"",
+          "verification_plan = \"[Tests, commands, observability, manual QA, load/security checks]\"",
+          "rollback_plan = \"[Optional safe undo plan]\"",
+          "risks = \"[Optional known risks]\""
+        ]
+      }
+    },
+    "implementation_plan": {
+      "display_name": "Implementation plan contract",
+      "intents": [
+        "implementation_plan"
+      ],
+      "required": [
+        {
+          "label": "task or scope",
+          "fields": [
+            "task",
+            "scope"
+          ]
+        },
+        {
+          "label": "phases",
+          "fields": [
+            "phases"
+          ]
+        },
+        {
+          "label": "implementation steps",
+          "fields": [
+            "implementation_steps"
+          ]
+        },
+        {
+          "label": "dependencies",
+          "fields": [
+            "dependencies"
+          ]
+        },
+        {
+          "label": "verification plan",
+          "fields": [
+            "verification_plan",
+            "success_criteria"
+          ]
+        },
+        {
+          "label": "rollback plan",
+          "fields": [
+            "rollback_plan"
+          ]
+        }
+      ],
+      "optional": [
+        "constraints",
+        "risks",
+        "open_questions",
+        "owners",
+        "output_format"
+      ],
+      "templates": {
+        "md": [
+          "<!-- profile: implementation_plan -->",
+          "",
+          "# Task / Scope",
+          "[Feature/spec/design this plan implements, with repo/package/component boundaries]",
+          "",
+          "# Phases",
+          "1. [Small safe phase 1]",
+          "2. [Small safe phase 2]",
+          "",
+          "# Implementation Steps",
+          "- [Concrete edit, migration, test, or documentation step]",
+          "",
+          "# Dependencies",
+          "- [External service, team, package, migration, data, or decision needed]",
+          "",
+          "# Verification Plan",
+          "- [Unit/integration/e2e/manual test command or acceptance check]",
+          "",
+          "# Rollback Plan",
+          "[How to revert, disable, or safely recover if this fails]",
+          "",
+          "# Optional",
+          "- Constraints: [things to preserve or avoid]",
+          "- Risks: [known risks]",
+          "- Open questions: [unknowns]",
+          "- Output format: [plan only, checklist, issue body, or execution prompt]"
+        ],
+        "xml": [
+          "<prompt profile=\"implementation_plan\">",
+          "  <task>[Feature/spec/design this plan implements, with repo/package/component boundaries]</task>",
+          "  <phases>",
+          "    <item>[Small safe phase 1]</item>",
+          "    <item>[Small safe phase 2]</item>",
+          "  </phases>",
+          "  <implementation_steps>",
+          "    <item>[Concrete edit, migration, test, or documentation step]</item>",
+          "  </implementation_steps>",
+          "  <dependencies>",
+          "    <item>[External service, team, package, migration, data, or decision needed]</item>",
+          "  </dependencies>",
+          "  <verification_plan>[Unit/integration/e2e/manual test command or acceptance check]</verification_plan>",
+          "  <rollback_plan>[How to revert, disable, or safely recover if this fails]</rollback_plan>",
+          "  <constraints>[Optional things to preserve or avoid]</constraints>",
+          "  <risks>[Optional known risks]</risks>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"implementation_plan\"",
+          "task = \"[Feature/spec/design this plan implements, with repo/package/component boundaries]\"",
+          "phases = [",
+          "  \"[Small safe phase 1]\",",
+          "  \"[Small safe phase 2]\"",
+          "]",
+          "implementation_steps = [",
+          "  \"[Concrete edit, migration, test, or documentation step]\"",
+          "]",
+          "dependencies = [",
+          "  \"[External service, team, package, migration, data, or decision needed]\"",
+          "]",
+          "verification_plan = \"[Unit/integration/e2e/manual test command or acceptance check]\"",
+          "rollback_plan = \"[How to revert, disable, or safely recover if this fails]\"",
+          "constraints = \"[Optional things to preserve or avoid]\"",
+          "risks = \"[Optional known risks]\""
+        ]
+      }
+    },
+    "agent_execution_prompt": {
+      "display_name": "Agent execution prompt contract",
+      "intents": [
+        "agent_execution_prompt"
+      ],
+      "required": [
+        {
+          "label": "task",
+          "fields": [
+            "task"
+          ]
+        },
+        {
+          "label": "source spec",
+          "fields": [
+            "source_spec",
+            "context"
+          ]
+        },
+        {
+          "label": "scope",
+          "fields": [
+            "scope",
+            "files_components"
+          ]
+        },
+        {
+          "label": "constraints",
+          "fields": [
+            "constraints"
+          ]
+        },
+        {
+          "label": "implementation plan",
+          "fields": [
+            "implementation_plan",
+            "implementation_steps"
+          ]
+        },
+        {
+          "label": "verification plan",
+          "fields": [
+            "verification_plan",
+            "success_criteria"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "plan_first",
+        "non_goals",
+        "rollback_plan",
+        "examples",
+        "privacy_notes"
+      ],
+      "templates": {
+        "md": [
+          "<!-- profile: agent_execution_prompt -->",
+          "",
+          "# Task",
+          "[Exact implementation task for the coding agent]",
+          "",
+          "# Source Spec",
+          "[Link/paste feature spec, requirements spec, or technical design to follow]",
+          "",
+          "# Scope",
+          "[Files, packages, services, components, or commands in scope]",
+          "",
+          "# Constraints",
+          "- Preserve [public API, data contract, UX, performance, security, behavior]",
+          "- Do not touch [out-of-scope files/components]",
+          "",
+          "# Implementation Plan",
+          "- [Step 1]",
+          "- [Step 2]",
+          "",
+          "# Verification Plan",
+          "- [Test command, lint command, manual check, or acceptance criterion]",
+          "",
+          "# Output Format",
+          "[Patch plus summary, plan first, PR description, tests run, risks]",
+          "",
+          "# Optional",
+          "- Plan first: [when the agent must stop for confirmation]",
+          "- Non-goals: [what not to implement]",
+          "- Rollback plan: [how to undo]"
+        ],
+        "xml": [
+          "<prompt profile=\"agent_execution_prompt\">",
+          "  <task>[Exact implementation task for the coding agent]</task>",
+          "  <source_spec>[Link/paste feature spec, requirements spec, or technical design to follow]</source_spec>",
+          "  <scope>[Files, packages, services, components, or commands in scope]</scope>",
+          "  <constraints>",
+          "    <item>Preserve [public API, data contract, UX, performance, security, behavior]</item>",
+          "    <item>Do not touch [out-of-scope files/components]</item>",
+          "  </constraints>",
+          "  <implementation_plan>",
+          "    <item>[Step 1]</item>",
+          "    <item>[Step 2]</item>",
+          "  </implementation_plan>",
+          "  <verification_plan>[Test command, lint command, manual check, or acceptance criterion]</verification_plan>",
+          "  <output_format>[Patch plus summary, plan first, PR description, tests run, risks]</output_format>",
+          "  <plan_first>[Optional stop-for-confirmation boundary]</plan_first>",
+          "  <rollback_plan>[Optional undo plan]</rollback_plan>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"agent_execution_prompt\"",
+          "task = \"[Exact implementation task for the coding agent]\"",
+          "source_spec = \"[Link/paste feature spec, requirements spec, or technical design to follow]\"",
+          "scope = \"[Files, packages, services, components, or commands in scope]\"",
+          "constraints = [",
+          "  \"Preserve [public API, data contract, UX, performance, security, behavior]\",",
+          "  \"Do not touch [out-of-scope files/components]\"",
+          "]",
+          "implementation_plan = [",
+          "  \"[Step 1]\",",
+          "  \"[Step 2]\"",
+          "]",
+          "verification_plan = \"[Test command, lint command, manual check, or acceptance criterion]\"",
+          "output_format = \"[Patch plus summary, plan first, PR description, tests run, risks]\"",
+          "plan_first = \"[Optional stop-for-confirmation boundary]\"",
+          "rollback_plan = \"[Optional undo plan]\""
+        ]
+      }
+    },
+    "spec_review_checklist": {
+      "display_name": "Spec review checklist contract",
+      "intents": [
+        "spec_review_checklist"
+      ],
+      "required": [
+        {
+          "label": "source spec",
+          "fields": [
+            "source_spec",
+            "context"
+          ]
+        },
+        {
+          "label": "review criteria",
+          "fields": [
+            "criteria"
+          ]
+        },
+        {
+          "label": "missing information",
+          "fields": [
+            "missing_information"
+          ]
+        },
+        {
+          "label": "risk checks",
+          "fields": [
+            "risk_checks",
+            "risks"
+          ]
+        },
+        {
+          "label": "decision",
+          "fields": [
+            "decision"
+          ]
+        },
+        {
+          "label": "output format",
+          "fields": [
+            "output_format"
+          ]
+        }
+      ],
+      "optional": [
+        "constraints",
+        "examples",
+        "success_criteria"
+      ],
+      "templates": {
+        "md": [
+          "<!-- profile: spec_review_checklist -->",
+          "",
+          "# Source Spec",
+          "[Paste or link the feature spec, requirements spec, technical design, or implementation plan to review]",
+          "",
+          "# Review Criteria",
+          "- Completeness: [required fields to check]",
+          "- Agent readiness: [whether a coding agent can safely act]",
+          "- Testability: [whether acceptance criteria are observable]",
+          "",
+          "# Missing Information",
+          "- [Question or missing detail to resolve before implementation]",
+          "",
+          "# Risk Checks",
+          "- [Security, privacy, migration, data loss, performance, deployment, rollback, broad-scope risk]",
+          "",
+          "# Decision",
+          "[Ready for agent / needs clarification / needs technical design / blocked]",
+          "",
+          "# Output Format",
+          "[Checklist, table, go/no-go summary, or issues to file]"
+        ],
+        "xml": [
+          "<prompt profile=\"spec_review_checklist\">",
+          "  <source_spec>[Paste or link the feature spec, requirements spec, technical design, or implementation plan to review]</source_spec>",
+          "  <criteria>",
+          "    <item>Completeness: [required fields to check]</item>",
+          "    <item>Agent readiness: [whether a coding agent can safely act]</item>",
+          "    <item>Testability: [whether acceptance criteria are observable]</item>",
+          "  </criteria>",
+          "  <missing_information>",
+          "    <item>[Question or missing detail to resolve before implementation]</item>",
+          "  </missing_information>",
+          "  <risk_checks>",
+          "    <item>[Security, privacy, migration, data loss, performance, deployment, rollback, broad-scope risk]</item>",
+          "  </risk_checks>",
+          "  <decision>[Ready for agent / needs clarification / needs technical design / blocked]</decision>",
+          "  <output_format>[Checklist, table, go/no-go summary, or issues to file]</output_format>",
+          "</prompt>"
+        ],
+        "toml": [
+          "profile = \"spec_review_checklist\"",
+          "source_spec = \"[Paste or link the feature spec, requirements spec, technical design, or implementation plan to review]\"",
+          "criteria = [",
+          "  \"Completeness: [required fields to check]\",",
+          "  \"Agent readiness: [whether a coding agent can safely act]\",",
+          "  \"Testability: [whether acceptance criteria are observable]\"",
+          "]",
+          "missing_information = [",
+          "  \"[Question or missing detail to resolve before implementation]\"",
+          "]",
+          "risk_checks = [",
+          "  \"[Security, privacy, migration, data loss, performance, deployment, rollback, broad-scope risk]\"",
+          "]",
+          "decision = \"[Ready for agent / needs clarification / needs technical design / blocked]\"",
+          "output_format = \"[Checklist, table, go/no-go summary, or issues to file]\""
+        ]
+      }
+    },
     "image": {
       "display_name": "Image generation contract",
       "intents": [

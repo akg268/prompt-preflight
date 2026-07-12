@@ -11,7 +11,7 @@ import { PromptPreflightCodeActionProvider } from "./promptCodeActions";
 import { PreflightAnalysis, runPreflight } from "./preflightClient";
 import { PromptDiagnosticsController } from "./promptDiagnostics";
 import { createTeamPolicyFile, enableLocalTelemetry, openTeamPolicy } from "./teamPolicy";
-import { insertPromptTemplate } from "./templateInserter";
+import { insertPromptTemplate, insertPromptTemplateWithFormatChoice } from "./templateInserter";
 import { WorkspacePromptLinter } from "./workspaceLinter";
 import { PromptComposerPanel } from "./promptComposerPanel";
 import { releaseReadinessMarkdown } from "./releaseReadiness";
@@ -532,6 +532,9 @@ export function activate(context: vscode.ExtensionContext): void {
     ),
     vscode.commands.registerCommand("promptPreflight.closeGeneratedTabs", () =>
       closePromptPreflightGeneratedTabs()
+    ),
+    vscode.commands.registerCommand("promptPreflight.insertPromptTemplate", () =>
+      insertPromptTemplateWithFormatChoice(context)
     ),
     vscode.commands.registerCommand("promptPreflight.insertMarkdownTemplate", () =>
       insertPromptTemplate(context, "md")

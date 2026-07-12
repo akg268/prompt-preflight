@@ -29,6 +29,7 @@ def telemetry_event(
     *,
     host: str,
     decision: str,
+    timestamp_mode: str = "exact",
     token_observability_enabled: bool = True,
     token_default_max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS,
     token_estimated_retry_output_tokens: int = DEFAULT_RETRY_OUTPUT_TOKENS,
@@ -37,7 +38,6 @@ def telemetry_event(
 
     event: dict[str, Any] = {
         "version": TELEMETRY_VERSION,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
         "phase": "preflight",
         "host": host,
         "decision": decision,
@@ -57,6 +57,12 @@ def telemetry_event(
             max_output_tokens=token_default_max_output_tokens,
             retry_output_tokens=token_estimated_retry_output_tokens,
         )
+
+    if timestamp_mode == "exact":
+        event["timestamp"] = datetime.now(timezone.utc).isoformat()
+    elif timestamp_mode == "date":
+        event["timestamp"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
     return event
 
 
@@ -88,6 +94,9 @@ def postflight_telemetry_event(
             max_output_tokens=token_default_max_output_tokens,
             retry_output_tokens=token_estimated_retry_output_tokens,
         )
+    return event
+
+
     return event
 
 
@@ -170,6 +179,7 @@ def record_analysis(
     max_events: int | None = None,
     max_bytes: int | None = None,
     retention_days: int | None = None,
+    timestamp_mode: str = "exact",
     token_observability_enabled: bool = True,
     token_default_max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS,
     token_estimated_retry_output_tokens: int = DEFAULT_RETRY_OUTPUT_TOKENS,
@@ -182,6 +192,7 @@ def record_analysis(
             analysis,
             host=host,
             decision=decision_for_analysis(analysis, mode=mode),
+            timestamp_mode=timestamp_mode,
             token_observability_enabled=token_observability_enabled,
             token_default_max_output_tokens=token_default_max_output_tokens,
             token_estimated_retry_output_tokens=token_estimated_retry_output_tokens,
@@ -202,6 +213,7 @@ def record_analysis_safely(
     max_events: int | None = None,
     max_bytes: int | None = None,
     retention_days: int | None = None,
+    timestamp_mode: str = "exact",
     token_observability_enabled: bool = True,
     token_default_max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS,
     token_estimated_retry_output_tokens: int = DEFAULT_RETRY_OUTPUT_TOKENS,
@@ -216,6 +228,7 @@ def record_analysis_safely(
             max_events=max_events,
             max_bytes=max_bytes,
             retention_days=retention_days,
+            timestamp_mode=timestamp_mode,
             token_observability_enabled=token_observability_enabled,
             token_default_max_output_tokens=token_default_max_output_tokens,
             token_estimated_retry_output_tokens=token_estimated_retry_output_tokens,

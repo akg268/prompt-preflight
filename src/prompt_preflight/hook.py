@@ -85,6 +85,7 @@ def process_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
         max_events=config.telemetry_max_events,
         max_bytes=config.telemetry_max_bytes,
         retention_days=config.telemetry_retention_days,
+        timestamp_mode=config.telemetry_timestamp_mode,
         token_observability_enabled=config.token_observability_enabled,
         token_default_max_output_tokens=config.token_default_max_output_tokens,
         token_estimated_retry_output_tokens=config.token_estimated_retry_output_tokens,

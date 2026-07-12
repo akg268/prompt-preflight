@@ -1,5 +1,5 @@
 import assert from "assert/strict";
-import { templateDocumentSpec } from "../templateDocument";
+import { templateDocumentSpec, templateFormatOptions } from "../templateDocument";
 import { runSuite } from "./testHarness";
 
 /**
@@ -43,6 +43,26 @@ export function runTemplateDocumentTests(): void {
 
         assert.equal(spec.language, "toml");
         assert.equal(spec.content, "profile = \"general\"\n");
+      }
+    },
+
+  /**
+   * Verifies the user-facing format picker offers every supported template
+   * style in the preferred order.
+   */
+    {
+      name: "builds user-facing format choices",
+      run: () => {
+        const options = templateFormatOptions();
+
+        assert.deepEqual(
+          options.map((option) => option.format),
+          ["md", "toml", "xml"]
+        );
+        assert.deepEqual(
+          options.map((option) => option.label),
+          ["Markdown", "TOML", "XML"]
+        );
       }
     }
   ]);

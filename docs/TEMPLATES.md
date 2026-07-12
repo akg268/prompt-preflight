@@ -16,13 +16,34 @@ From the repository root:
 python3 scripts/prompt_preflight.py --template image --template-format md
 python3 scripts/prompt_preflight.py --template software --template-format xml
 python3 scripts/prompt_preflight.py --template research --template-format toml
+python3 scripts/prompt_preflight.py --template feature-spec --template-format md
+python3 scripts/prompt_preflight.py --template agent-prompt --template-format toml
 ```
+
+## Spec-driven development templates
+
+Prompt Preflight includes a spec-driven development template pack for teams that want coding agents to work from clearer requirements before implementation begins:
+
+- `feature_spec`
+- `requirements_spec`
+- `technical_design_spec`
+- `implementation_plan`
+- `agent_execution_prompt`
+- `spec_review_checklist`
+
+These templates are available in Markdown, XML, and TOML. In VS Code, run `Prompt Preflight: New Prompt Template`, choose a format, then choose one of the spec-driven profiles.
 
 <!-- BEGIN GENERATED TEMPLATE DOCS - do not edit by hand -->
 Supported profiles:
 
 - `general`
 - `software`
+- `feature_spec`
+- `requirements_spec`
+- `technical_design_spec`
+- `implementation_plan`
+- `agent_execution_prompt`
+- `spec_review_checklist`
 - `image`
 - `writing`
 - `research`
@@ -47,6 +68,12 @@ Supported formats:
 | --- | --- | --- |
 | `general` | task, context, output format, success criteria | constraints, examples, non-goals, privacy notes |
 | `software` | task, scope/context, constraints, output format, success criteria | platform/stack, non-goals, examples, plan-first, privacy notes |
+| `feature_spec` | problem statement, goals, target users, functional requirements, acceptance criteria, constraints | non-goals, risks, open questions, examples, output format |
+| `requirements_spec` | scope, user stories, functional requirements, non-functional requirements, edge cases, acceptance criteria, open questions | constraints, dependencies, examples, risks, output format |
+| `technical_design_spec` | problem context, architecture, affected components, data or API changes, tradeoffs, compatibility, verification plan | migration plan, rollout plan, rollback plan, risks, alternatives, open questions |
+| `implementation_plan` | task or scope, phases, implementation steps, dependencies, verification plan, rollback plan | constraints, risks, open questions, owners, output format |
+| `agent_execution_prompt` | task, source spec, scope, constraints, implementation plan, verification plan, output format | plan-first, non-goals, rollback plan, examples, privacy notes |
+| `spec_review_checklist` | source spec, review criteria, missing information, risk checks, decision, output format | constraints, examples, success criteria |
 | `image` | task, visual details, style/mood, output format | avoid, examples, success criteria |
 | `writing` | task, audience, purpose, context/source material, output format | tone, length, examples, exclusions, success criteria |
 | `research` | research question, scope, sources, criteria, output format | date range, geography, citation style, uncertainty rule |
