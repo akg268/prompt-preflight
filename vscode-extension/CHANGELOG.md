@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.3
+
+- Adds a first-run welcome page with quick-start steps, privacy notes, and spec-driven template guidance.
+- Adds `Prompt Preflight: Open Welcome` so users can reopen onboarding anytime.
+- Adds `Prompt Preflight: Share Beta Feedback`, which opens the public GitHub beta-feedback issue.
+
 ## 0.0.2
 
 - Adds Marketplace beta positioning and packaged README/demo polish.

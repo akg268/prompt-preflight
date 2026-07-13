@@ -1,7 +1,7 @@
 /**
  * Names the kinds of temporary tabs Prompt Preflight opens for users.
  */
-export type GeneratedDocumentKind = "result" | "composer" | "template" | "policy";
+export type GeneratedDocumentKind = "result" | "composer" | "template" | "policy" | "welcome";
 
 /**
  * Prefix used by generated Markdown result documents.

@@ -2,7 +2,7 @@
   "name": "prompt-preflight-vscode",
   "displayName": "Prompt Preflight",
   "description": "Catch vague AI-agent prompts in VS Code before they burn model turns.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "arunkumar-ganesan",
   "author": {
     "name": "Arunkumar Ganesan"
@@ -66,6 +66,8 @@
     "onCommand:promptPreflight.openTelemetryDashboard",
     "onCommand:promptPreflight.runSetupDoctor",
     "onCommand:promptPreflight.openReleaseReadinessChecklist",
+    "onCommand:promptPreflight.openWelcome",
+    "onCommand:promptPreflight.shareBetaFeedback",
     "onLanguage:markdown",
     "onLanguage:xml",
     "onLanguage:toml"
@@ -156,6 +158,16 @@
       {
         "command": "promptPreflight.openReleaseReadinessChecklist",
         "title": "Open Release Readiness Checklist",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.openWelcome",
+        "title": "Open Welcome",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.shareBetaFeedback",
+        "title": "Share Beta Feedback",
         "category": "Prompt Preflight"
       }
     ],

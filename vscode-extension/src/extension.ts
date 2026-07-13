@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { OPEN_EXAMPLES_COMMAND, openPromptExamples } from "./examplesLink";
+import { openBetaFeedbackIssue } from "./feedback";
 import { isPromptPreflightResultText } from "./generatedDocuments";
 import {
   closeGeneratedPromptTabs,
@@ -18,6 +19,7 @@ import { releaseReadinessMarkdown } from "./releaseReadiness";
 import { buildSetupDoctorReport, setupDoctorMarkdown } from "./setupDoctor";
 import { TelemetryDashboardPanel } from "./telemetryDashboardPanel";
 import { shouldRecordTelemetry } from "./telemetryStore";
+import { maybeOpenWelcomePage, openWelcomePage } from "./welcome";
 
 /**
  * Tracks where a prompt came from so a suggested rewrite can be applied back to
@@ -568,6 +570,12 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("promptPreflight.openReleaseReadinessChecklist", () =>
       openReleaseReadinessChecklist()
     ),
+    vscode.commands.registerCommand("promptPreflight.openWelcome", () =>
+      openWelcomePage(context)
+    ),
+    vscode.commands.registerCommand("promptPreflight.shareBetaFeedback", () =>
+      openBetaFeedbackIssue()
+    ),
     vscode.workspace.onDidCloseTextDocument((document) => {
       analysisRecords.delete(document.uri.toString());
       forgetGeneratedPromptDocument(document.uri);
@@ -592,6 +600,8 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     )
   );
+
+  void maybeOpenWelcomePage(context);
 }
 
 /**

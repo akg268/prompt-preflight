@@ -203,7 +203,7 @@ The model receives a target, outcome, boundaries, and definition of done before 
 - Supports configurable block and nudge modes.
 - Fails open if hook input is malformed.
 - Provides structured JSON for evaluation and debugging.
-- Includes a VS Code extension for checking prompt files, composing structured prompts, running workspace prompt lint, showing inline diagnostics, and viewing local telemetry graphs. The VSIX bundles the Python analyzer, so normal users do not need a repo checkout or `promptPreflight.repoPath`. See [Prompt Preflight for VS Code](vscode-extension/README.md).
+- Includes a VS Code extension for checking prompt files, composing structured prompts, running workspace prompt lint, showing inline diagnostics, viewing local telemetry graphs, onboarding users with a first-run welcome page, and opening the public beta-feedback issue. The VSIX bundles the Python analyzer, so normal users do not need a repo checkout or `promptPreflight.repoPath`. See [Prompt Preflight for VS Code](vscode-extension/README.md).
 
 ## How the decision works
 
