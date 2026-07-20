@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { diagnosticSummariesFromAnalysis, shouldAnalyzePromptDocument } from "./diagnosticRules";
 import { runPreflight } from "./preflightClient";
+import { profileForWorkspaceFile } from "./teamPolicyProfiles";
 
 /**
  * Provides the active workspace path to analyzer calls.
@@ -96,9 +97,11 @@ export class PromptDiagnosticsController implements vscode.Disposable {
     }
 
     try {
+      const workspacePath = this.workspacePathProvider();
       const analysis = await runPreflight(text, {
         extensionPath: this.context.extensionPath,
-        workspacePath: this.workspacePathProvider()
+        workspacePath,
+        profile: profileForWorkspaceFile(workspacePath, document.uri.fsPath)
       });
       const diagnostics = diagnosticSummariesFromAnalysis(analysis, text).map((summary) => {
         const diagnostic = new vscode.Diagnostic(

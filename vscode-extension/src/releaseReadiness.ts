@@ -38,6 +38,14 @@ export function releaseChecklistSections(): ReleaseChecklistSection[] {
         {
           label: "Template docs are current",
           detail: "`python3 scripts/generate_template_docs.py --check` passes."
+        },
+        {
+          label: "Prompt-library CI lint passes",
+          detail: "`python3 scripts/lint_prompt_library.py --cwd .` passes without printing prompt text."
+        },
+        {
+          label: "Cross-tool parity tests pass",
+          detail: "`tests/test_cross_tool_parity.py` confirms Codex, Claude Code, Kiro, and CLI behavior stays aligned."
         }
       ]
     },
@@ -58,7 +66,7 @@ export function releaseChecklistSections(): ReleaseChecklistSection[] {
         },
         {
           label: "Telemetry dashboard works",
-          detail: "After telemetry is enabled and one check runs, `Prompt Preflight: Open Telemetry Dashboard` shows local graph data."
+          detail: "After telemetry is enabled and one check runs, `Prompt Preflight: Open Telemetry Dashboard` shows local graph data, feedback counts, and token-savings estimates."
         },
         {
           label: "Generated-tab cleanup works",
@@ -79,7 +87,7 @@ export function releaseChecklistSections(): ReleaseChecklistSection[] {
         },
         {
           label: "Versioning is decided",
-          detail: "Choose release version, changelog format, and whether this is public beta or stable."
+          detail: "Choose release version, changelog format, and stable-release messaging."
         },
         {
           label: "Package contents are audited",
@@ -173,7 +181,7 @@ export function releaseReadinessMarkdown(): string {
   lines.push(
     "## Release call",
     "",
-    "- [ ] We are comfortable calling this a public beta.",
+    "- [ ] We are comfortable shipping this without the VS Code Marketplace Preview label.",
     "- [ ] Known limitations are documented instead of hidden.",
     "- [ ] A clean user can install, run a check, view Setup Doctor, and view telemetry without help.",
     "",

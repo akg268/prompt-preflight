@@ -304,6 +304,12 @@ def _normalize_profile_name(name: str) -> str:
     return PROFILE_ALIASES.get(normalized, normalized)
 
 
+def normalize_profile_name(name: str) -> str:
+    """Return the canonical template profile name for user/config input."""
+
+    return _normalize_profile_name(name)
+
+
 @lru_cache(maxsize=1)
 def load_template_profiles() -> dict[str, TemplateProfile]:
     """Load prompt contract profiles from package data."""
@@ -351,6 +357,21 @@ def template_profile_names() -> tuple[str, ...]:
     """Return stable profile names for CLI choices."""
 
     return tuple(load_template_profiles().keys())
+
+
+def intent_for_profile(profile: str | None) -> str | None:
+    """Return the analyzer intent that best matches a configured profile."""
+
+    if not profile:
+        return None
+    profiles = load_template_profiles()
+    profile_name = _normalize_profile_name(profile)
+    if profile_name not in profiles:
+        return None
+    if profile_name == "software":
+        return "software_build"
+    intents = profiles[profile_name].intents
+    return intents[0] if intents else profile_name
 
 
 def render_template(profile: str = "general", template_format: str = "md") -> str:

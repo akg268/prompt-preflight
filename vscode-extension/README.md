@@ -8,7 +8,7 @@ Prompt Preflight for VS Code uses the same local Python analyzer as the CLI and 
 
 Author: Arunkumar Ganesan
 
-This extension is available as a public Marketplace beta.
+This extension is available on the VS Code Marketplace.
 
 ## Install from Marketplace
 
@@ -59,15 +59,16 @@ It can flag issues such as:
 - `Prompt Preflight: New Prompt Template` asks whether the user wants Markdown, TOML, or XML before opening the template.
 - Spec-driven development templates for feature specs, requirements specs, technical designs, implementation plans, agent execution prompts, and spec review checklists.
 - First-run welcome page with quick-start steps and privacy notes.
-- `Prompt Preflight: Share Beta Feedback` opens the public GitHub feedback issue.
+- `Prompt Preflight: Share Feedback` opens the public GitHub feedback issue.
 - Markdown result reports with intent, Vagueness score, severity, reasons, questions, and suggested prompt.
+- Result feedback actions: Helpful, False positive, Missed vagueness, and Open GitHub issue with this example.
 - One-click suggested prompt insertion back into the original file or selected range.
 - Prompt Composer webview for users who prefer filling a form instead of writing template syntax.
 - Markdown, XML, and TOML prompt-template creation commands.
-- Automatic diagnostics in Markdown, XML, and TOML prompt files.
+- Automatic diagnostics in Markdown, XML, and TOML prompt files, with folder profile routing from `.prompt-preflight.json`.
 - Workspace prompt lint for team prompt libraries.
-- Team policy template via `.prompt-preflight.json`.
-- Local telemetry dashboard with graph-style summaries for prompt checks, block reasons, postflight findings, hosts, daily activity, and token estimates.
+- Team policy template via `.prompt-preflight.json`, including profile routing for spec, research, data, and presentation prompt folders.
+- Local telemetry dashboard with graph-style summaries for prompt checks, block reasons, postflight findings, user feedback signals, hosts, daily activity, and token-savings estimates.
 - Quick Fix to open the example prompt library.
 - Cleanup command for generated result/template/composer tabs.
 
@@ -77,6 +78,7 @@ It can flag issues such as:
 - Python `3.10` or newer
 
 For normal VSIX/Marketplace usage, the Python analyzer is bundled inside the extension. Users do not need to clone this repository or set `promptPreflight.repoPath`.
+The extension auto-detects Python from common commands and install paths, including `python3`, `python`, Windows `py -3`, Homebrew Python, and system Python paths.
 
 For source development or VSIX packaging, you also need:
 
@@ -142,14 +144,19 @@ Expected:
 - `npm run package:vsix` creates a file like:
 
   ```text
-  prompt-preflight-vscode-0.0.3.vsix
+  prompt-preflight-vscode-1.0.0.vsix
   ```
 
 Install the generated package:
 
 ```bash
-code --install-extension prompt-preflight-vscode-0.0.3.vsix
+code --install-extension prompt-preflight-vscode-1.0.0.vsix --force
 ```
+
+If you already installed it with `code --install-extension` and saw a `DEP0169`
+`url.parse()` deprecation warning after `was successfully installed`, the
+extension still installed correctly. That warning comes from the VS Code CLI
+installer process, not from Prompt Preflight.
 
 After installation, run:
 
@@ -185,13 +192,15 @@ Optional settings:
 
 ```json
 {
-  "promptPreflight.pythonPath": "python3",
+  "promptPreflight.pythonPath": "",
   "promptPreflight.threshold": 45,
   "promptPreflight.maxQuestions": 3,
   "promptPreflight.diagnostics.enabled": true,
   "promptPreflight.diagnostics.debounceMs": 900
 }
 ```
+
+Leave `promptPreflight.pythonPath` empty for auto-detection. Set it only when your Python executable is installed in a custom location or not available on PATH.
 
 ## Local telemetry dashboard
 
@@ -478,6 +487,19 @@ Prompt Preflight: Lint Workspace Prompt Files
 
 The linter checks marked `*.md`, `*.xml`, and `*.toml` files, reports failures in the Problems panel, and writes a summary to the `Prompt Preflight` output channel.
 
+Folder profiles in `.prompt-preflight.json` make lint and diagnostics domain-aware without adding a profile comment to every prompt file:
+
+```json
+{
+  "profiles": {
+    "docs/prompts/specs/**": "feature_spec",
+    "docs/prompts/research/**": "research",
+    "docs/prompts/data/**": "data_analysis",
+    "docs/prompts/presentations/**": "presentation"
+  }
+}
+```
+
 ## Team policy
 
 To create the policy file directly in your workspace root, run:
@@ -518,6 +540,12 @@ Example policy:
     "risk": "block",
     "plan_first": "block",
     "privacy": "block"
+  },
+  "profiles": {
+    "docs/prompts/specs/**": "feature_spec",
+    "docs/prompts/research/**": "research",
+    "docs/prompts/data/**": "data_analysis",
+    "docs/prompts/presentations/**": "presentation"
   }
 }
 ```
@@ -620,6 +648,7 @@ Expected:
 
 - A Markdown setup report opens.
 - The report shows whether the Python analyzer was found.
+- The report shows which Python runtime was detected, including the commands it tried.
 - The report warns if an installed VSIX copy can collide with Extension Development Host.
 - The report shows whether `.prompt-preflight.json` exists and whether telemetry is enabled.
 
@@ -707,11 +736,56 @@ from the `vscode-extension` folder.
 
 ### Python cannot run
 
-Set:
+Prompt Preflight needs Python `3.10` or newer to run the local analyzer. The extension tries these automatically:
+
+- `python3`
+- `python`
+- Windows `py -3`
+- common macOS/Linux install paths such as `/opt/homebrew/bin/python3`
+
+First run:
+
+```text
+Prompt Preflight: Run Setup Doctor
+```
+
+If Python still cannot be found, open VS Code Settings and search for:
+
+```text
+promptPreflight.pythonPath
+```
+
+Then set the full executable path.
+
+macOS Homebrew example:
 
 ```json
 {
-  "promptPreflight.pythonPath": "/path/to/python3"
+  "promptPreflight.pythonPath": "/opt/homebrew/bin/python3"
+}
+```
+
+macOS system path example:
+
+```json
+{
+  "promptPreflight.pythonPath": "/usr/bin/python3"
+}
+```
+
+Windows launcher example:
+
+```json
+{
+  "promptPreflight.pythonPath": "py -3"
+}
+```
+
+Windows full-path example:
+
+```json
+{
+  "promptPreflight.pythonPath": "C:\\Users\\you\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
 }
 ```
 

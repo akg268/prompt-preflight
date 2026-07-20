@@ -48,6 +48,20 @@ def clarification_message(analysis: Analysis) -> str:
     return "\n".join(lines)
 
 
+def profile_for_payload(config: Any, payload: dict[str, Any]) -> str | None:
+    """Return an explicit or policy-derived prompt profile from a host payload."""
+
+    raw_profile = payload.get("profile")
+    if isinstance(raw_profile, str) and raw_profile.strip():
+        return raw_profile.strip()
+
+    for key in ("prompt_path", "file_path", "path", "file"):
+        value = payload.get(key)
+        if isinstance(value, str) and value.strip():
+            return config.profile_for_path(value, payload.get("cwd"))
+    return None
+
+
 def process_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
     prompt = payload.get("prompt")
     if not isinstance(prompt, str):
@@ -71,6 +85,7 @@ def process_payload(payload: dict[str, Any]) -> dict[str, Any] | None:
     analysis = analyze_prompt(
         prompt,
         config=config,
+        profile=profile_for_payload(config, payload),
         threshold=config.threshold,
         max_questions=config.max_questions,
         cwd=payload.get("cwd"),

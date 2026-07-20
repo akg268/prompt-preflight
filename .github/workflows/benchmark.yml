@@ -55,6 +55,9 @@ jobs:
       - name: Smoke-test Kiro installer dry run
         run: python3 scripts/install_kiro_hook.py --dry-run
 
+      - name: Lint prompt library
+        run: python3 scripts/lint_prompt_library.py --cwd .
+
       - name: Run vague-prompt benchmark
         run: >
           python3 scripts/benchmark_vague_prompts.py

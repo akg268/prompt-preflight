@@ -6,6 +6,7 @@ import {
   repoPathCandidates,
   resolveRepoPathFromCandidates
 } from "./repoResolver";
+import { formatPythonAttempts, resolvePythonCommand } from "./pythonResolver";
 
 /**
  * Mirrors the JSON contract emitted by the existing Prompt Preflight Python CLI.
@@ -26,6 +27,7 @@ export interface PreflightAnalysis {
   checks: string[];
   severity: string;
   redacted_prompt?: string;
+  decision?: string;
 }
 
 /**
@@ -36,6 +38,7 @@ export interface PreflightOptions {
   extensionPath: string;
   workspacePath?: string;
   recordTelemetry?: boolean;
+  profile?: string;
 }
 
 /**
@@ -99,12 +102,14 @@ export async function runPreflight(
     );
   }
 
-  const pythonPath = getConfig<string>("pythonPath") || "python3";
+  const pythonPath = getConfig<string>("pythonPath") || "";
+  const python = await resolvePythonCommand(pythonPath);
   const threshold = Math.max(0, Math.min(100, getConfig<number>("threshold") ?? 45));
   const maxQuestions = Math.max(1, Math.min(5, getConfig<number>("maxQuestions") ?? 3));
   const cwd = options.workspacePath || repoPath;
 
   const args = [
+    ...python.candidate.argsPrefix,
     cliPath,
     "--json",
     "--threshold",
@@ -115,9 +120,12 @@ export async function runPreflight(
   if (options.recordTelemetry) {
     args.push("--record-telemetry");
   }
+  if (options.profile?.trim()) {
+    args.push("--profile", options.profile.trim());
+  }
 
   return new Promise((resolve, reject) => {
-    const child = spawn(pythonPath, args, {
+    const child = spawn(python.candidate.command, args, {
       cwd,
       stdio: ["pipe", "pipe", "pipe"]
     });
@@ -133,7 +141,19 @@ export async function runPreflight(
     child.stderr.on("data", (chunk: string) => {
       stderr += chunk;
     });
-    child.on("error", reject);
+    child.on("error", (error) => {
+      reject(
+        new Error(
+          [
+            `Prompt Preflight could not start Python command '${python.candidate.label}'.`,
+            error.message,
+            "",
+            "Python commands checked before launch:",
+            formatPythonAttempts(python.attempts)
+          ].join("\n")
+        )
+      );
+    });
     child.on("close", (code) => {
       // The CLI returns 2 when a prompt needs clarification. For the extension,
       // that is a successful analysis result, not a process failure.

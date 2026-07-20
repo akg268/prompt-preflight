@@ -60,12 +60,27 @@ export interface TelemetryDashboardSummary {
   followupsAccepted: number;
   postflightResponsesChecked: number;
   postflightResponsesBlocked: number;
+  feedbackEvents: number;
   decisions: TelemetryBar[];
   blockedByCheck: TelemetryBar[];
   postflightBlockedByCheck: TelemetryBar[];
+  feedbackByType: TelemetryBar[];
   hosts: TelemetryBar[];
   dailyEvents: TelemetryBar[];
   tokens: TokenTelemetrySummary;
+}
+
+/**
+ * Minimal result metadata saved for prompt-free local feedback telemetry.
+ */
+export interface FeedbackEventInput {
+  kind: "helpful" | "false_positive" | "missed_vagueness" | "open_issue";
+  intent: string;
+  score: number;
+  severity: string;
+  decision: string;
+  shouldClarify: boolean;
+  checks: string[];
 }
 
 /**
@@ -218,9 +233,9 @@ function stringField(record: Record<string, unknown>, key: string, fallback: str
 /**
  * Normalizes missing legacy event phases to `preflight`.
  */
-function eventPhase(event: TelemetryEvent): "preflight" | "postflight" | "other" {
+function eventPhase(event: TelemetryEvent): "preflight" | "postflight" | "feedback" | "other" {
   const phase = stringField(event, "phase", "preflight");
-  if (phase === "preflight" || phase === "postflight") {
+  if (phase === "preflight" || phase === "postflight" || phase === "feedback") {
     return phase;
   }
   return "other";
@@ -302,6 +317,7 @@ export function summarizeTelemetryEvents(
   const decisions = new Map<string, number>();
   const blockedByCheck = new Map<string, number>();
   const postflightBlockedByCheck = new Map<string, number>();
+  const feedbackByType = new Map<string, number>();
   const hosts = new Map<string, number>();
   const dailyEvents = new Map<string, number>();
   const tokens: TokenTelemetrySummary = {
@@ -322,6 +338,7 @@ export function summarizeTelemetryEvents(
   let followupsAccepted = 0;
   let postflightResponsesChecked = 0;
   let postflightResponsesBlocked = 0;
+  let feedbackEvents = 0;
 
   for (const event of events) {
     const phase = eventPhase(event);
@@ -358,6 +375,11 @@ export function summarizeTelemetryEvents(
         }
       }
     }
+
+    if (phase === "feedback") {
+      feedbackEvents += 1;
+      increment(feedbackByType, stringField(event, "feedback", "unknown"));
+    }
   }
 
   tokens.promptRisk = tokens.promptRisk.sort((left, right) => right.value - left.value);
@@ -380,13 +402,44 @@ export function summarizeTelemetryEvents(
     followupsAccepted,
     postflightResponsesChecked,
     postflightResponsesBlocked,
+    feedbackEvents,
     decisions: barsFromCounts(decisions),
     blockedByCheck: barsFromCounts(blockedByCheck),
     postflightBlockedByCheck: barsFromCounts(postflightBlockedByCheck),
+    feedbackByType: barsFromCounts(feedbackByType),
     hosts: barsFromCounts(hosts),
     dailyEvents: dailyBars,
     tokens
   };
+}
+
+/**
+ * Records prompt-free local feedback metadata when telemetry is enabled.
+ */
+export function recordFeedbackEvent(workspacePath: string | undefined, input: FeedbackEventInput): boolean {
+  if (!workspacePath) {
+    return false;
+  }
+  const policy = resolveTelemetryPolicy(workspacePath);
+  if (!policy.enabled) {
+    return false;
+  }
+  fs.mkdirSync(path.dirname(policy.telemetryPath), { recursive: true });
+  const event = {
+    version: 1,
+    timestamp: new Date().toISOString(),
+    phase: "feedback",
+    host: "vscode",
+    feedback: input.kind,
+    intent: input.intent,
+    score: input.score,
+    severity: input.severity,
+    decision: input.decision,
+    should_clarify: input.shouldClarify,
+    checks: input.checks
+  };
+  fs.appendFileSync(policy.telemetryPath, `${JSON.stringify(event)}\n`, "utf8");
+  return true;
 }
 
 /**

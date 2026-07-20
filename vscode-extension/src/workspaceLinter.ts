@@ -10,6 +10,7 @@ import {
   shouldLintPromptCandidate,
   workspaceLintSummary
 } from "./workspaceLintRules";
+import { profileForWorkspaceFile } from "./teamPolicyProfiles";
 
 /**
  * Converts pure diagnostic severity names to VS Code diagnostic severities.
@@ -98,13 +99,16 @@ export class WorkspacePromptLinter implements vscode.Disposable {
         continue;
       }
 
+      const profile = profileForWorkspaceFile(folder.uri.fsPath, uri.fsPath);
       const analysis = await runPreflight(text, {
         extensionPath: this.context.extensionPath,
-        workspacePath: folder.uri.fsPath
+        workspacePath: folder.uri.fsPath,
+        profile
       });
       const relativePath = path.relative(folder.uri.fsPath, uri.fsPath);
       results.push({
         fileName: relativePath,
+        profile,
         shouldClarify: analysis.should_clarify,
         score: analysis.score,
         severity: analysis.severity,

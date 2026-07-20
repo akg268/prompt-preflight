@@ -22,14 +22,14 @@ Use Prompt Preflight when prompts are about to enter an expensive or state-chang
 | Surface | How it helps |
 | --- | --- |
 | Coding-agent plugins/hooks | Blocks or nudges vague prompts before Codex, Claude Code, or Kiro start acting on a repo. |
-| VS Code extension | Lets users check prompt files, insert better prompt templates, lint team prompt libraries, and view local telemetry. |
-| CLI and scripts | Provides the same analyzer for local testing, automation, benchmarks, and custom integrations. |
+| VS Code extension | Lets users check prompt files, insert better prompt templates, lint team prompt libraries, capture feedback signals, and view local telemetry. |
+| CLI and scripts | Provides the same analyzer for local testing, automation, CI prompt-library lint, benchmarks, and custom integrations. |
 
-The same prompt rules, vague-prompt library, structured templates, and telemetry format are shared across all integrations.
+The same prompt rules, vague-prompt library, structured templates, folder profile policy, and telemetry format are shared across all integrations. See [Cross-tool parity](docs/CROSS_TOOL_PARITY.md).
 
-## VS Code Marketplace beta
+## VS Code Marketplace
 
-Prompt Preflight for VS Code is available as a Marketplace beta:
+Prompt Preflight for VS Code is available on the VS Code Marketplace:
 
 [Install Prompt Preflight for VS Code](https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode)
 
@@ -39,7 +39,11 @@ Or install from the command line:
 code --install-extension arunkumar-ganesan.prompt-preflight-vscode
 ```
 
-The VS Code extension bundles the Python analyzer, so Marketplace users do not need to clone this repo or set `promptPreflight.repoPath`.
+If the VS Code CLI prints a Node `DEP0169` / `url.parse()` deprecation warning
+after saying the extension was successfully installed, the install succeeded; it
+is CLI installer noise, not a Prompt Preflight runtime error.
+
+The VS Code extension bundles the Python analyzer, so Marketplace users do not need to clone this repo or set `promptPreflight.repoPath`. It auto-detects Python `3.10+` from common commands such as `python3`, `python`, Windows `py -3`, and common install paths; if detection fails, run `Prompt Preflight: Run Setup Doctor` and set `promptPreflight.pythonPath` to the full executable path.
 
 ## Prompt examples and templates
 
@@ -52,6 +56,16 @@ The spec-driven development pack includes feature specs, requirements specs, tec
 The canonical vague-prompt library lives in [`src/prompt_preflight/data/vague_prompts.txt`](src/prompt_preflight/data/vague_prompts.txt). Codex, Claude Code, Kiro, the CLI, and the benchmark all use the same Python package, so new vague-prompt examples should be added there instead of creating tool-specific lists.
 
 The structured template catalog lives in [`src/prompt_preflight/data/prompt_templates.json`](src/prompt_preflight/data/prompt_templates.json), so all supported tools validate the same required fields.
+
+## Team prompt libraries and CI
+
+Teams can lint checked-in prompt libraries before prompt templates are merged:
+
+```bash
+python3 scripts/lint_prompt_library.py --cwd .
+```
+
+By default, CI lint scans `docs/prompts/**` and `prompts/**`, and only files that opt in with `prompt-preflight: check` are checked. See [Prompt Preflight in CI](docs/CI.md) for a GitHub Actions workflow, custom include globs, and JSON output examples.
 
 ## Help the project grow
 
@@ -203,7 +217,7 @@ The model receives a target, outcome, boundaries, and definition of done before 
 - Supports configurable block and nudge modes.
 - Fails open if hook input is malformed.
 - Provides structured JSON for evaluation and debugging.
-- Includes a VS Code extension for checking prompt files, composing structured prompts, running workspace prompt lint, showing inline diagnostics, viewing local telemetry graphs, onboarding users with a first-run welcome page, and opening the public beta-feedback issue. The VSIX bundles the Python analyzer, so normal users do not need a repo checkout or `promptPreflight.repoPath`. See [Prompt Preflight for VS Code](vscode-extension/README.md).
+- Includes a VS Code extension for checking prompt files, composing structured prompts, running workspace prompt lint, showing inline diagnostics, viewing local telemetry graphs, onboarding users with a first-run welcome page, and opening the public feedback issue. The VSIX bundles the Python analyzer, so normal users do not need a repo checkout or `promptPreflight.repoPath`. See [Prompt Preflight for VS Code](vscode-extension/README.md).
 
 ## How the decision works
 
@@ -548,6 +562,12 @@ Create `.prompt-preflight.json` in the project where Codex, Claude Code, or Kiro
     "block": "high",
     "nudge": "medium"
   },
+  "profiles": {
+    "docs/prompts/specs/**": "feature_spec",
+    "docs/prompts/research/**": "research",
+    "docs/prompts/data/**": "data_analysis",
+    "docs/prompts/presentations/**": "presentation"
+  },
   "telemetry": {
     "enabled": false,
     "path": ".prompt-preflight-telemetry.jsonl"
@@ -564,6 +584,7 @@ Create `.prompt-preflight.json` in the project where Codex, Claude Code, or Kiro
 - `threshold`: legacy global numeric threshold.
 - `checks`: per-check policy ("block", "nudge", "disable", "off"). Evaluated before `mode`.
 - `severity_thresholds`: defines the severity ("low", "medium", "high") needed to trigger a "block" or "nudge" per check.
+- `profiles`: folder or file globs that route prompt files to profiles such as `feature_spec`, `research`, `data_analysis`, or `presentation`.
 - `max_questions`: limit clarification questions from 1 to 5.
 - `enabled`: disable Prompt Preflight for a project.
 - `telemetry`: optional local-only counts; disabled by default.
@@ -841,11 +862,11 @@ The project currently has regression coverage for vague and detailed prompts, do
 ## Roadmap
 
 - Richer telemetry reports and trend views
-- More domain profiles beyond software, image generation, writing, research, data analysis, and presentations
+- More domain profiles beyond software, image generation, writing, research, data analysis, presentations, and spec-driven development
 - User-defined terminology and intent rules
 - Per-domain thresholds
 - More host adapters beyond Codex, Claude Code, and Kiro
-- False-positive feedback capture and calibration reports
+- More feedback-to-calibration automation from VS Code result actions
 
 ## License
 

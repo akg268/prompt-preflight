@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { OPEN_EXAMPLES_COMMAND, openPromptExamples } from "./examplesLink";
 import { openBetaFeedbackIssue } from "./feedback";
+import { calibrationIssueUrl, CalibrationIssueInput } from "./feedbackLinks";
 import { isPromptPreflightResultText } from "./generatedDocuments";
 import {
   closeGeneratedPromptTabs,
@@ -16,10 +17,12 @@ import { insertPromptTemplate, insertPromptTemplateWithFormatChoice } from "./te
 import { WorkspacePromptLinter } from "./workspaceLinter";
 import { PromptComposerPanel } from "./promptComposerPanel";
 import { releaseReadinessMarkdown } from "./releaseReadiness";
-import { buildSetupDoctorReport, setupDoctorMarkdown } from "./setupDoctor";
+import { buildSetupDoctorReportWithRuntime, setupDoctorMarkdown } from "./setupDoctor";
 import { TelemetryDashboardPanel } from "./telemetryDashboardPanel";
-import { shouldRecordTelemetry } from "./telemetryStore";
+import { recordFeedbackEvent, shouldRecordTelemetry } from "./telemetryStore";
 import { maybeOpenWelcomePage, openWelcomePage } from "./welcome";
+import { isPythonResolutionError } from "./pythonResolver";
+import { profileForWorkspaceFile } from "./teamPolicyProfiles";
 
 /**
  * Tracks where a prompt came from so a suggested rewrite can be applied back to
@@ -48,6 +51,11 @@ interface AnalysisRecord {
   analysis: PreflightAnalysis;
   source?: PromptSource;
 }
+
+/**
+ * Feedback choices a user can send from a Prompt Preflight result document.
+ */
+type ResultFeedbackKind = "helpful" | CalibrationIssueInput["kind"];
 
 /**
  * In-memory lookup keyed by temporary result document URI. VS Code gives untitled
@@ -112,7 +120,14 @@ class ResultSuggestedPromptCodeLensProvider implements vscode.CodeLensProvider {
       return [];
     }
 
-    const lenses = [closeGeneratedTabsCodeLens(new vscode.Range(0, 0, 0, 0))];
+    const topOfDocument = new vscode.Range(0, 0, 0, 0);
+    const lenses = [
+      closeGeneratedTabsCodeLens(topOfDocument),
+      resultFeedbackCodeLens(topOfDocument, document.uri, "helpful", "👍 Helpful"),
+      resultFeedbackCodeLens(topOfDocument, document.uri, "false_positive", "⚠ False positive"),
+      resultFeedbackCodeLens(topOfDocument, document.uri, "missed_vagueness", "🧪 Missed vagueness"),
+      resultFeedbackCodeLens(topOfDocument, document.uri, "open_issue", "🐛 Open GitHub issue")
+    ];
     const record = analysisRecords.get(document.uri.toString());
     if (!record?.source || !record.analysis.suggested_prompt) {
       return lenses;
@@ -133,6 +148,23 @@ class ResultSuggestedPromptCodeLensProvider implements vscode.CodeLensProvider {
     );
     return lenses;
   }
+}
+
+/**
+ * Builds a CodeLens action for recording or reporting result feedback.
+ */
+function resultFeedbackCodeLens(
+  range: vscode.Range,
+  uri: vscode.Uri,
+  kind: ResultFeedbackKind,
+  title: string
+): vscode.CodeLens {
+  return new vscode.CodeLens(range, {
+    title,
+    command: "promptPreflight.resultFeedback",
+    tooltip: "Send prompt-free local feedback or open a prefilled calibration issue",
+    arguments: [uri, kind]
+  });
 }
 
 /**
@@ -395,6 +427,78 @@ async function insertSuggestedPrompt(resultUri?: vscode.Uri): Promise<void> {
 }
 
 /**
+ * Converts an analyzer result into prompt-free feedback telemetry metadata.
+ */
+function feedbackTelemetryPayload(kind: ResultFeedbackKind, analysis: PreflightAnalysis) {
+  return {
+    kind,
+    intent: analysis.intent,
+    score: analysis.score,
+    severity: analysis.severity,
+    decision: analysis.decision || (analysis.should_clarify ? "block" : "allow"),
+    shouldClarify: analysis.should_clarify,
+    checks: analysis.checks
+  };
+}
+
+/**
+ * Handles feedback actions from generated Prompt Preflight result documents.
+ */
+async function handleResultFeedback(resultUri: vscode.Uri | undefined, kind: ResultFeedbackKind): Promise<void> {
+  const resultDocument = resultUri
+    ? await vscode.workspace.openTextDocument(resultUri)
+    : vscode.window.activeTextEditor?.document;
+  if (!resultDocument) {
+    void vscode.window.showWarningMessage("Prompt Preflight: open a result document first.");
+    return;
+  }
+
+  const record = analysisRecords.get(resultDocument.uri.toString());
+  if (!record) {
+    void vscode.window.showWarningMessage(
+      "Prompt Preflight: this feedback action is not linked to a result."
+    );
+    return;
+  }
+
+  const workspacePath = activeWorkspacePath();
+  const recorded = recordFeedbackEvent(
+    workspacePath,
+    feedbackTelemetryPayload(kind, record.analysis)
+  );
+
+  if (kind === "helpful") {
+    void vscode.window.showInformationMessage(
+      recorded
+        ? "Prompt Preflight: thanks — helpful feedback recorded locally."
+        : "Prompt Preflight: thanks. Enable local telemetry to count helpful feedback in the dashboard."
+    );
+    return;
+  }
+
+  const prompt = record.analysis.redacted_prompt || record.analysis.prompt;
+  const issueKind = kind === "open_issue" ? "open_issue" : kind;
+  await vscode.env.openExternal(
+    vscode.Uri.parse(
+      calibrationIssueUrl({
+        kind: issueKind,
+        prompt,
+        intent: record.analysis.intent,
+        score: record.analysis.score,
+        severity: record.analysis.severity,
+        decision: record.analysis.decision || (record.analysis.should_clarify ? "block" : "allow"),
+        checks: record.analysis.checks
+      })
+    )
+  );
+  void vscode.window.showInformationMessage(
+    recorded
+      ? "Prompt Preflight: feedback recorded locally and GitHub issue opened."
+      : "Prompt Preflight: GitHub issue opened. Review/remove private details before submitting."
+  );
+}
+
+/**
  * Shared execution path for all prompt-checking entrypoints. It calls the local
  * analyzer, shows a status notification, optionally copies the suggested prompt,
  * and always opens the detailed Markdown result.
@@ -408,41 +512,81 @@ async function checkPromptText(
     return;
   }
 
-  await vscode.window.withProgress(
-    {
-      location: vscode.ProgressLocation.Notification,
-      title: "Checking prompt with Prompt Preflight...",
-      cancellable: false
-    },
-    async () => {
-      const analysis = await runPreflight(prompt, {
-        extensionPath: context.extensionPath,
-        workspacePath: activeWorkspacePath(),
-        recordTelemetry: shouldRecordTelemetry(activeWorkspacePath())
-      });
+  try {
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: "Checking prompt with Prompt Preflight...",
+        cancellable: false
+      },
+      async () => {
+        const analysis = await runPreflight(prompt, {
+          extensionPath: context.extensionPath,
+          workspacePath: activeWorkspacePath(),
+          recordTelemetry: shouldRecordTelemetry(activeWorkspacePath()),
+          profile: profileForWorkspaceFile(activeWorkspacePath(), source?.uri.fsPath)
+        });
 
-      if (!analysis.should_clarify) {
-        void vscode.window.showInformationMessage(
-          `Prompt Preflight: clear to send (Vagueness score ${analysis.score}/100).`
+        if (!analysis.should_clarify) {
+          void vscode.window.showInformationMessage(
+            `Prompt Preflight: clear to send (Vagueness score ${analysis.score}/100).`
+          );
+          await showAnalysisDocument(analysis, source);
+          return;
+        }
+
+        const action = await vscode.window.showWarningMessage(
+          `Prompt Preflight: prompt needs clarification (Vagueness score ${analysis.score}/100).`,
+          "Show Details",
+          "Copy Suggested Prompt"
         );
+
+        if (action === "Copy Suggested Prompt" && analysis.suggested_prompt) {
+          await vscode.env.clipboard.writeText(analysis.suggested_prompt);
+          void vscode.window.showInformationMessage("Suggested prompt copied.");
+        }
+
         await showAnalysisDocument(analysis, source);
-        return;
       }
+    );
+  } catch (error) {
+    await showPreflightRunError(error);
+  }
+}
 
-      const action = await vscode.window.showWarningMessage(
-        `Prompt Preflight: prompt needs clarification (Vagueness score ${analysis.score}/100).`,
-        "Show Details",
-        "Copy Suggested Prompt"
+/**
+ * Presents analyzer startup failures as setup guidance instead of a generic
+ * command failure popup.
+ */
+async function showPreflightRunError(error: unknown): Promise<void> {
+  if (isPythonResolutionError(error)) {
+    const action = await vscode.window.showErrorMessage(
+      error.message,
+      "Run Setup Doctor",
+      "Open Python Setting",
+      "Install Python"
+    );
+    if (action === "Run Setup Doctor") {
+      await vscode.commands.executeCommand("promptPreflight.runSetupDoctor");
+    } else if (action === "Open Python Setting") {
+      await vscode.commands.executeCommand(
+        "workbench.action.openSettings",
+        "promptPreflight.pythonPath"
       );
-
-      if (action === "Copy Suggested Prompt" && analysis.suggested_prompt) {
-        await vscode.env.clipboard.writeText(analysis.suggested_prompt);
-        void vscode.window.showInformationMessage("Suggested prompt copied.");
-      }
-
-      await showAnalysisDocument(analysis, source);
+    } else if (action === "Install Python") {
+      await vscode.env.openExternal(vscode.Uri.parse("https://www.python.org/downloads/"));
     }
+    return;
+  }
+
+  const message = error instanceof Error ? error.message : String(error);
+  const action = await vscode.window.showErrorMessage(
+    `Prompt Preflight failed: ${message}`,
+    "Run Setup Doctor"
   );
+  if (action === "Run Setup Doctor") {
+    await vscode.commands.executeCommand("promptPreflight.runSetupDoctor");
+  }
 }
 
 /**
@@ -485,11 +629,11 @@ async function checkMarkdownDocument(
  */
 async function openSetupDoctor(context: vscode.ExtensionContext): Promise<void> {
   const config = vscode.workspace.getConfiguration("promptPreflight");
-  const report = buildSetupDoctorReport({
+  const report = await buildSetupDoctorReportWithRuntime({
     extensionPath: context.extensionPath,
     workspacePath: activeWorkspacePath(),
     configuredRepoPath: config.get<string>("repoPath") || "",
-    pythonPath: config.get<string>("pythonPath") || "python3"
+    pythonPath: config.get<string>("pythonPath") || ""
   });
   const document = await vscode.workspace.openTextDocument({
     content: setupDoctorMarkdown(report),
@@ -531,6 +675,11 @@ export function activate(context: vscode.ExtensionContext): void {
     ),
     vscode.commands.registerCommand("promptPreflight.insertSuggestedPrompt", (uri?: vscode.Uri) =>
       insertSuggestedPrompt(uri)
+    ),
+    vscode.commands.registerCommand(
+      "promptPreflight.resultFeedback",
+      (uri?: vscode.Uri, kind: ResultFeedbackKind = "open_issue") =>
+        handleResultFeedback(uri, kind)
     ),
     vscode.commands.registerCommand("promptPreflight.closeGeneratedTabs", () =>
       closePromptPreflightGeneratedTabs()

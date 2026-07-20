@@ -237,6 +237,9 @@ def summarize_events(events: Iterable[dict[str, Any]]) -> dict[str, Any]:
     postflight_events = [
         event for event in event_list if str(event.get("phase", "preflight")) == "postflight"
     ]
+    feedback_events = [
+        event for event in event_list if str(event.get("phase", "preflight")) == "feedback"
+    ]
     decisions = Counter(str(event.get("decision", "unknown")) for event in preflight_events)
     hosts = Counter(str(event.get("host", "unknown")) for event in event_list)
     intents = Counter(str(event.get("intent", "unknown")) for event in preflight_events)
@@ -259,6 +262,8 @@ def summarize_events(events: Iterable[dict[str, Any]]) -> dict[str, Any]:
         if event.get("decision") == "postflight_blocked":
             for check in event.get("checks", []):
                 postflight_by_check[str(check)] += 1
+
+    feedback_by_type = Counter(str(event.get("feedback", "unknown")) for event in feedback_events)
 
     token_events = 0
     prompt_token_total = 0
@@ -286,6 +291,11 @@ def summarize_events(events: Iterable[dict[str, Any]]) -> dict[str, Any]:
             token_payload.get("estimated_avoided_retry_tokens", 0) or 0
         )
 
+    average_avoided_retry_tokens_per_block = round(avoided_retry_token_total / blocked, 2) if blocked else 0
+    retry_token_opportunity_per_100_prompts = (
+        round((avoided_retry_token_total / prompts_checked) * 100, 2) if prompts_checked else 0
+    )
+
     return {
         "prompts_checked": prompts_checked,
         "prompts_blocked": blocked,
@@ -305,11 +315,15 @@ def summarize_events(events: Iterable[dict[str, Any]]) -> dict[str, Any]:
             1 for event in postflight_events if event.get("decision") == "postflight_blocked"
         ),
         "postflight_blocked_by_check": dict(sorted(postflight_by_check.items())),
+        "feedback_events": len(feedback_events),
+        "feedback_by_type": dict(sorted(feedback_by_type.items())),
         "token_observability_events": token_events,
         "visible_prompt_tokens_estimate_total": prompt_token_total,
         "estimated_total_request_tokens": request_token_total,
         "response_tokens_estimate_total": response_token_total,
         "estimated_avoided_retry_tokens": avoided_retry_token_total,
+        "average_avoided_retry_tokens_per_block": average_avoided_retry_tokens_per_block,
+        "retry_token_opportunity_per_100_prompts": retry_token_opportunity_per_100_prompts,
         "prompt_token_risk": dict(sorted(prompt_risks.items())),
         "response_token_risk": dict(sorted(response_risks.items())),
         "average_visible_prompt_tokens_estimate": round(prompt_token_total / token_events, 2)
@@ -355,6 +369,17 @@ def render_report(summary: dict[str, Any], *, path: Path) -> str:
         for check, count in summary.get("postflight_blocked_by_check", {}).items():
             lines.append(f"  - {check}: {count}")
 
+    if summary.get("feedback_events", 0):
+        lines.extend(
+            [
+                "",
+                "User feedback",
+                f"Feedback events: {summary['feedback_events']}",
+            ]
+        )
+        for feedback, count in summary.get("feedback_by_type", {}).items():
+            lines.append(f"  - {feedback}: {count}")
+
     if summary.get("token_observability_events", 0):
         lines.extend(
             [
@@ -376,6 +401,14 @@ def render_report(summary: dict[str, Any], *, path: Path) -> str:
                 (
                     "Estimated avoided retry token opportunity: "
                     f"{summary['estimated_avoided_retry_tokens']}"
+                ),
+                (
+                    "Average avoided retry tokens per blocked prompt: "
+                    f"{summary['average_avoided_retry_tokens_per_block']}"
+                ),
+                (
+                    "Retry-token opportunity per 100 prompts: "
+                    f"{summary['retry_token_opportunity_per_100_prompts']}"
                 ),
             ]
         )

@@ -103,6 +103,7 @@ export function runWorkspaceLintRulesTests(): void {
           [
             {
               fileName: "prompts/test.md",
+              profile: "research",
               shouldClarify: true,
               score: 82,
               severity: "high",
@@ -118,6 +119,7 @@ export function runWorkspaceLintRulesTests(): void {
         assert.match(summary, /Opt-in marker required: prompt-preflight: check/);
         assert.match(summary, /Needs clarification: 1/);
         assert.match(summary, /Vagueness score 82\/100/);
+        assert.match(summary, /profile=research/);
         assert.match(summary, /prompts\/test.md/);
       }
     },

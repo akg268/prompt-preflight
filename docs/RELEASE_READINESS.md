@@ -24,6 +24,8 @@ python3 scripts/release_check.py --skip-vscode
 - [ ] **VS Code extension tests pass** — `npm test` passes from `vscode-extension/`.
 - [ ] **Vague prompt benchmark passes** — `python3 scripts/benchmark_vague_prompts.py --min-block-rate 0.90` passes.
 - [ ] **Template docs are current** — `python3 scripts/generate_template_docs.py --check` passes.
+- [ ] **Prompt-library CI lint passes** — `python3 scripts/lint_prompt_library.py --cwd .` passes without printing prompt text.
+- [ ] **Cross-tool parity tests pass** — `tests/test_cross_tool_parity.py` confirms Codex, Claude Code, Kiro, and CLI behavior stays aligned.
 - [ ] **One-command release check passes** — `python3 scripts/release_check.py` passes from the repo root.
 
 ## VS Code clean-install gates
@@ -31,14 +33,14 @@ python3 scripts/release_check.py --skip-vscode
 - [ ] **Clean VSIX install works** — Install the generated VSIX into a clean VS Code profile or a machine without the dev extension.
 - [ ] **Setup Doctor is green** — `Prompt Preflight: Run Setup Doctor` shows no duplicate-extension or missing-analyzer failures.
 - [ ] **Core prompt check works** — A Markdown prompt with `Create a car image` opens a result tab with image-specific questions.
-- [ ] **Telemetry dashboard works** — After telemetry is enabled and one check runs, `Prompt Preflight: Open Telemetry Dashboard` shows local graph data.
+- [ ] **Telemetry dashboard works** — After telemetry is enabled and one check runs, `Prompt Preflight: Open Telemetry Dashboard` shows local graph data, feedback counts, and token-savings estimates.
 - [ ] **Generated-tab cleanup works** — `Prompt Preflight: Close Generated Tabs` closes result/template/composer tabs without closing normal files.
 
 ## Public packaging gates
 
 - [ ] **Bundled analyzer is packaged** — The Marketplace VSIX includes `bundled-analyzer/scripts/prompt_preflight.py`; `promptPreflight.repoPath` is only a developer override.
 - [ ] **Publisher account and token are ready** — VS Code Marketplace publisher setup is complete and the publishing token is stored outside the repo.
-- [ ] **Versioning is decided** — Choose release version, changelog format, and whether this is public beta or stable.
+- [ ] **Versioning is decided** — Choose release version, changelog format, and stable-release messaging.
 - [ ] **Package contents are audited** — `npm run package:list` and `npm run package:audit` include only intended extension files plus the bundled analyzer, and exclude raw videos, node_modules, telemetry, local config, source, tests, and release tooling.
 
 ## Docs and launch gates
@@ -63,7 +65,7 @@ python3 scripts/release_check.py --skip-vscode
 
 ## Release call
 
-- [ ] We are comfortable calling this a public beta.
+- [ ] We are comfortable shipping this without the VS Code Marketplace Preview label.
 - [ ] Known limitations are documented instead of hidden.
 - [ ] A clean user can install, run a check, view Setup Doctor, and view telemetry without help.
 

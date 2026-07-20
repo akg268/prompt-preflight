@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from .config import Config
 
 from .templates import (
+    intent_for_profile,
     is_low_information_value,
     questions_for_missing_fields,
     template_profile_for_intent,
@@ -600,6 +601,7 @@ def analyze_prompt(
     prompt: str,
     *,
     config: Config | None = None,
+    profile: str | None = None,
     threshold: int = 45,
     max_questions: int = 3,
     cwd: str | Path | None = None,
@@ -663,7 +665,8 @@ def analyze_prompt(
     is_followup = bool(FOLLOWUP_RE.fullmatch(text))
     is_question = text.endswith("?") or bool(QUESTION_RE.match(text))
     is_creative = bool(CREATIVE_RE.search(text))
-    intent = classify_intent(text)
+    configured_intent = intent_for_profile(profile)
+    intent = configured_intent or classify_intent(text)
     is_story_request = bool(STORY_REQUEST_RE.search(text))
 
     template_validation = validate_structured_prompt(raw_prompt, intent)

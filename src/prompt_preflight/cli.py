@@ -30,6 +30,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--threshold", type=int, default=45, help="Clarification threshold (default: 45)")
     parser.add_argument("--max-questions", type=int, default=3, help="Maximum questions to ask")
     parser.add_argument(
+        "--profile",
+        help="Force a prompt profile such as software, research, feature_spec, or data_analysis",
+    )
+    parser.add_argument(
+        "--prompt-file",
+        type=Path,
+        help="Read prompt text from a file and apply .prompt-preflight.json profile mappings",
+    )
+    parser.add_argument(
         "--template",
         metavar="PROFILE",
         help=(
@@ -91,14 +100,19 @@ def main(argv: list[str] | None = None) -> int:
             print(render_report(summary, path=report_path))
         return 0
 
-    prompt = " ".join(args.prompt).strip() if args.prompt else sys.stdin.read().strip()
     # Load config to support per-check policies in CLI
     from .config import load_config
     config = load_config(args.cwd or Path.cwd())
+    if args.prompt_file:
+        prompt = args.prompt_file.read_text(encoding="utf-8").strip()
+    else:
+        prompt = " ".join(args.prompt).strip() if args.prompt else sys.stdin.read().strip()
+    profile = args.profile or config.profile_for_path(args.prompt_file, args.cwd or Path.cwd())
     
     analysis = analyze_prompt(
         prompt,
         config=config,
+        profile=profile,
         threshold=max(0, min(100, args.threshold)),
         max_questions=max(1, min(5, args.max_questions)),
         cwd=args.cwd or Path.cwd(),

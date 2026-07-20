@@ -153,11 +153,16 @@ function dashboardHtml(
     </section>
 
     <section class="grid two">
+      ${barChart("User feedback", summary.feedbackByType, "No local feedback events yet.")}
       ${barChart(
         "Postflight checks causing blocks",
         summary.postflightBlockedByCheck,
         "No postflight blocks yet."
       )}
+    </section>
+
+    <section class="grid two">
+      ${tokenSavingsPanel(summary)}
       ${privacyPanel()}
     </section>
   </main>
@@ -248,6 +253,7 @@ function summaryCards(summary: TelemetryDashboardSummary): string {
     metricCard("Prompts checked", summary.promptsChecked, "preflight events"),
     metricCard("Blocked before model", summary.promptsBlocked, "likely avoided bad turns"),
     metricCard("Postflight flags", summary.postflightResponsesBlocked, "responses needing attention"),
+    metricCard("Feedback events", summary.feedbackEvents, "local calibration signals"),
     metricCard(
       "Request tokens reserved",
       summary.tokens.estimatedRequestTokensTotal,
@@ -260,6 +266,26 @@ function summaryCards(summary: TelemetryDashboardSummary): string {
     )
   ];
   return `<section class="cards">${cards.join("")}</section>`;
+}
+
+/**
+ * Renders a human-readable token savings explanation so users do not mistake
+ * local estimates for exact provider billing.
+ */
+function tokenSavingsPanel(summary: TelemetryDashboardSummary): string {
+  const blocked = Math.max(1, summary.promptsBlocked);
+  const averageAvoided = summary.promptsBlocked
+    ? Math.round(summary.tokens.estimatedAvoidedRetryTokens / blocked)
+    : 0;
+  return `<article class="panel">
+    <h2>Token-savings proof</h2>
+    <ul>
+      <li><strong>${formatNumber(summary.promptsBlocked)}</strong> prompt${plural(summary.promptsBlocked)} blocked before model work.</li>
+      <li><strong>${formatNumber(summary.tokens.estimatedAvoidedRetryTokens)}</strong> estimated retry tokens avoided.</li>
+      <li><strong>${formatNumber(averageAvoided)}</strong> average estimated avoided retry tokens per blocked prompt.</li>
+    </ul>
+    <p class="subtle">These are local estimates for trend visibility. Use provider billing dashboards for exact spend.</p>
+  </article>`;
 }
 
 /**

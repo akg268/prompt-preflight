@@ -7,6 +7,11 @@ import {
   repoPathCandidates,
   resolveRepoPathFromCandidates
 } from "./repoResolver";
+import {
+  formatPythonAttempts,
+  pythonCandidates,
+  resolvePythonCommand
+} from "./pythonResolver";
 import { resolveTelemetryPolicy } from "./telemetryStore";
 
 /**
@@ -192,13 +197,63 @@ export function buildSetupDoctorReport(input: SetupDoctorInput): SetupDoctorRepo
 
   addCheck(
     checks,
-    input.pythonPath.trim() ? "pass" : "warn",
-    "Python path configured",
-    input.pythonPath || "No python path configured.",
-    input.pythonPath.trim() ? undefined : "Set promptPreflight.pythonPath to python3 or your Python executable."
+    "pass",
+    "Python auto-detection configured",
+    [
+      input.pythonPath.trim()
+        ? `Configured promptPreflight.pythonPath: ${input.pythonPath.trim()}`
+        : "No explicit promptPreflight.pythonPath is configured; common Python commands will be tried automatically.",
+      "Candidates:",
+      ...pythonCandidates(input.pythonPath).map((candidate) => `- ${candidate.label}`)
+    ].join("\n")
   );
 
   return { checks, candidateCliPaths };
+}
+
+/**
+ * Builds a setup report and actively probes Python so users can see the exact
+ * runtime command the extension will use.
+ */
+export async function buildSetupDoctorReportWithRuntime(
+  input: SetupDoctorInput
+): Promise<SetupDoctorReport> {
+  const report = buildSetupDoctorReport(input);
+
+  try {
+    const python = await resolvePythonCommand(input.pythonPath);
+    addCheck(
+      report.checks,
+      "pass",
+      "Python runtime found",
+      [
+        `Using: ${python.candidate.label}`,
+        `Version: ${python.versionText || "unknown"}`,
+        "",
+        "Attempts:",
+        formatPythonAttempts(python.attempts)
+      ].join("\n")
+    );
+  } catch (error) {
+    addCheck(
+      report.checks,
+      "fail",
+      "Python runtime missing",
+      error instanceof Error ? error.message : String(error),
+      [
+        "Install Python 3.10+ and make it available as python3, python, or py.",
+        "Or set VS Code setting promptPreflight.pythonPath to the full executable path.",
+        "",
+        "Examples:",
+        "- macOS Homebrew: /opt/homebrew/bin/python3",
+        "- macOS system path: /usr/bin/python3",
+        "- Windows launcher: py -3",
+        "- Windows full path: C:\\Users\\you\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+      ].join("\n")
+    );
+  }
+
+  return report;
 }
 
 /**

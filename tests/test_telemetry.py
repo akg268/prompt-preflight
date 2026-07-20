@@ -89,14 +89,25 @@ class TelemetryTests(unittest.TestCase):
         self.assertEqual(summary["estimated_avoided_retry_turns"], 1)
 
     def test_render_report_explains_privacy(self) -> None:
-        summary = summarize_events(
-            [telemetry_event(analyze_prompt("Create a car image"), host="codex", decision="blocked")]
-        )
+        event = telemetry_event(analyze_prompt("Create a car image"), host="codex", decision="blocked")
+        feedback_event = {
+            "phase": "feedback",
+            "host": "vscode",
+            "feedback": "false_positive",
+            "intent": "image_generation",
+            "score": 75,
+        }
+        summary = summarize_events([event, feedback_event])
         report = render_report(summary, path=Path("telemetry.jsonl"))
         self.assertIn("Prompts checked: 1", report)
         self.assertIn("Estimated avoided retry turns: 1", report)
         self.assertIn("does not store prompt text", report)
         self.assertIn("Token observability", report)
+        self.assertIn("User feedback", report)
+        self.assertEqual(summary["feedback_events"], 1)
+        self.assertEqual(summary["feedback_by_type"]["false_positive"], 1)
+        self.assertGreater(summary["average_avoided_retry_tokens_per_block"], 0)
+        self.assertGreater(summary["retry_token_opportunity_per_100_prompts"], 0)
 
     def test_postflight_event_and_report_are_prompt_free(self) -> None:
         result = analyze_postflight("Return JSON", "the answer is 42")

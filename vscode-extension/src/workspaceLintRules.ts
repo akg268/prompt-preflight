@@ -13,6 +13,7 @@ export interface PromptLintCandidate {
  */
 export interface PromptLintResult {
   fileName: string;
+  profile?: string;
   shouldClarify: boolean;
   score: number;
   severity: string;
@@ -116,10 +117,11 @@ export function workspaceLintSummary(
     lines.push("All checked prompt files are clear to send.");
   } else {
     for (const result of failing) {
+      const profile = result.profile ? ` profile=${result.profile}` : "";
       const reason = result.reasons[0] ? ` — ${result.reasons[0]}` : "";
       const question = result.questions[0] ? ` Ask: ${result.questions[0]}` : "";
       lines.push(
-        `- ${result.fileName}: Vagueness score ${result.score}/100 (${result.severity})${reason}${question}`
+        `- ${result.fileName}:${profile} Vagueness score ${result.score}/100 (${result.severity})${reason}${question}`
       );
     }
   }

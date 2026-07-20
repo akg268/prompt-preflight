@@ -25,7 +25,7 @@ regresses, so it doubles as a pre-launch smoke test.
 ## Links
 
 - Repo: <https://github.com/akg268/prompt-preflight>
-- VS Code Marketplace beta: <https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode>
+- VS Code Marketplace: <https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode>
 
 ## Short description (for X, LinkedIn lead, Reddit title)
 
@@ -33,7 +33,7 @@ regresses, so it doubles as a pre-launch smoke test.
 > spends a model turn on them. It runs locally with deterministic Python rules,
 > shows a stronger rewrite, and asks at most three high-value questions. Add it
 > to Codex, Claude Code, or Kiro as a preflight hook, or install the VS Code
-> Marketplace beta to check prompt files before sending them to any AI tool.
+> extension to check prompt files before sending them to any AI tool.
 
 ## Hacker News
 
@@ -55,7 +55,7 @@ Body:
 >
 > Repo and install instructions: https://github.com/akg268/prompt-preflight
 >
-> VS Code Marketplace beta:
+> VS Code Marketplace:
 > https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode
 >
 > Try it without installing:
@@ -80,13 +80,13 @@ Body:
 > the model runs and shows a stronger rewrite plus up to three questions.
 >
 > - Deterministic Python rules, no model or network calls
-> - VS Code Marketplace beta, plus Codex, Claude Code, Kiro, and CLI support
+> - VS Code Marketplace extension, plus Codex, Claude Code, Kiro, and CLI support
 > - Ships with a 168-prompt benchmark for regression testing
 > - MIT licensed
 >
 > Repo: https://github.com/akg268/prompt-preflight
 >
-> VS Code beta: https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode
+> VS Code extension: https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode
 >
 > Local demo:
 >
@@ -106,14 +106,14 @@ Body:
 > When a prompt is actionable but underspecified, it pauses the request and
 > returns a tailored rewrite plus up to three high-value questions.
 >
-> - VS Code Marketplace beta, plus Codex, Claude Code, Kiro, and CLI support
+> - VS Code Marketplace extension, plus Codex, Claude Code, Kiro, and CLI support
 > - No model calls, no network, no API key
 > - Ships with a 168-prompt regression benchmark
 > - MIT licensed
 >
 > Repo: https://github.com/akg268/prompt-preflight
 >
-> VS Code beta: https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode
+> VS Code extension: https://marketplace.visualstudio.com/items?itemName=arunkumar-ganesan.prompt-preflight-vscode
 
 ## X / Twitter
 
@@ -121,7 +121,7 @@ Single post:
 
 > Prompt Preflight: a local pre-check that blocks vague prompts before your
 > coding agent spends a model turn. Deterministic Python rules, no network,
-> no API key. VS Code beta + Codex / Claude Code / Kiro / CLI. MIT.
+> no API key. VS Code extension + Codex / Claude Code / Kiro / CLI. MIT.
 >
 > https://github.com/akg268/prompt-preflight
 

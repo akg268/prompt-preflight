@@ -18,7 +18,7 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Sequence
+from typing import Callable, Sequence
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -64,18 +64,29 @@ def print_header(title: str) -> None:
     print(f"\n== {title} ==", flush=True)
 
 
-def run_command(label: str, command: Sequence[str], cwd: Path) -> subprocess.CompletedProcess[str]:
+def run_command(
+    label: str,
+    command: Sequence[str],
+    cwd: Path,
+    *,
+    env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
     """Run a release-gate command and fail immediately if it exits non-zero."""
     print_header(label)
     print(f"$ {command_text(command)}", flush=True)
-    result = subprocess.run(command, cwd=cwd, text=True, check=False)
+    result = subprocess.run(command, cwd=cwd, text=True, check=False, env=env)
     if result.returncode != 0:
         raise SystemExit(f"\nRelease check failed: {label}")
     return result
 
 
 def run_captured_command(
-    label: str, command: Sequence[str], cwd: Path
+    label: str,
+    command: Sequence[str],
+    cwd: Path,
+    *,
+    env: dict[str, str] | None = None,
+    output_filter: Callable[[str], str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     """Run a command whose output must be inspected by this script."""
     print_header(label)
@@ -87,8 +98,10 @@ def run_captured_command(
         check=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
+        env=env,
     )
-    print(result.stdout, end="")
+    printable_output = output_filter(result.stdout) if output_filter else result.stdout
+    print(printable_output, end="")
     if result.returncode != 0:
         raise SystemExit(f"\nRelease check failed: {label}")
     return result
@@ -141,6 +154,29 @@ def expected_extension_line(version: str) -> str:
     return f"{EXTENSION_ID}@{version}"
 
 
+def vscode_cli_env() -> dict[str, str]:
+    """Return an environment that keeps VS Code CLI deprecation noise out of release logs."""
+    env = os.environ.copy()
+    node_options = env.get("NODE_OPTIONS", "")
+    if "--no-deprecation" not in node_options.split():
+        env["NODE_OPTIONS"] = f"{node_options} --no-deprecation".strip()
+    return env
+
+
+def filter_vscode_cli_noise(output: str) -> str:
+    """Remove known harmless VS Code CLI install warnings from release-check output."""
+    lines = []
+    for line in output.splitlines():
+        if "[DEP0169] DeprecationWarning: `url.parse()`" in line:
+            continue
+        if "Code --trace-deprecation" in line:
+            continue
+        if "electron/shell/common/mac/codesign_util.cc:79" in line and "task_name_for_pid" in line:
+            continue
+        lines.append(line)
+    return "\n".join(lines) + ("\n" if lines else "")
+
+
 def run_python_gates(args: argparse.Namespace) -> None:
     """Run release gates for the shared Python analyzer and documentation."""
     run_command(
@@ -151,6 +187,11 @@ def run_python_gates(args: argparse.Namespace) -> None:
     run_command(
         "Structured template docs are current",
         ["python3", "scripts/generate_template_docs.py", "--check"],
+        REPO_ROOT,
+    )
+    run_command(
+        "Prompt library CI lint",
+        ["python3", "scripts/lint_prompt_library.py", "--cwd", "."],
         REPO_ROOT,
     )
     run_command(
@@ -245,9 +286,10 @@ def verify_clean_install(vsix_path: Path, version: str) -> None:
         )
 
     expected_line = expected_extension_line(version)
+    code_env = vscode_cli_env()
     with tempfile.TemporaryDirectory(prefix="prompt-preflight-vscode-user-") as user_dir:
         with tempfile.TemporaryDirectory(prefix="prompt-preflight-vscode-ext-") as ext_dir:
-            run_command(
+            run_captured_command(
                 "Clean temporary VSIX install",
                 [
                     "code",
@@ -260,6 +302,8 @@ def verify_clean_install(vsix_path: Path, version: str) -> None:
                     "--force",
                 ],
                 REPO_ROOT,
+                env=code_env,
+                output_filter=filter_vscode_cli_noise,
             )
             result = run_captured_command(
                 "Verify clean install extension list",
@@ -273,6 +317,7 @@ def verify_clean_install(vsix_path: Path, version: str) -> None:
                     "--show-versions",
                 ],
                 REPO_ROOT,
+                env=code_env,
             )
 
     if expected_line not in result.stdout.splitlines():

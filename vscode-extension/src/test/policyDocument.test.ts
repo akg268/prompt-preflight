@@ -94,6 +94,7 @@ export function runPolicyDocumentTests(): void {
           mode: string;
           threshold: number;
           checks: Record<string, string>;
+          profiles: Record<string, string>;
           token_observability: {
             enabled: boolean;
             default_max_output_tokens: number;
@@ -106,6 +107,8 @@ export function runPolicyDocumentTests(): void {
         assert.equal(parsed.threshold, 45);
         assert.equal(parsed.checks.privacy, "block");
         assert.equal(parsed.checks.clarity, "nudge");
+        assert.equal(parsed.profiles["docs/prompts/specs/**"], "feature_spec");
+        assert.equal(parsed.profiles["docs/prompts/research/**"], "research");
         assert.equal(parsed.token_observability.enabled, true);
         assert.equal(parsed.token_observability.default_max_output_tokens, 1000);
         assert.equal(parsed.token_observability.estimated_retry_output_tokens, 800);

@@ -2,13 +2,12 @@
   "name": "prompt-preflight-vscode",
   "displayName": "Prompt Preflight",
   "description": "Catch vague AI-agent prompts in VS Code before they burn model turns.",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "publisher": "arunkumar-ganesan",
   "author": {
     "name": "Arunkumar Ganesan"
   },
   "license": "MIT",
-  "preview": true,
   "icon": "media/icon.png",
   "repository": {
     "type": "git",
@@ -52,6 +51,7 @@
     "onCommand:promptPreflight.checkSelection",
     "onCommand:promptPreflight.checkDocument",
     "onCommand:promptPreflight.insertSuggestedPrompt",
+    "onCommand:promptPreflight.resultFeedback",
     "onCommand:promptPreflight.closeGeneratedTabs",
     "onCommand:promptPreflight.insertPromptTemplate",
     "onCommand:promptPreflight.insertMarkdownTemplate",
@@ -88,6 +88,11 @@
       {
         "command": "promptPreflight.insertSuggestedPrompt",
         "title": "Insert Suggested Prompt into Original File",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.resultFeedback",
+        "title": "Send Result Feedback",
         "category": "Prompt Preflight"
       },
       {
@@ -167,7 +172,7 @@
       },
       {
         "command": "promptPreflight.shareBetaFeedback",
-        "title": "Share Beta Feedback",
+        "title": "Share Feedback",
         "category": "Prompt Preflight"
       }
     ],
@@ -176,8 +181,8 @@
       "properties": {
         "promptPreflight.pythonPath": {
           "type": "string",
-          "default": "python3",
-          "description": "Python executable used to run Prompt Preflight."
+          "default": "",
+          "description": "Python executable used to run Prompt Preflight. Leave empty to auto-detect python3, python, py -3, and common install paths."
         },
         "promptPreflight.repoPath": {
           "type": "string",

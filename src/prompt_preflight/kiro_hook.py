@@ -8,7 +8,7 @@ from typing import Any, TextIO
 
 from .analyzer import analyze_prompt
 from .config import load_config
-from .hook import clarification_message
+from .hook import clarification_message, profile_for_payload
 from .telemetry import record_analysis_safely
 
 
@@ -49,6 +49,7 @@ def process_payload(payload: dict[str, Any]) -> tuple[int, str, str]:
     analysis = analyze_prompt(
         prompt,
         config=config,
+        profile=profile_for_payload(config, payload),
         threshold=config.threshold,
         max_questions=config.max_questions,
         cwd=payload.get("cwd"),

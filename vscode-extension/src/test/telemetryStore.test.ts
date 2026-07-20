@@ -5,6 +5,7 @@ import * as path from "path";
 import {
   loadTelemetryDashboardSummary,
   parseTelemetryJsonl,
+  recordFeedbackEvent,
   resolveTelemetryPolicy,
   shouldRecordTelemetry,
   summarizeTelemetryEvents
@@ -85,6 +86,14 @@ export function runTelemetryStoreTests(): void {
                   token_risk: "low"
                 }
               }
+            },
+            {
+              phase: "feedback",
+              host: "vscode",
+              feedback: "false_positive",
+              intent: "image_generation",
+              score: 75,
+              timestamp: "2026-07-07T10:10:00Z"
             }
           ],
           "/tmp/telemetry.jsonl",
@@ -95,9 +104,49 @@ export function runTelemetryStoreTests(): void {
         assert.equal(summary.promptsBlocked, 1);
         assert.equal(summary.postflightResponsesChecked, 1);
         assert.equal(summary.postflightResponsesBlocked, 1);
+        assert.equal(summary.feedbackEvents, 1);
+        assert.deepEqual(summary.feedbackByType[0], { label: "false_positive", value: 1 });
         assert.equal(summary.tokens.estimatedAvoidedRetryTokens, 812);
         assert.equal(summary.tokens.responseTokensEstimateTotal, 50);
         assert.deepEqual(summary.blockedByCheck[0], { label: "context", value: 1 });
+      }
+    },
+
+    /**
+     * Verifies local feedback telemetry is prompt-free and opt-in.
+     */
+    {
+      name: "records prompt-free local feedback when telemetry is enabled",
+      run: () => {
+        const workspace = tempWorkspace();
+        try {
+          fs.writeFileSync(
+            path.join(workspace, ".prompt-preflight.json"),
+            JSON.stringify({
+              telemetry: {
+                enabled: true,
+                path: "events.jsonl"
+              }
+            })
+          );
+
+          const recorded = recordFeedbackEvent(workspace, {
+            kind: "helpful",
+            intent: "image_generation",
+            score: 75,
+            severity: "high",
+            decision: "block",
+            shouldClarify: true,
+            checks: ["context"]
+          });
+          const raw = fs.readFileSync(path.join(workspace, "events.jsonl"), "utf8");
+
+          assert.equal(recorded, true);
+          assert.match(raw, /"phase":"feedback"/);
+          assert.doesNotMatch(raw, /Create a car image/);
+        } finally {
+          cleanupWorkspace(workspace);
+        }
       }
     },
 

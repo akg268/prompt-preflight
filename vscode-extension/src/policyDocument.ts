@@ -55,6 +55,12 @@ export function teamPolicyTemplateText(): string {
         block: "high",
         nudge: "medium"
       },
+      profiles: {
+        "docs/prompts/specs/**": "feature_spec",
+        "docs/prompts/research/**": "research",
+        "docs/prompts/data/**": "data_analysis",
+        "docs/prompts/presentations/**": "presentation"
+      },
       telemetry: {
         enabled: false,
         path: DEFAULT_POLICY_TELEMETRY_PATH

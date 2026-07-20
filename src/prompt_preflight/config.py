@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from fnmatch import fnmatch
 import json
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,7 @@ class Config:
     token_estimated_retry_output_tokens: int = DEFAULT_RETRY_OUTPUT_TOKENS
     checks: dict[str, str] | None = None
     severity_thresholds: dict[str, str] | None = None
+    profiles: dict[str, str] | None = None
 
     def policy_for(self, category: str) -> str:
         if self.checks is not None:
@@ -37,6 +39,31 @@ class Config:
         if self.severity_thresholds is not None:
             return self.severity_thresholds.get(mode, defaults.get(mode, "high"))
         return defaults.get(mode, "high")
+
+    def profile_for_path(self, file_path: str | Path | None, cwd: str | Path | None = None) -> str | None:
+        """Return the configured prompt profile for a workspace-relative path."""
+
+        if not file_path or not self.profiles:
+            return None
+
+        candidate = Path(file_path).expanduser()
+        root = Path(cwd).expanduser().resolve() if cwd is not None else None
+        if candidate.is_absolute():
+            resolved = candidate.resolve()
+            try:
+                relative = resolved.relative_to(root) if root is not None else resolved
+            except ValueError:
+                relative = resolved
+        else:
+            relative = candidate
+
+        normalized = str(relative).replace("\\", "/").lstrip("./")
+        basename = Path(normalized).name
+        for pattern, profile in self.profiles.items():
+            normalized_pattern = str(pattern).replace("\\", "/").lstrip("./")
+            if fnmatch(normalized, normalized_pattern) or fnmatch(basename, normalized_pattern):
+                return profile
+        return None
 
 
 def _telemetry_path_from_raw(raw: dict[str, Any], directory: Path) -> Path:
@@ -87,6 +114,17 @@ def _token_observability_settings(raw: dict[str, Any]) -> tuple[bool, int, int]:
         )
         return enabled, max_output, retry_output
     return bool(section), DEFAULT_MAX_OUTPUT_TOKENS, DEFAULT_RETRY_OUTPUT_TOKENS
+
+
+def _profile_settings(raw: dict[str, Any]) -> dict[str, str] | None:
+    raw_profiles = raw.get("profiles")
+    if not isinstance(raw_profiles, dict):
+        return None
+    profiles: dict[str, str] = {}
+    for pattern, profile in raw_profiles.items():
+        if isinstance(pattern, str) and isinstance(profile, str) and pattern.strip() and profile.strip():
+            profiles[pattern.strip()] = profile.strip()
+    return profiles or None
 
 
 def resolve_telemetry_report_path(cwd: str | Path | None = None) -> Path:
@@ -149,6 +187,7 @@ def load_config(cwd: str | Path | None = None) -> Config:
                             severity_thresholds[m] = "high" if m == "block" else "medium"
                 elif raw_sev is not None:
                     severity_thresholds = {"block": "high", "nudge": "medium"}
+                profiles = _profile_settings(raw)
                 
                 return Config(
                     enabled=bool(raw.get("enabled", True)),
@@ -162,6 +201,7 @@ def load_config(cwd: str | Path | None = None) -> Config:
                     token_estimated_retry_output_tokens=token_estimated_retry_output_tokens,
                     checks=checks,
                     severity_thresholds=severity_thresholds,
+                    profiles=profiles,
                 )
             except (OSError, ValueError, TypeError, json.JSONDecodeError):
                 return Config()
