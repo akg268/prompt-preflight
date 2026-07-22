@@ -1,0 +1,10 @@
+{
+  "decision": "allow",
+  "should_clarify": false,
+  "intent": "general_action",
+  "checks": [
+    "clarity",
+    "output_contract"
+  ],
+  "question_count": 2
+}

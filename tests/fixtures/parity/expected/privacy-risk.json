@@ -1,0 +1,9 @@
+{
+  "decision": "block",
+  "should_clarify": true,
+  "intent": "privacy",
+  "checks": [
+    "privacy"
+  ],
+  "question_count": 2
+}

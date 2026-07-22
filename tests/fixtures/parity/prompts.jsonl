@@ -1,0 +1,4 @@
+{"id": "vague", "label": "vague", "prompt": "Create a car image"}
+{"id": "clear", "label": "clear", "prompt": "add a `--verbose` flag to `scripts/prompt_preflight.py` that prints the JSON result; keep default output unchanged"}
+{"id": "privacy-risk", "label": "privacy-risk", "prompt_parts": ["my key is sk_li", "ve_ABCDEF0123", "456789ABCDEF01 please use it"]}
+{"id": "structured-template", "label": "structured-template", "prompt": "# Task\nCreate a car image\n\n# Visual Details\nA red vintage Mustang on a rainy neon street\n\n# Output Format\n16:9 PNG\n"}

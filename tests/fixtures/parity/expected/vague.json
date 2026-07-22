@@ -1,0 +1,12 @@
+{
+  "decision": "block",
+  "should_clarify": true,
+  "intent": "image_generation",
+  "checks": [
+    "context",
+    "output_contract",
+    "risk",
+    "template_contract"
+  ],
+  "question_count": 3
+}
