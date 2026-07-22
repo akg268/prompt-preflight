@@ -5,6 +5,7 @@ import { runPolicyDocumentTests } from "./policyDocument.test";
 import { runRepoResolverTests } from "./repoResolver.test";
 import { runReleaseReadinessTests } from "./releaseReadiness.test";
 import { runSetupDoctorTests } from "./setupDoctor.test";
+import { runSpecTemplateCommandTests } from "./specTemplateCommands.test";
 import { runTelemetryStoreTests } from "./telemetryStore.test";
 import { runTemplateDocumentTests } from "./templateDocument.test";
 import { runWorkspaceLintRulesTests } from "./workspaceLintRules.test";
@@ -12,11 +13,12 @@ import { runWorkspaceLintRulesTests } from "./workspaceLintRules.test";
 /**
  * Runs all dependency-free extension unit tests.
  */
-function main(): void {
+async function main(): Promise<void> {
   runComposerPromptTests();
   runDiagnosticRulesTests();
   runGeneratedDocumentsTests();
   runTemplateDocumentTests();
+  await runSpecTemplateCommandTests();
   runWorkspaceLintRulesTests();
   runPolicyDocumentTests();
   runRepoResolverTests();
@@ -30,4 +32,4 @@ function main(): void {
   console.log("\nAll extension unit tests passed.");
 }
 
-main();
+void main();

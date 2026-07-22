@@ -4,7 +4,12 @@ import * as vscode from "vscode";
 import { trackGeneratedPromptDocument } from "./generatedTabs";
 import { bundledAnalyzerPath } from "./repoResolver";
 import {
+  openSpecTemplate,
+  SpecTemplateProfileKey
+} from "./specTemplateCommands";
+import {
   FORMAT_LABEL,
+  TemplateDocumentSpec,
   TemplateFormat,
   templateDocumentSpec,
   templateFormatOptions
@@ -63,6 +68,34 @@ export async function insertPromptTemplateWithFormatChoice(
   }
 
   await insertPromptTemplate(context, selectedFormat.format);
+}
+
+/**
+ * Opens one fixed spec profile after asking the user for its output format.
+ */
+export async function insertSpecTemplateWithFormatChoice(
+  context: vscode.ExtensionContext,
+  profileKey: SpecTemplateProfileKey
+): Promise<void> {
+  try {
+    const selectedFormat = await openSpecTemplate(profileKey, {
+      chooseFormat: async () => (await chooseTemplateFormat())?.format,
+      loadCatalog: () => loadTemplateCatalog(context),
+      openUntitledDocument: async (documentSpec) => {
+        await openTemplateDocumentSpec(documentSpec);
+      }
+    });
+    if (!selectedFormat) {
+      return;
+    }
+
+    void vscode.window.showInformationMessage(
+      `Prompt Preflight: opened a new ${FORMAT_LABEL[selectedFormat]} ${profileKey} template.`
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    void vscode.window.showErrorMessage(`Prompt Preflight: ${message}`);
+  }
 }
 
 /**
@@ -224,7 +257,15 @@ async function openTemplateDocument(
   template: string,
   format: TemplateFormat
 ): Promise<vscode.TextEditor> {
-  const documentSpec = templateDocumentSpec(template, format);
+  return openTemplateDocumentSpec(templateDocumentSpec(template, format));
+}
+
+/**
+ * Converts a template document spec into a tracked untitled VS Code editor.
+ */
+async function openTemplateDocumentSpec(
+  documentSpec: TemplateDocumentSpec
+): Promise<vscode.TextEditor> {
   const document = await vscode.workspace.openTextDocument({
     language: documentSpec.language,
     content: documentSpec.content

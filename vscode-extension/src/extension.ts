@@ -11,11 +11,16 @@ import { PromptPreflightCodeActionProvider } from "./promptCodeActions";
 import { PreflightAnalysis, runPreflight } from "./preflightClient";
 import { PromptDiagnosticsController } from "./promptDiagnostics";
 import { createTeamPolicyFile, enableLocalTelemetry, openTeamPolicy } from "./teamPolicy";
-import { insertPromptTemplate, insertPromptTemplateWithFormatChoice } from "./templateInserter";
+import {
+  insertPromptTemplate,
+  insertPromptTemplateWithFormatChoice,
+  insertSpecTemplateWithFormatChoice
+} from "./templateInserter";
 import { WorkspacePromptLinter } from "./workspaceLinter";
 import { PromptComposerPanel } from "./promptComposerPanel";
 import { releaseReadinessMarkdown } from "./releaseReadiness";
 import { buildSetupDoctorReport, setupDoctorMarkdown } from "./setupDoctor";
+import { SPEC_TEMPLATE_COMMANDS } from "./specTemplateCommands";
 import { TelemetryDashboardPanel } from "./telemetryDashboardPanel";
 import { shouldRecordTelemetry } from "./telemetryStore";
 
@@ -544,6 +549,11 @@ export function activate(context: vscode.ExtensionContext): void {
     ),
     vscode.commands.registerCommand("promptPreflight.insertTomlTemplate", () =>
       insertPromptTemplate(context, "toml")
+    ),
+    ...SPEC_TEMPLATE_COMMANDS.map(({ command, profileKey }) =>
+      vscode.commands.registerCommand(command, () =>
+        insertSpecTemplateWithFormatChoice(context, profileKey)
+      )
     ),
     vscode.commands.registerCommand(OPEN_EXAMPLES_COMMAND, () => openPromptExamples(context)),
     vscode.commands.registerCommand("promptPreflight.lintWorkspacePrompts", () =>

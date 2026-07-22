@@ -99,6 +99,36 @@
         "category": "Prompt Preflight"
       },
       {
+        "command": "promptPreflight.newFeatureSpec",
+        "title": "New Feature Spec",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.newRequirementsSpec",
+        "title": "New Requirements Spec",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.newTechnicalDesignSpec",
+        "title": "New Technical Design Spec",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.newImplementationPlan",
+        "title": "New Implementation Plan",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.newAgentExecutionPrompt",
+        "title": "New Agent Execution Prompt",
+        "category": "Prompt Preflight"
+      },
+      {
+        "command": "promptPreflight.newSpecReviewChecklist",
+        "title": "New Spec Review Checklist",
+        "category": "Prompt Preflight"
+      },
+      {
         "command": "promptPreflight.insertMarkdownTemplate",
         "title": "New Markdown Prompt Template",
         "category": "Prompt Preflight"
