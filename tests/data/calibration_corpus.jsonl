@@ -1,0 +1,13 @@
+# Calibration corpus for data-driven analyzer regression checks.
+# Append reviewed examples only. Strip private details before adding.
+# Schema: id, prompt, should_clarify, optional expected_intent/expected_checks, note
+{"id":"fp-0001","prompt":"Fix the null handling in `src/auth.py`; preserve the public API and add a regression test.","should_clarify":false,"expected_intent":"bug_fix","expected_checks":["risk"],"note":"Specific bug fix with file, constraint, and test — should pass"}
+{"id":"fp-0002","prompt":"How does OAuth PKCE work?","should_clarify":false,"expected_intent":"general","note":"Informational question — should pass without clarification"}
+{"id":"fp-0003","prompt":"Create a photorealistic image of a red 1967 Ford Mustang on a wet Tokyo street at night, low camera angle, cinematic lighting, 16:9.","should_clarify":false,"expected_intent":"image_generation","expected_checks":["context"],"note":"Detailed image prompt with subject, style, lighting, and aspect ratio"}
+{"id":"fp-0004","prompt":"Write a 500-word blog post for startup founders explaining how Prompt Preflight reduces AI-agent retry loops, using a practical tone and three examples.","should_clarify":false,"expected_intent":"writing","expected_checks":["context"],"note":"Writing prompt with audience, length, topic, tone, and structure"}
+{"id":"fp-0005","prompt":"Research current SOC 2 alternatives for a seed-stage SaaS and compare cost, implementation effort, and audit readiness in a markdown table with links to official sources.","should_clarify":false,"expected_intent":"research","expected_checks":["context"],"note":"Research prompt with question, criteria, format, and source guidance"}
+{"id":"mv-0001","prompt":"Make the dashboard better","should_clarify":true,"expected_intent":"general_action","expected_checks":["context","clarity"],"note":"Vague improvement request missing outcome and constraints"}
+{"id":"mv-0002","prompt":"Fix it","should_clarify":true,"expected_intent":"bug_fix","expected_checks":["clarity","context"],"note":"Pronoun-only fix with no behavior or file context"}
+{"id":"mv-0003","prompt":"Build a todo app","should_clarify":true,"expected_intent":"software_build","expected_checks":["context"],"note":"Underspecified software build missing platform and features"}
+{"id":"mv-0004","prompt":"Create a car image","should_clarify":true,"expected_intent":"image_generation","expected_checks":["context"],"note":"Vague image request missing style, composition, and constraints"}
+{"id":"mv-0005","prompt":"Research this topic","should_clarify":true,"expected_intent":"research","expected_checks":["clarity","context"],"note":"Vague research request missing question, scope, and sources"}
