@@ -28,5 +28,12 @@
     "enabled": true,
     "default_max_output_tokens": 1000,
     "estimated_retry_output_tokens": 800
-  }
+  },
+  "profiles": [
+    {"match": "docs/prompts/research/**", "intent": "research", "mode": "block", "max_questions": 3},
+    {"match": "docs/prompts/specs/**", "intent": "software", "mode": "block", "checks": {"plan_first": "block", "template_contract": "block"}},
+    {"match": "docs/prompts/data-analysis/**", "intent": "data_analysis", "mode": "block"},
+    {"match": "docs/prompts/presentations/**", "intent": "presentation", "mode": "nudge"},
+    {"match": "docs/prompts/coding/**", "intent": "software", "mode": "block"}
+  ]
 }
