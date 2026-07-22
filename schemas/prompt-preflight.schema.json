@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ChetanyaRathi/prompt-preflight/schemas/prompt-preflight.schema.json",
+  "title": "Prompt Preflight project config",
+  "description": "Schema for .prompt-preflight.json team/project policy files.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "description": "Master switch for Prompt Preflight in this project."
+    },
+    "mode": {
+      "$ref": "#/$defs/enforcementMode",
+      "description": "Default enforcement mode when a check does not set its own policy."
+    },
+    "threshold": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Clarification threshold (0–100)."
+    },
+    "max_questions": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Maximum clarification questions to return."
+    },
+    "checks": {
+      "$ref": "#/$defs/checks",
+      "description": "Per-category enforcement policies."
+    },
+    "severity_thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Minimum finding severity required to trigger block or nudge.",
+      "properties": {
+        "block": { "$ref": "#/$defs/severity" },
+        "nudge": { "$ref": "#/$defs/severity" }
+      }
+    },
+    "telemetry": {
+      "description": "Local telemetry settings, or a boolean shorthand for enabled.",
+      "oneOf": [
+        { "type": "boolean" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Relative or absolute path to the telemetry JSONL file."
+            },
+            "max_events": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum retained telemetry events."
+            },
+            "max_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum telemetry file size in bytes."
+            },
+            "retention_days": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Days to retain telemetry events."
+            },
+            "timestamp_mode": {
+              "type": "string",
+              "enum": ["exact", "date", "none"],
+              "description": "How timestamps are stored in telemetry events."
+            }
+          }
+        }
+      ]
+    },
+    "token_observability": {
+      "description": "Token observability settings, or a boolean shorthand for enabled.",
+      "oneOf": [
+        { "type": "boolean" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "default_max_output_tokens": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Assumed max output tokens for estimates."
+            },
+            "estimated_retry_output_tokens": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Assumed output tokens for a retry/clarification turn."
+            }
+          }
+        }
+      ]
+    },
+    "profiles": {
+      "type": "array",
+      "description": "Optional path/intent overlays (Shared Contract). Not yet loaded by config.py; accepted for forward compatibility.",
+      "items": { "$ref": "#/$defs/profile" }
+    }
+  },
+  "$defs": {
+    "enforcementMode": {
+      "type": "string",
+      "enum": ["block", "nudge"]
+    },
+    "checkPolicy": {
+      "type": "string",
+      "enum": ["block", "nudge", "disable", "off"]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clarity": { "$ref": "#/$defs/checkPolicy" },
+        "context": { "$ref": "#/$defs/checkPolicy" },
+        "output_contract": { "$ref": "#/$defs/checkPolicy" },
+        "template_contract": { "$ref": "#/$defs/checkPolicy" },
+        "risk": { "$ref": "#/$defs/checkPolicy" },
+        "plan_first": { "$ref": "#/$defs/checkPolicy" },
+        "privacy": { "$ref": "#/$defs/checkPolicy" }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Overlay applied when a prompt path or intent matches. Prefer including match.",
+      "properties": {
+        "match": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Glob matched against the prompt file path (recommended)."
+        },
+        "intent": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional intent label this overlay applies to."
+        },
+        "mode": { "$ref": "#/$defs/enforcementMode" },
+        "checks": { "$ref": "#/$defs/checks" },
+        "max_questions": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        }
+      }
+    }
+  }
+}

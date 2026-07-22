@@ -208,7 +208,13 @@
           "group": "navigation"
         }
       ]
-    }
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": [".prompt-preflight.json", ".prompt-preflight.example.json"],
+        "url": "../schemas/prompt-preflight.schema.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile && npm run package:stage-analyzer",
