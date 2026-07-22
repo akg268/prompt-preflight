@@ -14,6 +14,9 @@ dependencies = []
 [project.scripts]
 prompt-preflight = "prompt_preflight.cli:main"
 
+[project.optional-dependencies]
+dev = ["jsonschema"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
