@@ -4,11 +4,18 @@
     "AdSense",
     "CodeLens",
     "Codex",
+    "GTM",
     "Kiro",
+    "LoginButton",
+    "OpenAPI",
+    "SaaS",
     "TOML",
+    "aria",
     "healthz",
     "postflight",
     "preflight",
+    "soc",
+    "tsx",
     "underspecified",
     "wordmark"
   ]
