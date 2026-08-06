@@ -130,13 +130,14 @@ _CITATION_INDICATOR_RE = re.compile(
 
 _PLACEHOLDER_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("[TODO]", re.compile(r"\[TODO\]", re.IGNORECASE)),
-    ("TODO:", re.compile(r"\bTODO:")),
+    ("TODO", re.compile(r"\bTODO\b")),
     ("FIXME", re.compile(r"\bFIXME\b")),
     ("XXX", re.compile(r"\bXXX\b")),
     ("[fill in]", re.compile(r"\[fill[\s_-]?in[^\]]*\]", re.IGNORECASE)),
     ("[placeholder]", re.compile(r"\[placeholder[^\]]*\]", re.IGNORECASE)),
     ("[insert ...]", re.compile(r"\[insert[^\]]*\]", re.IGNORECASE)),
     ("<your ... here>", re.compile(r"<[^>]*your[^>]*here[^>]*>", re.IGNORECASE)),
+    ("your ... here", re.compile(r"(?:#|//|<!--|/\*)\s*your\b.*?\bhere\b", re.IGNORECASE)),
     ("[REPLACE ...]", re.compile(r"\[REPLACE[^\]]*\]", re.IGNORECASE)),
     ("[YOUR_...]", re.compile(r"\[YOUR_[A-Z0-9_]*\]")),
     ("TBD", re.compile(r"\bTBD\b")),

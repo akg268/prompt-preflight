@@ -114,6 +114,20 @@ class PlaceholderCheckTests(unittest.TestCase):
         self.assertIn("placeholders", result.checks)
         self.assertTrue(result.needs_attention)
 
+    def test_bare_todo_placeholder_is_flagged(self) -> None:
+        self.assertIn("placeholders", _checks("finish it", "# TODO implement this"))
+        self.assertIn("placeholders", _checks("finish it", "TODO implement this"))
+        self.assertIn("placeholders", _checks("finish it", "TODO(alice)"))
+
+    def test_comment_style_your_here_placeholder_is_flagged(self) -> None:
+        self.assertIn("placeholders", _checks("finish it", "# your code here"))
+        self.assertIn("placeholders", _checks("finish it", "// your logic here"))
+        self.assertIn("placeholders", _checks("finish it", "<!-- your text here -->"))
+        self.assertIn("placeholders", _checks("finish it", "/* your implementation here */"))
+
+    def test_normal_sentence_with_your_here_is_not_flagged(self) -> None:
+        self.assertNotIn("placeholders", _checks("finish it", "Your changes are documented here."))
+
     def test_your_key_placeholder_is_flagged(self) -> None:
         self.assertIn("placeholders", _checks("write config", "key = [YOUR_API_KEY]"))
 
